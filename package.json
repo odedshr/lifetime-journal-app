@@ -1,0 +1,26 @@
+{
+  "name": "lifetime-journal-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc && npm run fix-imports",
+    "fix-imports": "find ./public -type f -name '*.html.js' -exec sed -i '' 's/nano-jsx\\\/esm\\\/jsx-runtime/https:\\\/\\\/unpkg.com\\\/nano-jsx\\\/esm\\\/jsx-runtime\\\/index.js/g' {} +",
+    "deploy": "firebase deploy",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "firebase": "^10.3.1",
+    "typescript": "^5.2.2"
+  },
+  "devDependencies": {
+    "@firebase/analytics": "^0.10.0",
+    "@firebase/app": "^0.9.18",
+    "@firebase/auth": "^1.3.0",
+    "@firebase/firestore": "^4.1.3",
+    "nano-jsx": "^0.1.0"
+  }
+}
