@@ -16,6 +16,10 @@ async function initPage(user: User) {
 }
 
 function deploy(user: User) {
+  const day = getDateFromURL(window.location.search);
+
+  console.log(`Loading entry for ${day}...`);
+
   deployEntry(document.body, {
     onEntrySaved: entry => onEntrySaved(app, user, entry), onSignOut: signOut
   });
@@ -29,8 +33,12 @@ function getFormattedDate(date: Date) {
   return date.toISOString().split('T')[0];
 }
 
+function getDateFromURL(urlSearchParamString: string) {
+  return new URLSearchParams(urlSearchParamString).get("day") || getFormattedDate(new Date());
+}
+
 function switchPage(user: User) {
-  history.pushState({}, '', `/entry/?${getFormattedDate(new Date())}`);
+  history.pushState({}, '', `/entry/?day=${getFormattedDate(new Date())}`);
   deploy(user);
 }
 
