@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc && npm run fix-imports",
-    "fix-imports": "find ./public -type f -name '*.html.js' -exec sed -i '' 's/nano-jsx\\\/esm\\\/jsx-runtime/https:\\\/\\\/unpkg.com\\\/nano-jsx\\\/esm\\\/jsx-runtime\\\/index.js/g' {} +",
+    "fix-imports": "node utils/replace-string.js public/js nano-jsx/esm/jsx-runtime https://unpkg.com/nano-jsx/esm/jsx-runtime/index.js",
     "deploy": "firebase deploy",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
