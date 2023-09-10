@@ -1,12 +1,12 @@
 {
   "name": "lifetime-journal-app",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "",
   "main": "index.js",
   "scripts": {
     "build": "tsc && npm run fix-imports",
     "fix-imports": "node utils/replace-string.js public/js nano-jsx/esm/jsx-runtime https://unpkg.com/nano-jsx/esm/jsx-runtime/index.js",
-    "deploy": "npm version && git push",
+    "deploy": "firebase deploy",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
