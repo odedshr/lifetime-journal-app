@@ -1,6 +1,7 @@
 import { render } from 'https://unpkg.com/nano-jsx@0.1.0/esm/index.js';
 import { Diary } from '../types.js';
 
+const DEFAULT_DIARY = 'diary-01';
 
 const element: string = <form id="setup" action="/setup" method="post">
   <h1>Let's set up a new diary</h1>
@@ -21,8 +22,8 @@ function deploy(parent: HTMLElement, delegates: {
 function submit(onSaveDiary: ((diary: Diary) => void), evt: SubmitEvent) {
   const formData = new FormData(evt.target as HTMLFormElement);
   onSaveDiary({
-    startDate: formData.get("startDate") as string,
-    name: "diary-01"
+    startDate: formData.get('startDate') as string,
+    name: DEFAULT_DIARY
   });
   evt.preventDefault();
   return false;

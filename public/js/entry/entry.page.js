@@ -9,8 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { app, onPageLoadedAndUserAuthenticated, signOut } from '../firebase.app.js';
 import { deploy as deployEntry } from './entry.html.js';
-import { getUserSettings } from '../db.js';
+import { getUserSettings, getDayEntry, setDayEntry } from '../db.js';
 import { switchPage as switchToSetup } from '../setup/setup.page.js';
+const DEFAULT_DIARY = "diary-01";
 onPageLoadedAndUserAuthenticated(initPage);
 function initPage(user) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -24,20 +25,33 @@ function initPage(user) {
     });
 }
 function deploy(user) {
-    deployEntry(document.body, {
-        onEntrySaved: entry => onEntrySaved(app, user, entry), onSignOut: signOut
+    return __awaiter(this, void 0, void 0, function* () {
+        const day = getDateFromURL(window.location.search);
+        const entry = yield getDayEntry(app, user, DEFAULT_DIARY, day);
+        deployEntry(document.body, day, entry, {
+            onEntryChanged: (entry) => onEntryChanged(app, user, entry),
+            onDateChanged: (date) => navigateToDay(user, date),
+            onSignOut: signOut,
+        });
     });
 }
-function onEntrySaved(app, user, entry) {
+function onEntryChanged(app, user, entry) {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log('saving entry');
+        setDayEntry(app, user, DEFAULT_DIARY, entry.date, entry);
     });
 }
 function getFormattedDate(date) {
     return date.toISOString().split('T')[0];
 }
+function getDateFromURL(urlSearchParamString) {
+    return new URLSearchParams(urlSearchParamString).get("day") || getFormattedDate(new Date());
+}
 function switchPage(user) {
-    history.pushState({}, '', `/entry/?${getFormattedDate(new Date())}`);
+    navigateToDay(user, getFormattedDate(new Date()));
+}
+function navigateToDay(user, day) {
+    console.log('navigateToDay', day);
+    history.pushState({}, '', `/entry/?day=${day}`);
     deploy(user);
 }
 export { switchPage };

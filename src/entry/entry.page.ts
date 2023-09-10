@@ -1,8 +1,10 @@
 import { app, onPageLoadedAndUserAuthenticated, signOut } from '../firebase.app.js';
 import { deploy as deployEntry } from './entry.html.js';
-import { getUserSettings } from '../db.js';
-import { FirebaseApp, Settings, User } from '../types.js';
+import { getUserSettings, getDayEntry, setDayEntry } from '../db.js';
+import { FirebaseApp, Settings, User, Entry } from '../types.js';
 import { switchPage as switchToSetup } from '../setup/setup.page.js';
+
+const DEFAULT_DIARY = "diary-01";
 
 onPageLoadedAndUserAuthenticated(initPage);
 
@@ -15,18 +17,19 @@ async function initPage(user: User) {
   }
 }
 
-function deploy(user: User) {
+async function deploy(user: User) {
   const day = getDateFromURL(window.location.search);
+  const entry = await getDayEntry(app, user, DEFAULT_DIARY, day);
 
-  console.log(`Loading entry for ${day}...`);
-
-  deployEntry(document.body, {
-    onEntrySaved: entry => onEntrySaved(app, user, entry), onSignOut: signOut
+  deployEntry(document.body, day, entry, {
+    onEntryChanged: (entry: any) => onEntryChanged(app, user, entry),
+    onDateChanged: (date: string) => navigateToDay(user, date),
+    onSignOut: signOut,
   });
 }
 
-async function onEntrySaved(app: FirebaseApp, user: User, entry: any) {
-  console.log('saving entry');
+async function onEntryChanged(app: FirebaseApp, user: User, entry: Entry) {
+  setDayEntry(app, user, DEFAULT_DIARY, entry.date, entry);
 }
 
 function getFormattedDate(date: Date) {
@@ -38,7 +41,11 @@ function getDateFromURL(urlSearchParamString: string) {
 }
 
 function switchPage(user: User) {
-  history.pushState({}, '', `/entry/?day=${getFormattedDate(new Date())}`);
+  navigateToDay(user, getFormattedDate(new Date()))
+}
+
+function navigateToDay(user: User, day: string) {
+  history.pushState({}, '', `/entry/?day=${day}`);
   deploy(user);
 }
 

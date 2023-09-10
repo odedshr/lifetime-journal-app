@@ -10,10 +10,12 @@ type Settings = {
   diaries: Diary[];
 }
 
+type FieldType = "text" | "number";
+
 type Field = {
   label?: string,
   value: string | number,
-  type: string
+  type: FieldType
 };
 
 type Entry = {
@@ -27,4 +29,4 @@ type Annual = {
   endDate?: string
 }
 
-export { FirebaseApp, User, Diary, Settings, Entry, Annual };
+export { FirebaseApp, User, Diary, Settings, Entry, Field, Annual };

@@ -14,6 +14,21 @@ function getDB(app) {
 function getUserId(user) {
     return user.email ? user.email.replace(/\./g, '-') : user.uid;
 }
+function getDayEntry(app, user, diary, date) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const document = yield getDoc(doc(collection(getDB(app), getUserId(user)), diary, "entries", date));
+        if (document.exists()) {
+            return document.data();
+        }
+        const defaultField = { type: 'text', value: '' };
+        return { date, fields: [defaultField] };
+    });
+}
+function setDayEntry(app, user, diary, day, entry) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield setDoc(doc(collection(getDB(app), getUserId(user)), diary, "entries", day), entry);
+    });
+}
 function getUserSettings(app, user) {
     return __awaiter(this, void 0, void 0, function* () {
         const document = yield getDoc(doc(collection(getDB(app), getUserId(user)), "settings"));
@@ -28,4 +43,4 @@ function saveUserSettings(app, user, settings) {
         yield setDoc(doc(collection(getDB(app), getUserId(user)), "settings"), settings);
     });
 }
-export { getUserSettings, saveUserSettings };
+export { getUserSettings, saveUserSettings, getDayEntry, setDayEntry };
