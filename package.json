@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc && npm run fix-imports",
     "fix-imports": "node utils/replace-string.js public/js nano-jsx/esm/jsx-runtime https://unpkg.com/nano-jsx/esm/jsx-runtime/index.js",
-    "deploy": "firebase deploy",
+    "deploy": "npm version && git push",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
