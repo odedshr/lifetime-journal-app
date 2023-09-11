@@ -17,3 +17,7 @@ declare module 'https://www.gstatic.com/firebasejs/10.3.1/firebase-auth.js' {
 declare module 'https://unpkg.com/nano-jsx@0.1.0/esm/index.js' {
   export * from 'nano-jsx/esm';
 }
+
+declare module 'https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js' {
+  export * from 'marked';
+}

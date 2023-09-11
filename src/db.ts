@@ -18,7 +18,7 @@ async function getDayEntry(app: FirebaseApp, user: User, diary: string, date: st
   if (document.exists()) {
     return document.data() as Entry
   }
-  const defaultField: Field = { type: 'text', value: '' };
+  const defaultField: Field<string> = { type: 'text', value: '' };
   return { date, fields: [defaultField] };
 }
 

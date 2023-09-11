@@ -28,6 +28,7 @@ function deploy(user) {
     return __awaiter(this, void 0, void 0, function* () {
         const day = getDateFromURL(window.location.search);
         const entry = yield getDayEntry(app, user, DEFAULT_DIARY, day);
+        setPageTitle(day);
         deployEntry(document.body, day, entry, {
             onEntryChanged: (entry) => onEntryChanged(app, user, entry),
             onDateChanged: (date) => navigateToDay(user, date),
@@ -50,8 +51,13 @@ function switchPage(user) {
     navigateToDay(user, getFormattedDate(new Date()));
 }
 function navigateToDay(user, day) {
-    console.log('navigateToDay', day);
     history.pushState({}, '', `/entry/?day=${day}`);
     deploy(user);
+}
+function getDisplayableDate(date) {
+    return date.toLocaleDateString(navigator.language);
+}
+function setPageTitle(dateString) {
+    document.title = `${getDisplayableDate(new Date(dateString))} | Lifetime Journal`;
 }
 export { switchPage };

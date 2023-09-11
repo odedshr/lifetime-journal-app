@@ -12,15 +12,16 @@ type Settings = {
 
 type FieldType = "text" | "number";
 
-type Field = {
+type Field<T> = {
   label?: string,
-  value: string | number,
-  type: FieldType
+  value: T,
+  type: FieldType,
+  unit?: string
 };
 
 type Entry = {
   date: string,
-  fields: Field[]
+  fields: Field<any>[]
 };
 
 type Annual = {

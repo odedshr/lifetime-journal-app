@@ -1,70 +1,56 @@
 import { render } from 'https://unpkg.com/nano-jsx@0.1.0/esm/index.js';
-import { Element as Annuals } from './annuals.html.js';
-import { Entry, Annual } from '../types.js';
+import { Element as DaySelector } from './day-selector.html.js';
+import { Element as TextField } from './text-field.html.js';
+import { Entry, Field, Annual } from '../types.js';
 
 type ElementType = (props: {
   date: string,
   entry: Entry,
-  onBtnPrevClicked: () => void,
-  onBtnTodayClicked: () => void,
-  onBtnNextClicked: () => void,
-  onSetDayChanged: (event: Event) => void,
-  onEntryChanged: (event: Event) => void,
+  onDayChanged: (day: string) => void,
+  onEntryChanged: (entry: Entry) => void,
   annuals: Annual[]
 }) => HTMLElement;
 
-const Element: ElementType = (props) => (<main>
-  <header>
-    <button id="btnPrevious" onClick={props.onBtnPrevClicked}><span>Previous</span></button>
-    <button id="btnToday" onClick={props.onBtnTodayClicked}><span>Today</span></button>
-    <label for="entry-date">Navigate to date:</label>
-    <input type="date" id="entry-date" name="entry-date" value={props.date} onChange={props.onSetDayChanged} />
-    <button id="btnNext" onClick={props.onBtnNextClicked}><span>Next</span></button>
-  </header>
-  <section id="recurring"></section>
-  <section id="entry">
-    <label for="entry-text">Entry:</label>
-    <textarea id="entry-text" name="entry-text" rows="10" cols="50" onChange={props.onEntryChanged}>
-      {props.entry ? props.entry.fields[0].value : ''}
-    </textarea>
-  </section>
-  <section id="periods"></section>
-  <section id="diaries"></section>
-</main>)
+const Element: ElementType = (props) => {
+
+  const onValueChanged = (field: Field<any>, value: string) => {
+    props.entry.fields.forEach(f => { if (f === field) { f.value = value; } })
+    props.onEntryChanged(props.entry);
+  };
+
+  return (<main>
+    <header>
+      <DaySelector date={props.date} onDayChanged={props.onDayChanged} />
+    </header>
+    <section id="recurring"></section>
+    <section id="entry">
+      {props.entry.fields.map(field => {
+        switch (field.type) {
+          case "text":
+            return <TextField field={field} onValueChanged={onValueChanged} />
+          default:
+            return <p>Unknown field type: {field.type}</p>
+        }
+      })}
+    </section>
+    <section id="periods"></section>
+    <section id="diaries"></section>
+  </main>);
+}
 
 function appendChild(parent: HTMLElement,
   dateString: string,
   entry: Entry,
-  onBtnPrevClicked: () => void,
-  onBtnTodayClicked: () => void,
-  onBtnNextClicked: () => void,
-  onSetDayChanged: (event: Event) => void,
-  onEntryChanged: (event: Event) => void,
+  onDayChanged: (day: string) => void,
+  onEntryChanged: (entry: Entry) => void,
   annuals: Annual[]) {
   render(<Element
     date={dateString}
     entry={entry}
     annuals={annuals}
-    onBtnPrevClicked={onBtnPrevClicked}
-    onBtnTodayClicked={onBtnTodayClicked}
-    onBtnNextClicked={onBtnNextClicked}
-    onSetDayChanged={onSetDayChanged}
+    onDayChanged={onDayChanged}
     onEntryChanged={onEntryChanged}
   />, parent);
-}
-
-function getFormattedDate(date: Date) {
-  return date.toISOString().split('T')[0];
-}
-
-function addToDate(dateString: string, days: number) {
-  const date = new Date(dateString);
-  date.setDate(date.getDate() + days)
-  return getFormattedDate(date);
-}
-
-function getDisplayableDate(date: Date) {
-  return date.toLocaleDateString(navigator.language);
 }
 
 function deploy(parent: HTMLElement, dateString: string, entry: Entry, delegates: {
@@ -72,17 +58,9 @@ function deploy(parent: HTMLElement, dateString: string, entry: Entry, delegates
   onDateChanged: ((date: string) => void)
   onSignOut: (() => void)
 }) {
-  document.title = `${getDisplayableDate(new Date(dateString))} | Lifetime Journal`;
-
   appendChild(parent, dateString, entry,
-    () => delegates.onDateChanged(addToDate(dateString, -1)),
-    () => delegates.onDateChanged(getFormattedDate(new Date())),
-    () => delegates.onDateChanged(addToDate(dateString, +1)),
-    (evt: Event) => delegates.onDateChanged((evt.target as HTMLInputElement).value),
-    (evt: Event) => delegates.onEntryChanged({
-      date: dateString,
-      fields: [{ type: "text", value: (evt.target as HTMLTextAreaElement).value }]
-    }),
+    (day: string) => delegates.onDateChanged(day),
+    (entry: Entry) => delegates.onEntryChanged(entry),
     [])
 }
 

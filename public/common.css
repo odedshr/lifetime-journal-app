@@ -69,3 +69,22 @@
         border-top: 16px solid #ffa100;
       }
     }
+
+    /******************************/
+
+    .text-field-preview:before {
+      content: "✍️";
+    }
+
+    .text-field-preview {
+      cursor: pointer;
+      ;
+    }
+
+    .text-field-preview[data-preview="false"] {
+      display: none;
+    }
+
+    .text-field-preview[data-preview="true"]+.text-field {
+      display: none;
+    }
