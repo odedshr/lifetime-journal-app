@@ -1,7 +1,9 @@
 import { FirebaseApp } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-app.js";
 import { User } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-auth.js";
-import { Firestore, getFirestore, collection, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.3.1/firebase-firestore.js'
-import { Settings, Entry, Field } from './types.js';
+import {
+  Firestore, getFirestore, collection, doc, getDoc, setDoc
+} from 'https://www.gstatic.com/firebasejs/10.3.1/firebase-firestore.js'
+import { Settings, Entry, Field, Diary } from './types.js';
 
 
 function getDB(app: FirebaseApp): Firestore {
@@ -22,8 +24,15 @@ async function getDayEntry(app: FirebaseApp, user: User, diary: string, date: st
   return { date, fields: [defaultField] };
 }
 
-async function setDayEntry(app: FirebaseApp, user: User, diary: string, day: string, entry: Entry) {
-  await setDoc(doc(collection(getDB(app), getUserId(user)), diary, "entries", day), entry);
+async function setDayEntry(app: FirebaseApp, user: User, diary: string, day: string, entry: Entry): Promise<boolean> {
+  try {
+    await setDoc(doc(collection(getDB(app), getUserId(user)), diary, "entries", day), entry);
+    return true;
+  }
+  catch (err) {
+    console.log(err);
+    return false;
+  }
 }
 
 async function getUserSettings(app: FirebaseApp, user: User): Promise<Settings> {

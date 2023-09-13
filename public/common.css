@@ -88,3 +88,8 @@
     .text-field-preview[data-preview="true"]+.text-field {
       display: none;
     }
+
+    .text-field[data-saving="true"] {
+      background-color: gainsboro;
+      color: gray;
+    }

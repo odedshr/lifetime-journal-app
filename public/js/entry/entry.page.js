@@ -11,6 +11,7 @@ import { app, onPageLoadedAndUserAuthenticated, signOut } from '../firebase.app.
 import { deploy as deployEntry } from './entry.html.js';
 import { getUserSettings, getDayEntry, setDayEntry } from '../db.js';
 import { switchPage as switchToSetup } from '../setup/setup.page.js';
+import { getFormattedDate, getDisplayableDate, getDateFromURL } from '../utils/date-utils.js';
 const DEFAULT_DIARY = "diary-01";
 onPageLoadedAndUserAuthenticated(initPage);
 function initPage(user) {
@@ -38,14 +39,8 @@ function deploy(user) {
 }
 function onEntryChanged(app, user, entry) {
     return __awaiter(this, void 0, void 0, function* () {
-        setDayEntry(app, user, DEFAULT_DIARY, entry.date, entry);
+        return setDayEntry(app, user, DEFAULT_DIARY, entry.date, entry);
     });
-}
-function getFormattedDate(date) {
-    return date.toISOString().split('T')[0];
-}
-function getDateFromURL(urlSearchParamString) {
-    return new URLSearchParams(urlSearchParamString).get("day") || getFormattedDate(new Date());
 }
 function switchPage(user) {
     navigateToDay(user, getFormattedDate(new Date()));
@@ -53,9 +48,6 @@ function switchPage(user) {
 function navigateToDay(user, day) {
     history.pushState({}, '', `/entry/?day=${day}`);
     deploy(user);
-}
-function getDisplayableDate(date) {
-    return date.toLocaleDateString(navigator.language);
 }
 function setPageTitle(dateString) {
     document.title = `${getDisplayableDate(new Date(dateString))} | Lifetime Journal`;

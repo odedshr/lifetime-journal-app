@@ -3,6 +3,8 @@ import { deploy as deployEntry } from './entry.html.js';
 import { getUserSettings, getDayEntry, setDayEntry } from '../db.js';
 import { FirebaseApp, Settings, User, Entry } from '../types.js';
 import { switchPage as switchToSetup } from '../setup/setup.page.js';
+import { getFormattedDate, getDisplayableDate, getDateFromURL } from '../utils/date-utils.js';
+
 
 const DEFAULT_DIARY = "diary-01";
 
@@ -31,15 +33,7 @@ async function deploy(user: User) {
 }
 
 async function onEntryChanged(app: FirebaseApp, user: User, entry: Entry) {
-  setDayEntry(app, user, DEFAULT_DIARY, entry.date, entry);
-}
-
-function getFormattedDate(date: Date) {
-  return date.toISOString().split('T')[0];
-}
-
-function getDateFromURL(urlSearchParamString: string) {
-  return new URLSearchParams(urlSearchParamString).get("day") || getFormattedDate(new Date());
+  return setDayEntry(app, user, DEFAULT_DIARY, entry.date, entry);
 }
 
 function switchPage(user: User) {
@@ -49,10 +43,6 @@ function switchPage(user: User) {
 function navigateToDay(user: User, day: string) {
   history.pushState({}, '', `/entry/?day=${day}`);
   deploy(user);
-}
-
-function getDisplayableDate(date: Date) {
-  return date.toLocaleDateString(navigator.language);
 }
 
 function setPageTitle(dateString: string) {

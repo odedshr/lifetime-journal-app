@@ -7,15 +7,27 @@ type ElementType = (props: {
   date: string,
   entry: Entry,
   onDayChanged: (day: string) => void,
-  onEntryChanged: (entry: Entry) => void,
+  onEntryChanged: (entry: Entry) => Promise<boolean>,
   annuals: Annual[]
 }) => HTMLElement;
 
 const Element: ElementType = (props) => {
+  const fieldElementMap = new Map<Field<any>, HTMLElement>();
 
-  const onValueChanged = (field: Field<any>, value: string) => {
-    props.entry.fields.forEach(f => { if (f === field) { f.value = value; } })
-    props.onEntryChanged(props.entry);
+  const onValueChanged = async (field: Field<any>, value: string) => {
+    const targetField = props.entry.fields.find(f => (f === field));
+    if (!targetField) {
+      return false;
+    }
+    const originalValue = targetField.value;
+    targetField.value = value;
+    const result = await props.onEntryChanged(props.entry)
+
+    if (result) {
+      targetField.value = originalValue;
+    }
+
+    return result;
   };
 
   return (<main>
@@ -25,12 +37,9 @@ const Element: ElementType = (props) => {
     <section id="recurring"></section>
     <section id="entry">
       {props.entry.fields.map(field => {
-        switch (field.type) {
-          case "text":
-            return <TextField field={field} onValueChanged={onValueChanged} />
-          default:
-            return <p>Unknown field type: {field.type}</p>
-        }
+        const fieldElement = getFieldElement(field, onValueChanged);
+        fieldElementMap.set(field, fieldElement);
+        return fieldElement;
       })}
     </section>
     <section id="periods"></section>
@@ -42,7 +51,7 @@ function appendChild(parent: HTMLElement,
   dateString: string,
   entry: Entry,
   onDayChanged: (day: string) => void,
-  onEntryChanged: (entry: Entry) => void,
+  onEntryChanged: (entry: Entry) => Promise<boolean>,
   annuals: Annual[]) {
   render(<Element
     date={dateString}
@@ -53,8 +62,17 @@ function appendChild(parent: HTMLElement,
   />, parent);
 }
 
+function getFieldElement(field: Field<any>, onValueChanged: (field: Field<any>, value: string) => Promise<boolean>) {
+  switch (field.type) {
+    case "text":
+      return <TextField field={field} onValueChanged={onValueChanged} />
+    default:
+      return <p>Unknown field type: {field.type}</p>
+  }
+}
+
 function deploy(parent: HTMLElement, dateString: string, entry: Entry, delegates: {
-  onEntryChanged: ((entry: Entry) => void),
+  onEntryChanged: ((entry: Entry) => Promise<boolean>),
   onDateChanged: ((date: string) => void)
   onSignOut: (() => void)
 }) {

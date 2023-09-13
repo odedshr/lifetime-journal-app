@@ -26,7 +26,14 @@ function getDayEntry(app, user, diary, date) {
 }
 function setDayEntry(app, user, diary, day, entry) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield setDoc(doc(collection(getDB(app), getUserId(user)), diary, "entries", day), entry);
+        try {
+            yield setDoc(doc(collection(getDB(app), getUserId(user)), diary, "entries", day), entry);
+            return true;
+        }
+        catch (err) {
+            console.log(err);
+            return false;
+        }
     });
 }
 function getUserSettings(app, user) {

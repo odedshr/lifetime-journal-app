@@ -3,7 +3,7 @@ import { render } from 'https://unpkg.com/nano-jsx@0.1.0/esm/index.js';
 import { Field } from '../types.js';
 type Props = {
   field: Field<string>,
-  onValueChanged: (field: Field<string>, value: string) => void
+  onValueChanged: (field: Field<string>, value: string) => Promise<boolean>
 }
 type ElementType = (props: Props) => HTMLElement;
 
@@ -13,6 +13,11 @@ function sanitizeHTML(html: string) {
 
 function getPreviewElement() {
   return document.getElementById('text-field-preview') as HTMLDivElement;
+}
+
+function setPreviewElementContent(previewElement: HTMLDivElement, value: string, visible: boolean) {
+  previewElement.setAttribute('data-preview', `${visible}`);
+  previewElement.innerHTML = parseMarkdown(value);
 }
 
 function toggleEditOn(evt: MouseEvent) {
@@ -26,13 +31,17 @@ function toggleEditOn(evt: MouseEvent) {
 }
 
 const Element: ElementType = (props) => {
-  const getPreviewModeStatus = () => props.field.value.trim().length > 0 ? 'true' : 'false';
+  const oldValue = props.field.value;
 
-  const toggleEditOff = (evt: InputEvent) => {
-    const value: string = sanitizeHTML((evt.target as HTMLTextAreaElement).value);
-    getPreviewElement().setAttribute('data-preview', getPreviewModeStatus())
-    getPreviewElement().innerHTML = parseMarkdown(value);
-    props.onValueChanged(props.field, value);
+  const getPreviewModeStatus = (value: string) => value.trim().length > 0;
+
+  const toggleEditOff = async (evt: InputEvent) => {
+    const textarea = evt.target as HTMLTextAreaElement;
+    const newValue: string = sanitizeHTML(textarea.value);
+    textarea.setAttribute('data-saving', 'true');
+    const value = (await props.onValueChanged(props.field, newValue)) ? newValue : oldValue;
+    setPreviewElementContent(getPreviewElement(), value, getPreviewModeStatus(value))
+    textarea.removeAttribute('data-saving');
   };
 
   return (<div class="text-field">
@@ -40,7 +49,7 @@ const Element: ElementType = (props) => {
     <div
       id="text-field-preview"
       class="text-field-preview"
-      data-preview={getPreviewModeStatus()}
+      data-preview={getPreviewModeStatus(oldValue)}
       innerHTML={{ __dangerousHtml: parseMarkdown(sanitizeHTML(props.field.value)) }}
       onClick={toggleEditOn}></div>
     <textarea id="entry-text" class="text-field"

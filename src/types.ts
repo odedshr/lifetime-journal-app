@@ -4,6 +4,8 @@ import { User } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-auth.js
 type Diary = {
   startDate: string;
   name: string;
+  color: string;
+  defaultFields: FieldTemplate[];
 };
 
 type Settings = {
@@ -12,12 +14,12 @@ type Settings = {
 
 type FieldType = "text" | "number";
 
-type Field<T> = {
+type FieldTemplate = {
   label?: string,
-  value: T,
   type: FieldType,
   unit?: string
-};
+}
+type Field<T> = FieldTemplate & { value: T };
 
 type Entry = {
   date: string,
@@ -30,4 +32,4 @@ type Annual = {
   endDate?: string
 }
 
-export { FirebaseApp, User, Diary, Settings, Entry, Field, Annual };
+export { FirebaseApp, User, Diary, Settings, Entry, Field, FieldTemplate, Annual };

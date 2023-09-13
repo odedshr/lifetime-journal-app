@@ -1,3 +1,12 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 import { jsx as _jsx, jsxs as _jsxs } from "https://unpkg.com/nano-jsx/esm/jsx-runtime/index.js";
 import { parse as parseMarkdown } from 'https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js';
 import { render } from 'https://unpkg.com/nano-jsx@0.1.0/esm/index.js';
@@ -6,6 +15,10 @@ function sanitizeHTML(html) {
 }
 function getPreviewElement() {
     return document.getElementById('text-field-preview');
+}
+function setPreviewElementContent(previewElement, value, visible) {
+    previewElement.setAttribute('data-preview', `${visible}`);
+    previewElement.innerHTML = parseMarkdown(value);
 }
 function toggleEditOn(evt) {
     evt.preventDefault();
@@ -17,14 +30,17 @@ function toggleEditOn(evt) {
     return false;
 }
 const Element = (props) => {
-    const getPreviewModeStatus = () => props.field.value.trim().length > 0 ? 'true' : 'false';
-    const toggleEditOff = (evt) => {
-        const value = sanitizeHTML(evt.target.value);
-        getPreviewElement().setAttribute('data-preview', getPreviewModeStatus());
-        getPreviewElement().innerHTML = parseMarkdown(value);
-        props.onValueChanged(props.field, value);
-    };
-    return (_jsxs("div", { class: "text-field", children: [_jsx("label", { for: "entry-text", children: props.field.label }), _jsx("div", { id: "text-field-preview", class: "text-field-preview", "data-preview": getPreviewModeStatus(), innerHTML: { __dangerousHtml: parseMarkdown(sanitizeHTML(props.field.value)) }, onClick: toggleEditOn }), _jsx("textarea", { id: "entry-text", class: "text-field", name: "entry-text", rows: "10", cols: "50", onBlur: toggleEditOff, children: props.field.value ? props.field.value : '' })] }));
+    const oldValue = props.field.value;
+    const getPreviewModeStatus = (value) => value.trim().length > 0;
+    const toggleEditOff = (evt) => __awaiter(void 0, void 0, void 0, function* () {
+        const textarea = evt.target;
+        const newValue = sanitizeHTML(textarea.value);
+        textarea.setAttribute('data-saving', 'true');
+        const value = (yield props.onValueChanged(props.field, newValue)) ? newValue : oldValue;
+        setPreviewElementContent(getPreviewElement(), value, getPreviewModeStatus(value));
+        textarea.removeAttribute('data-saving');
+    });
+    return (_jsxs("div", { class: "text-field", children: [_jsx("label", { for: "entry-text", children: props.field.label }), _jsx("div", { id: "text-field-preview", class: "text-field-preview", "data-preview": getPreviewModeStatus(oldValue), innerHTML: { __dangerousHtml: parseMarkdown(sanitizeHTML(props.field.value)) }, onClick: toggleEditOn }), _jsx("textarea", { id: "entry-text", class: "text-field", name: "entry-text", rows: "10", cols: "50", onBlur: toggleEditOff, children: props.field.value ? props.field.value : '' })] }));
 };
 function appendChild(parent, props) {
     render(_jsx(Element, { field: props.field, onValueChanged: props.onValueChanged }), parent);
