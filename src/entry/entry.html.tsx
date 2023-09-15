@@ -1,6 +1,7 @@
 import { render } from 'https://unpkg.com/nano-jsx@0.1.0/esm/index.js';
 import { Element as DaySelector } from './day-selector.html.js';
 import { Element as TextField } from './text-field.html.js';
+import { Element as EmojiField } from './emoji-field.html.js';
 import { Entry, Field, Annual } from '../types.js';
 
 type ElementType = (props: {
@@ -64,8 +65,10 @@ function appendChild(parent: HTMLElement,
 
 function getFieldElement(field: Field<any>, onValueChanged: (field: Field<any>, value: string) => Promise<boolean>) {
   switch (field.type) {
-    case "text":
+    case 'text':
       return <TextField field={field} onValueChanged={onValueChanged} />
+    case 'emoji':
+      return <EmojiField field={field} onValueChanged={onValueChanged} />
     default:
       return <p>Unknown field type: {field.type}</p>
   }

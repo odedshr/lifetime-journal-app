@@ -3,7 +3,7 @@ import { User } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-auth.js
 import {
   Firestore, getFirestore, collection, doc, getDoc, setDoc
 } from 'https://www.gstatic.com/firebasejs/10.3.1/firebase-firestore.js'
-import { Settings, Entry, Field, Diary } from './types.js';
+import { Settings, Entry, Field } from './types.js';
 
 
 function getDB(app: FirebaseApp): Firestore {

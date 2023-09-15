@@ -11,6 +11,7 @@ import { jsx as _jsx, jsxs as _jsxs } from "https://unpkg.com/nano-jsx/esm/jsx-r
 import { render } from 'https://unpkg.com/nano-jsx@0.1.0/esm/index.js';
 import { Element as DaySelector } from './day-selector.html.js';
 import { Element as TextField } from './text-field.html.js';
+import { Element as EmojiField } from './emoji-field.html.js';
 const Element = (props) => {
     const fieldElementMap = new Map();
     const onValueChanged = (field, value) => __awaiter(void 0, void 0, void 0, function* () {
@@ -37,8 +38,10 @@ function appendChild(parent, dateString, entry, onDayChanged, onEntryChanged, an
 }
 function getFieldElement(field, onValueChanged) {
     switch (field.type) {
-        case "text":
+        case 'text':
             return _jsx(TextField, { field: field, onValueChanged: onValueChanged });
+        case 'emoji':
+            return _jsx(EmojiField, { field: field, onValueChanged: onValueChanged });
         default:
             return _jsxs("p", { children: ["Unknown field type: ", field.type] });
     }

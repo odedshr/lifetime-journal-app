@@ -12,7 +12,7 @@ type Settings = {
   diaries: Diary[];
 }
 
-type FieldType = "text" | "number";
+type FieldType = 'text' | 'number' | 'emoji';
 
 type FieldTemplate = {
   label?: string,

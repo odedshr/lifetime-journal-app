@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+import { existsSync, readdirSync, readFileSync, writeFileSync, statSync } from 'fs';
+import { join, extname } from 'path';
 
 // Validate input
 if (process.argv.length < 5) {
@@ -10,7 +10,7 @@ if (process.argv.length < 5) {
 // Get command line arguments
 const folder = process.argv[2];
 
-if (!fs.existsSync(folder)) {
+if (!existsSync(folder)) {
   console.log('Folder does not exist');
   process.exit(1);
 }
@@ -24,19 +24,19 @@ if (!searchString || !replaceString) {
 }
 
 function replaceInFile(filePath, searchString, replaceString) {
-  let fileContent = fs.readFileSync(filePath, 'utf8');
+  let fileContent = readFileSync(filePath, 'utf8');
   const newContent = fileContent.replace(new RegExp(searchString, 'g'), replaceString);
-  fs.writeFileSync(filePath, newContent);
+  writeFileSync(filePath, newContent);
 }
 
 function replaceInFiles(dir, searchString, replaceString) {
-  const files = fs.readdirSync(dir);
+  const files = readdirSync(dir);
 
   files.forEach(file => {
-    const filePath = path.join(dir, file);
-    if (fs.statSync(filePath).isDirectory()) {
+    const filePath = join(dir, file);
+    if (statSync(filePath).isDirectory()) {
       replaceInFiles(filePath, searchString, replaceString);
-    } else if (path.extname(filePath) === '.js') {
+    } else if (extname(filePath) === '.js') {
       replaceInFile(filePath, searchString, replaceString);
     }
   });
