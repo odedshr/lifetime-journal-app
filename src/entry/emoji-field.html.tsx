@@ -1,4 +1,4 @@
-import { render } from 'https://unpkg.com/nano-jsx@0.1.0/esm/index.js';
+import { render } from 'nano-jsx';
 import { Field } from '../types.js';
 
 type Props = {
@@ -19,11 +19,11 @@ const Element: ElementType = (props) => {
     const newValue: string = sanitizeHTML(inputField.value);
     if (newValue !== oldValue) {
       inputField.setAttribute('data-saving', 'true');
-      if (!(await props.onValueChanged(props.field, newValue))) {
+      const updateResult = await props.onValueChanged(props.field, newValue);
+      if (!updateResult) {
         inputField.value = oldValue;
       }
       inputField.removeAttribute('data-saving');
-
     }
   };
 

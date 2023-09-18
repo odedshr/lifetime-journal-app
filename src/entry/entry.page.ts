@@ -1,14 +1,13 @@
-import { app, onPageLoadedAndUserAuthenticated, signOut } from '../firebase.app.js';
+import { app, getAuthenticateUser, switchToSignOutPage } from '../firebase.app.js';
 import { deploy as deployEntry } from './entry.html.js';
 import { getUserSettings, getDayEntry, setDayEntry } from '../db.js';
 import { FirebaseApp, Settings, User, Entry } from '../types.js';
 import { switchPage as switchToSetup } from '../setup/setup.page.js';
 import { getFormattedDate, getDisplayableDate, getDateFromURL } from '../utils/date-utils.js';
 
-
 const DEFAULT_DIARY = "diary-01";
 
-onPageLoadedAndUserAuthenticated(initPage);
+window.addEventListener('load', () => getAuthenticateUser().then(initPage).catch(switchToSignOutPage));
 
 async function initPage(user: User) {
   const settings: Settings = await getUserSettings(app, user);
@@ -28,7 +27,6 @@ async function deploy(user: User) {
   deployEntry(document.body, day, entry, {
     onEntryChanged: (entry: any) => onEntryChanged(app, user, entry),
     onDateChanged: (date: string) => navigateToDay(user, date),
-    onSignOut: signOut,
   });
 }
 
@@ -49,4 +47,4 @@ function setPageTitle(dateString: string) {
   document.title = `${getDisplayableDate(new Date(dateString))} | Lifetime Journal`;
 }
 
-export { switchPage };
+export { initPage, switchPage };

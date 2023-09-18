@@ -1,6 +1,6 @@
-import { FirebaseApp, initializeApp } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-app.js";
-import { onAuthStateChanged, getAuth, User, signOut as signOutFromFirebase } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-auth.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-analytics.js";
+import { FirebaseApp, initializeApp } from "@firebase/app";
+import { onAuthStateChanged, getAuth, User, signOut as signOutFromFirebase } from "@firebase/auth";
+import { getAnalytics } from "@firebase/analytics";
 
 import { getFirebaseConfig } from "./firebase.config.js";
 
@@ -11,39 +11,29 @@ const analytics = getAnalytics(app);
 
 const SIGN_IN_ENDPOINT = '/signin';
 
+// TBD: check when popstate is triggered
+// window.addEventListener("popstate", (evt) => {
+//   alert(
+//     `popstate: location: ${document.location} ${evt}`
+//   );
+// });
 
-function onPageLoadedAndUserAuthenticated(callback: ((user: User) => void)) {
-  type State = { user: User | null, pageLoaded: boolean };
-  const state: State = { user: null, pageLoaded: false };
-
-  window.addEventListener("popstate", (event) => {
-    alert(
-      `location: ${document.location}, state: ${JSON.stringify(event.state)}`,
+async function getAuthenticateUser(): Promise<User> {
+  return new Promise((resolve, reject) => {
+    onAuthStateChanged(
+      auth,
+      async (user: User | null) => user ? resolve(user) : reject('user not authenticated')
     );
-  });
-
-  onAuthStateChanged(auth, async (user: User | null) => {
-    if (user) {
-      state.user = user;
-      if (state.pageLoaded) {
-        callback(user);
-      }
-    } else {
-      location.href = SIGN_IN_ENDPOINT;
-    }
-  });
-
-  window.addEventListener('load', () => {
-    state.pageLoaded = true;
-    if (state.user) {
-      callback(state.user);
-    }
   });
 }
 
 async function signOut() {
   await signOutFromFirebase(auth);
+  switchToSignOutPage();
+}
+
+function switchToSignOutPage() {
   location.href = SIGN_IN_ENDPOINT;
 }
 
-export { app, auth, user, onPageLoadedAndUserAuthenticated, signOut };
+export { app, auth, user, getAuthenticateUser, signOut, switchToSignOutPage };

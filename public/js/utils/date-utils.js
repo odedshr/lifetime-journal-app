@@ -2,12 +2,18 @@ function getFormattedDate(date) {
     return date.toISOString().split('T')[0];
 }
 function getDateFromURL(urlSearchParamString) {
-    return new URLSearchParams(urlSearchParamString).get("day") || getFormattedDate(new Date());
+    const day = new URLSearchParams(urlSearchParamString).get("day");
+    try {
+        return getFormattedDate(day ? new Date(day) : new Date());
+    }
+    catch (e) { // bad date provided
+        return getFormattedDate(new Date());
+    }
 }
 function getDisplayableDate(date) {
     return date.toLocaleDateString(navigator.language);
 }
-function addToDate(dateString, days) {
+function addToDate(dateString, days = 0) {
     const date = new Date(dateString);
     date.setDate(date.getDate() + days);
     return getFormattedDate(date);

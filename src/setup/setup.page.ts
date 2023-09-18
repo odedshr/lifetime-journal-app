@@ -1,9 +1,9 @@
-import { app, onPageLoadedAndUserAuthenticated, signOut } from '../firebase.app.js';
+import { app, getAuthenticateUser, signOut, switchToSignOutPage } from '../firebase.app.js';
 import { deploy as deploySetup } from './setup.html.js';
 import { getUserSettings, saveUserSettings } from '../db.js';
 import { FirebaseApp, User, Settings, Diary } from '../types.js';
 
-onPageLoadedAndUserAuthenticated(initPage);
+window.addEventListener('load', () => getAuthenticateUser().then(initPage).catch(switchToSignOutPage));
 
 async function initPage(user: User) {
   deploy(user, await getUserSettings(app, user));

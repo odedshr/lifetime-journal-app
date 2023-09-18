@@ -7,9 +7,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { jsx as _jsx, jsxs as _jsxs } from "https://unpkg.com/nano-jsx/esm/jsx-runtime/index.js";
-import { parse as parseMarkdown } from 'https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js';
-import { render } from 'https://unpkg.com/nano-jsx@0.1.0/esm/index.js';
+import { jsx as _jsx, jsxs as _jsxs } from "nano-jsx/esm/jsx-runtime";
+import { parse as parseMarkdown } from 'marked';
+import { render } from 'nano-jsx';
 function sanitizeHTML(html) {
     return html.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }

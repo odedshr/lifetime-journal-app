@@ -7,10 +7,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { app, onPageLoadedAndUserAuthenticated, signOut } from '../firebase.app.js';
+import { app, getAuthenticateUser, signOut, switchToSignOutPage } from '../firebase.app.js';
 import { deploy as deploySetup } from './setup.html.js';
 import { getUserSettings, saveUserSettings } from '../db.js';
-onPageLoadedAndUserAuthenticated(initPage);
+window.addEventListener('load', () => getAuthenticateUser().then(initPage).catch(switchToSignOutPage));
 function initPage(user) {
     return __awaiter(this, void 0, void 0, function* () {
         deploy(user, yield getUserSettings(app, user));

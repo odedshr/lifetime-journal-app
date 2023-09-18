@@ -1,4 +1,4 @@
-import { render } from 'https://unpkg.com/nano-jsx@0.1.0/esm/index.js';
+import { render } from 'nano-jsx';
 import { Diary, FieldTemplate } from '../types.js';
 
 const DEFAULT_DIARY = 'diary-01';

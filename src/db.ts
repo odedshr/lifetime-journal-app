@@ -1,9 +1,7 @@
-import { FirebaseApp } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-app.js";
-import { User } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-auth.js";
 import {
   Firestore, getFirestore, collection, doc, getDoc, setDoc
-} from 'https://www.gstatic.com/firebasejs/10.3.1/firebase-firestore.js'
-import { Settings, Entry, Field } from './types.js';
+} from '@firebase/firestore';
+import { FirebaseApp, Settings, Entry, Field, User } from './types.js';
 
 
 function getDB(app: FirebaseApp): Firestore {
@@ -11,7 +9,10 @@ function getDB(app: FirebaseApp): Firestore {
 }
 
 function getUserId(user: User): string {
-  return user.email ? user.email.replace(/\./g, '-') : user.uid;
+  if (!user.email) {
+    throw Error('User must have email');
+  }
+  return user.email.replace(/\./g, '-');
 }
 
 async function getDayEntry(app: FirebaseApp, user: User, diary: string, date: string) {
@@ -30,7 +31,6 @@ async function setDayEntry(app: FirebaseApp, user: User, diary: string, day: str
     return true;
   }
   catch (err) {
-    console.log(err);
     return false;
   }
 }

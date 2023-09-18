@@ -1,5 +1,5 @@
-import { FirebaseApp } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-app.js";
-import { User } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-auth.js";
+import { FirebaseApp } from "@firebase/app";
+import { User } from "@firebase/auth";
 
 type Diary = {
   startDate: string;

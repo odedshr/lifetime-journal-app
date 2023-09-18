@@ -3,16 +3,22 @@ function getFormattedDate(date: Date) {
 }
 
 function getDateFromURL(urlSearchParamString: string) {
-  return new URLSearchParams(urlSearchParamString).get("day") || getFormattedDate(new Date());
+  const day = new URLSearchParams(urlSearchParamString).get("day") as string;
+  try {
+    return getFormattedDate(day ? new Date(day) : new Date());
+  }
+  catch (e) { // bad date provided
+    return getFormattedDate(new Date());
+  }
 }
 
 function getDisplayableDate(date: Date) {
   return date.toLocaleDateString(navigator.language);
 }
 
-function addToDate(dateString: string, days: number) {
+function addToDate(dateString: string, days: number = 0) {
   const date = new Date(dateString);
-  date.setDate(date.getDate() + days)
+  date.setDate(date.getDate() + days);
   return getFormattedDate(date);
 }
 

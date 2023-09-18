@@ -7,11 +7,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { app, onPageLoadedAndUserAuthenticated } from './firebase.app.js';
+import { app, getAuthenticateUser, switchToSignOutPage } from './firebase.app.js';
 import { getUserSettings } from './db.js';
 import { switchPage as switchToSetup } from './setup/setup.page.js';
 import { switchPage as switchToEntry } from './entry/entry.page.js';
-onPageLoadedAndUserAuthenticated(initPage);
+window.addEventListener('load', () => getAuthenticateUser().then(initPage).catch(switchToSignOutPage));
 function initPage(user) {
     return __awaiter(this, void 0, void 0, function* () {
         const settings = yield getUserSettings(app, user);
@@ -23,3 +23,4 @@ function initPage(user) {
         }
     });
 }
+export { initPage };

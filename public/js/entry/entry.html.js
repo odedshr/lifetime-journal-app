@@ -7,8 +7,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { jsx as _jsx, jsxs as _jsxs } from "https://unpkg.com/nano-jsx/esm/jsx-runtime/index.js";
-import { render } from 'https://unpkg.com/nano-jsx@0.1.0/esm/index.js';
+import { jsx as _jsx, jsxs as _jsxs } from "nano-jsx/esm/jsx-runtime";
+import { render } from 'nano-jsx';
 import { Element as DaySelector } from './day-selector.html.js';
 import { Element as TextField } from './text-field.html.js';
 import { Element as EmojiField } from './emoji-field.html.js';
@@ -27,14 +27,16 @@ const Element = (props) => {
         }
         return result;
     });
-    return (_jsxs("main", { children: [_jsx("header", { children: _jsx(DaySelector, { date: props.date, onDayChanged: props.onDayChanged }) }), _jsx("section", { id: "recurring" }), _jsx("section", { id: "entry", children: props.entry.fields.map(field => {
+    return (_jsxs("main", { class: "entry", children: [_jsx("header", { children: _jsx(DaySelector, { date: props.date, onDayChanged: props.onDayChanged }) }), _jsx("section", { id: "recurring" }), _jsx("section", { id: "entry", children: props.entry.fields.map(field => {
                     const fieldElement = getFieldElement(field, onValueChanged);
                     fieldElementMap.set(field, fieldElement);
                     return fieldElement;
                 }) }), _jsx("section", { id: "periods" }), _jsx("section", { id: "diaries" })] }));
 };
 function appendChild(parent, dateString, entry, onDayChanged, onEntryChanged, annuals) {
-    render(_jsx(Element, { date: dateString, entry: entry, annuals: annuals, onDayChanged: onDayChanged, onEntryChanged: onEntryChanged }), parent);
+    const element = _jsx(Element, { date: dateString, entry: entry, annuals: annuals, onDayChanged: onDayChanged, onEntryChanged: onEntryChanged });
+    const res = render(element, parent);
+    console.log(res, parent.outerHTML);
 }
 function getFieldElement(field, onValueChanged) {
     switch (field.type) {

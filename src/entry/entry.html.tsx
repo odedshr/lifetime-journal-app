@@ -1,4 +1,4 @@
-import { render } from 'https://unpkg.com/nano-jsx@0.1.0/esm/index.js';
+import { render } from 'nano-jsx';
 import { Element as DaySelector } from './day-selector.html.js';
 import { Element as TextField } from './text-field.html.js';
 import { Element as EmojiField } from './emoji-field.html.js';
@@ -31,7 +31,7 @@ const Element: ElementType = (props) => {
     return result;
   };
 
-  return (<main>
+  return (<main class="entry">
     <header>
       <DaySelector date={props.date} onDayChanged={props.onDayChanged} />
     </header>
@@ -54,13 +54,15 @@ function appendChild(parent: HTMLElement,
   onDayChanged: (day: string) => void,
   onEntryChanged: (entry: Entry) => Promise<boolean>,
   annuals: Annual[]) {
-  render(<Element
+  const element = <Element
     date={dateString}
     entry={entry}
     annuals={annuals}
     onDayChanged={onDayChanged}
     onEntryChanged={onEntryChanged}
-  />, parent);
+  />
+  const res = render(element, parent)
+  console.log(res, parent.outerHTML);
 }
 
 function getFieldElement(field: Field<any>, onValueChanged: (field: Field<any>, value: string) => Promise<boolean>) {
@@ -77,12 +79,11 @@ function getFieldElement(field: Field<any>, onValueChanged: (field: Field<any>, 
 function deploy(parent: HTMLElement, dateString: string, entry: Entry, delegates: {
   onEntryChanged: ((entry: Entry) => Promise<boolean>),
   onDateChanged: ((date: string) => void)
-  onSignOut: (() => void)
 }) {
   appendChild(parent, dateString, entry,
     (day: string) => delegates.onDateChanged(day),
     (entry: Entry) => delegates.onEntryChanged(entry),
-    [])
+    []);
 }
 
 export { deploy };

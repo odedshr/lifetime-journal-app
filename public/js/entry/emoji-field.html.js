@@ -7,8 +7,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { jsx as _jsx, jsxs as _jsxs } from "https://unpkg.com/nano-jsx/esm/jsx-runtime/index.js";
-import { render } from 'https://unpkg.com/nano-jsx@0.1.0/esm/index.js';
+import { jsx as _jsx, jsxs as _jsxs } from "nano-jsx/esm/jsx-runtime";
+import { render } from 'nano-jsx';
 function sanitizeHTML(html) {
     return html.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
@@ -19,7 +19,8 @@ const Element = (props) => {
         const newValue = sanitizeHTML(inputField.value);
         if (newValue !== oldValue) {
             inputField.setAttribute('data-saving', 'true');
-            if (!(yield props.onValueChanged(props.field, newValue))) {
+            const updateResult = yield props.onValueChanged(props.field, newValue);
+            if (!updateResult) {
                 inputField.value = oldValue;
             }
             inputField.removeAttribute('data-saving');

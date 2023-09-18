@@ -1,5 +1,5 @@
-import { parse as parseMarkdown } from 'https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js';
-import { render } from 'https://unpkg.com/nano-jsx@0.1.0/esm/index.js';
+import { parse as parseMarkdown } from 'marked';
+import { render } from 'nano-jsx';
 import { Field } from '../types.js';
 type Props = {
   field: Field<string>,

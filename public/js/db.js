@@ -7,12 +7,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { getFirestore, collection, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.3.1/firebase-firestore.js';
+import { getFirestore, collection, doc, getDoc, setDoc } from '@firebase/firestore';
 function getDB(app) {
     return getFirestore(app);
 }
 function getUserId(user) {
-    return user.email ? user.email.replace(/\./g, '-') : user.uid;
+    if (!user.email) {
+        throw Error('User must have email');
+    }
+    return user.email.replace(/\./g, '-');
 }
 function getDayEntry(app, user, diary, date) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -31,7 +34,6 @@ function setDayEntry(app, user, diary, day, entry) {
             return true;
         }
         catch (err) {
-            console.log(err);
             return false;
         }
     });
