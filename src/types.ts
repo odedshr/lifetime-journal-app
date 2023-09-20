@@ -2,6 +2,7 @@ import { FirebaseApp } from "@firebase/app";
 import { User } from "@firebase/auth";
 
 type Diary = {
+  uri: string;
   startDate: string;
   name: string;
   color: string;

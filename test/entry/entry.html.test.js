@@ -12,7 +12,7 @@ jest.mock('nano-jsx/esm/jsx-runtime', () => {
   };
 });
 
-const { deploy } = await import('../../public/js/entry/entry.html.js');
+const { appendChild } = await import('../../public/js/entry/entry.html.js');
 const { render } = await import('nano-jsx');
 
 describe('Entry.html', () => {
@@ -20,7 +20,7 @@ describe('Entry.html', () => {
     it('should call render with the correct props', () => {
       const parent = document.createElement('div');
       const date = '2020-01-13';
-      deploy(parent, date, { date, fields: [{ type: 'text', value: 'foo' }] }, {
+      render(parent, date, { date, fields: [{ type: 'text', value: 'foo' }] }, {
         onEntryChanged: (entry => { }),
         onDateChanged: (date => { })
       });

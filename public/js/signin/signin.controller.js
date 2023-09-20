@@ -7,20 +7,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { app, getAuthenticateUser, switchToSignOutPage } from './firebase.app.js';
-import { getUserSettings } from './db.js';
-import { switchPage as switchToSetup } from './setup/setup.page.js';
-import { switchPage as switchToEntry } from './entry/entry.page.js';
-window.addEventListener('load', () => getAuthenticateUser().then(initPage).catch(switchToSignOutPage));
-function initPage(user) {
+import { signIn } from '../firebase.app.js';
+import { appendChild } from "./signin.html.js";
+import { init as initApp } from '../init.js';
+function onSignInButtonClicked() {
     return __awaiter(this, void 0, void 0, function* () {
-        const settings = yield getUserSettings(app, user);
-        if (settings.diaries.length > 0) {
-            switchToEntry(user);
+        const result = yield signIn();
+        if (result) {
+            initApp('/');
         }
-        else {
-            switchToSetup(user, settings);
-        }
+        return result;
     });
 }
-export { initPage };
+function switchPage() {
+    document.title = 'Sign in | Lifetime Journal';
+    appendChild(document.body, { onSignInButtonClicked });
+}
+export { switchPage };

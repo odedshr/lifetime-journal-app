@@ -61,8 +61,7 @@ function appendChild(parent: HTMLElement,
     onDayChanged={onDayChanged}
     onEntryChanged={onEntryChanged}
   />
-  const res = render(element, parent)
-  console.log(res, parent.outerHTML);
+  render(element, parent);
 }
 
 function getFieldElement(field: Field<any>, onValueChanged: (field: Field<any>, value: string) => Promise<boolean>) {
@@ -76,14 +75,4 @@ function getFieldElement(field: Field<any>, onValueChanged: (field: Field<any>, 
   }
 }
 
-function deploy(parent: HTMLElement, dateString: string, entry: Entry, delegates: {
-  onEntryChanged: ((entry: Entry) => Promise<boolean>),
-  onDateChanged: ((date: string) => void)
-}) {
-  appendChild(parent, dateString, entry,
-    (day: string) => delegates.onDateChanged(day),
-    (entry: Entry) => delegates.onEntryChanged(entry),
-    []);
-}
-
-export { deploy };
+export { appendChild };

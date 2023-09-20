@@ -35,8 +35,7 @@ const Element = (props) => {
 };
 function appendChild(parent, dateString, entry, onDayChanged, onEntryChanged, annuals) {
     const element = _jsx(Element, { date: dateString, entry: entry, annuals: annuals, onDayChanged: onDayChanged, onEntryChanged: onEntryChanged });
-    const res = render(element, parent);
-    console.log(res, parent.outerHTML);
+    render(element, parent);
 }
 function getFieldElement(field, onValueChanged) {
     switch (field.type) {
@@ -48,7 +47,4 @@ function getFieldElement(field, onValueChanged) {
             return _jsxs("p", { children: ["Unknown field type: ", field.type] });
     }
 }
-function deploy(parent, dateString, entry, delegates) {
-    appendChild(parent, dateString, entry, (day) => delegates.onDateChanged(day), (entry) => delegates.onEntryChanged(entry), []);
-}
-export { deploy };
+export { appendChild };

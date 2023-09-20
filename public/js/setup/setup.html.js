@@ -12,6 +12,7 @@ function submit(onSaveDiary, evt) {
     const defaultFieldTemplate = { type: 'text' };
     onSaveDiary({
         startDate: formData.get('startDate'),
+        uri: DEFAULT_DIARY,
         name: DEFAULT_DIARY,
         color: DEFAULT_COLOR,
         defaultFields: [defaultFieldTemplate]

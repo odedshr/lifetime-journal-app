@@ -25,6 +25,7 @@ function submit(onSaveDiary: ((diary: Diary) => void), evt: SubmitEvent) {
   const defaultFieldTemplate: FieldTemplate = { type: 'text' };
   onSaveDiary({
     startDate: formData.get('startDate') as string,
+    uri: DEFAULT_DIARY,
     name: DEFAULT_DIARY,
     color: DEFAULT_COLOR,
     defaultFields: [defaultFieldTemplate]

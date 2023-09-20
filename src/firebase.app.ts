@@ -1,5 +1,5 @@
 import { FirebaseApp, initializeApp } from "@firebase/app";
-import { onAuthStateChanged, getAuth, User, signOut as signOutFromFirebase } from "@firebase/auth";
+import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, UserCredential, getAuth, User, signOut as signOutFromFirebase } from "@firebase/auth";
 import { getAnalytics } from "@firebase/analytics";
 
 import { getFirebaseConfig } from "./firebase.config.js";
@@ -29,11 +29,12 @@ async function getAuthenticateUser(): Promise<User> {
 
 async function signOut() {
   await signOutFromFirebase(auth);
-  switchToSignOutPage();
 }
 
-function switchToSignOutPage() {
-  location.href = SIGN_IN_ENDPOINT;
+async function signIn() {
+  const provider = new GoogleAuthProvider();
+  provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
+  return await signInWithPopup(auth, provider).then(() => true).catch(() => false);
 }
 
-export { app, auth, user, getAuthenticateUser, signOut, switchToSignOutPage };
+export { app, auth, user, getAuthenticateUser, signIn, signOut };

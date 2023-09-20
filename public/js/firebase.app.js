@@ -8,7 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { initializeApp } from "@firebase/app";
-import { onAuthStateChanged, getAuth, signOut as signOutFromFirebase } from "@firebase/auth";
+import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, getAuth, signOut as signOutFromFirebase } from "@firebase/auth";
 import { getAnalytics } from "@firebase/analytics";
 import { getFirebaseConfig } from "./firebase.config.js";
 const app = initializeApp(getFirebaseConfig());
@@ -32,10 +32,13 @@ function getAuthenticateUser() {
 function signOut() {
     return __awaiter(this, void 0, void 0, function* () {
         yield signOutFromFirebase(auth);
-        switchToSignOutPage();
     });
 }
-function switchToSignOutPage() {
-    location.href = SIGN_IN_ENDPOINT;
+function signIn() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const provider = new GoogleAuthProvider();
+        provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
+        return yield signInWithPopup(auth, provider).then(() => true).catch(() => false);
+    });
 }
-export { app, auth, user, getAuthenticateUser, signOut, switchToSignOutPage };
+export { app, auth, user, getAuthenticateUser, signIn, signOut };

@@ -50,6 +50,8 @@ jest.unstable_mockModule('@firebase/auth', () => {
 
   return {
     getAuth: jest.fn(() => authInstance),
+    GoogleAuthProvider: jest.fn(() => { }),
+    signInWithPopup: jest.fn(() => { }),
     onAuthStateChanged: jest.fn((authMock, onChangeCallback) => {
       setTimeout(() => onChangeCallback(getAuth()), 0);
     }),
@@ -113,13 +115,8 @@ describe('firebase.app.js', () => {
 
   describe('signOut', () => {
     it('should sign out of firebase', async () => {
-      delete global.window.location;
-      global.window = Object.create(window);
-      global.window.location = {};
-
       await signOut();
       expect(signOutFromFirebase).toHaveBeenCalled();
-      expect(window.location.href).toBe('/signin');
     });
   });
 });
