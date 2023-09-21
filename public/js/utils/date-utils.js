@@ -1,3 +1,8 @@
+function addToDate(date, days = 0) {
+    const newDate = new Date(date);
+    newDate.setDate(newDate.getDate() + days);
+    return newDate;
+}
 function getFormattedDate(date) {
     return date.toISOString().split('T')[0];
 }
@@ -13,9 +18,7 @@ function getDateFromURL(urlSearchParamString) {
 function getDisplayableDate(date) {
     return date.toLocaleDateString(navigator.language);
 }
-function addToDate(dateString, days = 0) {
-    const date = new Date(dateString);
-    date.setDate(date.getDate() + days);
-    return getFormattedDate(date);
+function getShorthandedDayOfTheWeekName(date) {
+    return date.toLocaleDateString(navigator.language, { weekday: 'short' });
 }
-export { getFormattedDate, getDateFromURL, getDisplayableDate, addToDate };
+export { addToDate, getFormattedDate, getDateFromURL, getDisplayableDate, getShorthandedDayOfTheWeekName };

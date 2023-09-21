@@ -16,11 +16,11 @@ const { appendChild } = await import('../../public/js/entry/entry.html.js');
 const { render } = await import('nano-jsx');
 
 describe('Entry.html', () => {
-  describe('deploy', () => {
+  describe('appendChild', () => {
     it('should call render with the correct props', () => {
       const parent = document.createElement('div');
       const date = '2020-01-13';
-      render(parent, date, { date, fields: [{ type: 'text', value: 'foo' }] }, {
+      appendChild(parent, date, { date, fields: [{ type: 'text', value: 'foo' }] }, {
         onEntryChanged: (entry => { }),
         onDateChanged: (date => { })
       });
@@ -33,7 +33,7 @@ describe('Entry.html', () => {
     //   const parent = document.createElement('div');
     //   const date = '2020-01-13';
     //   const onEntryChanged = jest.fn();
-    //   deploy(parent, date, { date, fields: [{ type: 'text', value: 'foo' }] }, {
+    //   appendChild(parent, date, { date, fields: [{ type: 'text', value: 'foo' }] }, {
     //     onEntryChanged,
     //     onDateChanged: (date => { })
     //   });

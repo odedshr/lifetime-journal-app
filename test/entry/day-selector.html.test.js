@@ -5,8 +5,10 @@ describe('DaySelector', () => {
 
   let container;
   let props;
+  let languageGetter;
 
   beforeEach(() => {
+    languageGetter = jest.spyOn(window.navigator, 'language', 'get')
     container = document.createElement('div');
     props = {
       date: '2023-01-01',
@@ -34,12 +36,35 @@ describe('DaySelector', () => {
     expect(props.onDayChanged).toHaveBeenCalledWith('2022-12-31');
   });
 
-  it('calls onDayChanged when next button clicked', () => {
+  it('should have the next button showing the name of the previous day', () => {
+    languageGetter.mockReturnValue('en-GB');
+
+    appendChild(container, props);
+
+    const btn = container.querySelector('button#btnPrevious');
+
+    expect(btn.innerHTML).toBe('<span>Sat</span>');
+
+  });
+
+  it('should have the next button showing the name of the next day', () => {
+    languageGetter.mockReturnValue('en-GB');
+
     appendChild(container, props);
 
     const btn = container.querySelector('button#btnNext');
-    btn.click();
 
+    expect(btn.innerHTML).toBe('<span>Mon</span>');
+  });
+
+  it('calls onDayChanged when next button clicked', () => {
+    languageGetter.mockReturnValue('en-GB');
+
+    appendChild(container, props);
+
+    const btn = container.querySelector('button#btnNext');
+
+    btn.click();
     expect(props.onDayChanged).toHaveBeenCalledWith('2023-01-02');
   });
 
