@@ -5,6 +5,12 @@
   },
   "hosting": {
     "public": "public",
+    "rewrites": [
+      {
+        "source": "!/@(js|css)/**",
+        "destination": "/index.html"
+      }
+    ],
     "ignore": [
       "firebase.json",
       "**/.*",

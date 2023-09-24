@@ -27,7 +27,7 @@ const Element = (props) => {
         }
         return result;
     });
-    return (_jsxs("main", { class: "entry", children: [_jsx("header", { children: _jsx(DaySelector, { date: props.date, onDayChanged: props.onDayChanged }) }), _jsx("section", { id: "recurring" }), _jsx("section", { id: "entry", children: props.entry.fields.map(field => {
+    return (_jsxs("main", { class: "entry", children: [_jsx("header", { children: _jsx(DaySelector, { date: props.date, onDayChanged: props.onDayChanged }) }), _jsx("section", { id: "recurring" }), _jsx("section", { id: "entry", class: "entry-fields", children: props.entry.fields.map(field => {
                     const fieldElement = getFieldElement(field, onValueChanged);
                     fieldElementMap.set(field, fieldElement);
                     return fieldElement;

@@ -1,0 +1,42 @@
+@import url('./colors.css');
+@import url('./entry.css');
+
+html {
+  font-size: 62.5%;
+}
+
+body {
+  background: var(--color-background);
+  color: rgba(0, 0, 0, 0.87);
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  font-size: 1.4em;
+  margin: 0;
+  padding: 0;
+}
+
+/******************************/
+
+.text-field-preview:before {
+  content: "✍️";
+}
+
+.text-field-preview {
+  cursor: pointer;
+  ;
+}
+
+.text-field-preview[data-preview="false"] {
+  display: none;
+}
+
+.text-field-preview[data-preview="true"]+.text-field {
+  display: none;
+}
+
+.text-field[data-saving="true"] {
+  opacity: 50%;
+}
+
+.btn {
+  background-color: var(--color-button);
+}

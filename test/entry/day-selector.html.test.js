@@ -24,13 +24,13 @@ describe('DaySelector', () => {
     appendChild(container, props);
 
     expect(container.querySelector('div.day-selector')).not.toBeNull();
-    expect(container.querySelector('button#btnPrevious')).not.toBeNull();
+    expect(container.querySelector('#btnPrevious')).not.toBeNull();
   });
 
   it('calls onDayChanged when previous button clicked', () => {
     appendChild(container, props);
 
-    const btn = container.querySelector('button#btnPrevious');
+    const btn = container.querySelector('#btnPrevious');
     btn.click();
 
     expect(props.onDayChanged).toHaveBeenCalledWith('2022-12-31');
@@ -41,7 +41,7 @@ describe('DaySelector', () => {
 
     appendChild(container, props);
 
-    const btn = container.querySelector('button#btnPrevious');
+    const btn = container.querySelector('#btnPrevious');
 
     expect(btn.innerHTML).toBe('<span>Sat</span>');
 
@@ -52,7 +52,7 @@ describe('DaySelector', () => {
 
     appendChild(container, props);
 
-    const btn = container.querySelector('button#btnNext');
+    const btn = container.querySelector('#btnNext');
 
     expect(btn.innerHTML).toBe('<span>Mon</span>');
   });
@@ -62,7 +62,7 @@ describe('DaySelector', () => {
 
     appendChild(container, props);
 
-    const btn = container.querySelector('button#btnNext');
+    const btn = container.querySelector('#btnNext');
 
     btn.click();
     expect(props.onDayChanged).toHaveBeenCalledWith('2023-01-02');

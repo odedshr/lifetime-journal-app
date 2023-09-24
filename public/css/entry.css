@@ -1,0 +1,51 @@
+.day-selector {
+  background-color: var(--color-background-secondary);
+  box-shadow: 0 0.5rem 0.5rem rgba(0, 0, 0, 0.5);
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem;
+}
+
+.day-selector .btn {
+  align-items: center;
+  border: 0;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  height: 4rem;
+  justify-content: center;
+  text-decoration: none;
+  width: 4.4rem;
+  ;
+}
+
+.day-selector .btn:hover {
+  background-color: var(--color-background-secondary);
+}
+
+.entry-date {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+}
+
+.entry-date-label {
+  /* hide visually but not from screen reader */
+  position: absolute;
+  visibility: hidden;
+}
+
+.entry-date-input {
+  background: transparent;
+  flex: 1 1 auto;
+  font-size: 5vw;
+  text-align: center;
+  border: 0;
+}
+
+.entry-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem;
+}

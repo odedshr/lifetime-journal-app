@@ -8,30 +8,50 @@ type Props = {
 
 type ElementType = (props: Props) => HTMLElement;
 
+function onLinkClicked(onDayChanged: (day: string) => void, targetDate: Date, evt: MouseEvent) {
+  onDayChanged(getFormattedDate(targetDate));
+  evt.preventDefault();
+}
+
 const Element: ElementType = (props) => {
   const date = new Date(props.date);
-  const dayBeforeDate = addToDate(date, -1);
-  const dayAfterDate = addToDate(date, +1);
+  const prevDate = addToDate(date, -1);
+  const nextDate = addToDate(date, +1);
+  const prevDayLink = `/entry/?day=${getFormattedDate(prevDate)}`;
+  const todayLink = `/entry/?day=${getFormattedDate(new Date())}`;
+  const nextDayLink = `/entry/?day=${getFormattedDate(nextDate)}`;
 
   return (<div class="day-selector">
-    <button type="button"
-      id="btnPrevious"
-      onClick={() => props.onDayChanged(getFormattedDate(dayBeforeDate))}
-    ><span>{getShorthandedDayOfTheWeekName(dayBeforeDate)}</span></button>
-    <button type="button"
-      id="btnToday"
-      onClick={() => props.onDayChanged(getFormattedDate(new Date()))}
-    ><span>Today</span></button>
-    <label for="entry-date">Navigate to date:</label>
-    <input type="date"
-      id="entry-date"
-      name="entry-date"
-      value={props.date}
-      onChange={(evt: Event) => props.onDayChanged((evt.target as HTMLInputElement).value)} />
-    <button type="button"
-      id="btnNext"
-      onClick={() => props.onDayChanged(getFormattedDate(dayAfterDate))}
-    ><span>{getShorthandedDayOfTheWeekName(dayAfterDate)}</span></button>
+    <a id="btnPrevious" class="btn"
+      href={prevDayLink}
+      rel="prev"
+      title="previous day"
+      onClick={onLinkClicked.bind({}, props.onDayChanged, prevDate)}>
+      <span>{getShorthandedDayOfTheWeekName(prevDate)}</span>
+    </a>
+    <a id="btnToday" class="btn"
+      href={todayLink}
+      rel="today"
+      title="Today"
+      onClick={onLinkClicked.bind({}, props.onDayChanged, new Date())}>
+      <span>Today</span>
+    </a>
+    <div class="entry-date">
+      <label for="entry-date-input" class="entry-date-label">Navigate to date:</label>
+      <input type="date"
+        class="entry-date-input"
+        id="entry-date-input"
+        name="entry-date"
+        value={props.date}
+        onChange={(evt: Event) => props.onDayChanged((evt.target as HTMLInputElement).value)} />
+    </div>
+    <a id="btnNext" class="btn"
+      href={nextDayLink}
+      rel="today"
+      title="Today"
+      onClick={onLinkClicked.bind({}, props.onDayChanged, nextDate)}>
+      <span>{getShorthandedDayOfTheWeekName(nextDate)}</span>
+    </a>
   </div>)
 };
 

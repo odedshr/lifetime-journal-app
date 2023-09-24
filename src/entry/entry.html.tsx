@@ -36,7 +36,7 @@ const Element: ElementType = (props) => {
       <DaySelector date={props.date} onDayChanged={props.onDayChanged} />
     </header>
     <section id="recurring"></section>
-    <section id="entry">
+    <section id="entry" class="entry-fields">
       {props.entry.fields.map(field => {
         const fieldElement = getFieldElement(field, onValueChanged);
         fieldElementMap.set(field, fieldElement);
