@@ -31,7 +31,6 @@ jest.unstable_mockModule('@firebase/auth', () => {
 
   // invoke all callbacks with current data
   const fireOnChangeCallbacks = () => {
-    alert('?>????????????????');
     authMock.currentUser = authCurrentUserInfo;
     callbacks.forEach((cb) => {
       try {
@@ -50,8 +49,10 @@ jest.unstable_mockModule('@firebase/auth', () => {
 
   return {
     getAuth: jest.fn(() => authInstance),
-    GoogleAuthProvider: jest.fn(() => { }),
-    signInWithPopup: jest.fn(() => { }),
+    GoogleAuthProvider: jest.fn(() => ({
+      addScope: () => jest.fn()
+    })),
+    signInWithPopup: jest.fn((auth, provider) => new Promise((resolve, reject) => resolve(true))),
     onAuthStateChanged: jest.fn((authMock, onChangeCallback) => {
       setTimeout(() => onChangeCallback(getAuth()), 0);
     }),
@@ -64,9 +65,9 @@ jest.unstable_mockModule('@firebase/analytics', () => ({
 }));
 
 const { initializeApp } = await import('@firebase/app');
-const { getAuth, signOut: signOutFromFirebase } = await import('@firebase/auth');
+const { getAuth, signOut: signOutFromFirebase, signInWithPopup } = await import('@firebase/auth');
 
-const { app, auth, user, getAuthenticateUser, signOut } = await import('../public/js/firebase.app.js');
+const { app, auth, user, getAuthenticateUser, signOut, signIn } = await import('../public/js/firebase.app.js');
 
 describe('firebase.app.js', () => {
   beforeEach(() => {
@@ -117,6 +118,16 @@ describe('firebase.app.js', () => {
     it('should sign out of firebase', async () => {
       await signOut();
       expect(signOutFromFirebase).toHaveBeenCalled();
+    });
+  });
+
+  describe('signIn', () => {
+    it('should return true if sign in successful', async () => {
+      getAuth.mockReturnValue(mockedAuth);
+
+      const result = await signIn();
+      expect(result).toEqual(true);
+      expect(signInWithPopup).toHaveBeenCalled();
     });
   });
 });

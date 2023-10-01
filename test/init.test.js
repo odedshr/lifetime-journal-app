@@ -55,13 +55,13 @@ describe('Init', () => {
   it('redirects to entry page if no url specified', async () => {
     getAuthenticateUser.mockResolvedValueOnce({});
     await init('/');
-    expect(switchToEntryPage).toHaveBeenCalledWith({}, '2023-01-01');
+    expect(switchToEntryPage).toHaveBeenCalledWith({ "type": "user" }, '2023-01-01');
   });
 
   it('redirects to entry page for current date if no day specified', async () => {
     getAuthenticateUser.mockResolvedValueOnce({});
     await init('/entry/');
-    expect(switchToEntryPage).toHaveBeenCalledWith({}, '2023-01-01');
+    expect(switchToEntryPage).toHaveBeenCalledWith({ "type": "user" }, '2023-01-01');
   });
 
   it('redirects to entry page for specified day', async () => {

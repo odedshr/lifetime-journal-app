@@ -11,24 +11,23 @@ import { app } from '../firebase.app.js';
 import { appendChild } from "./entry.html.js";
 import { getUserSettings, getDayEntry, setDayEntry } from '../db.js';
 import { getDisplayableDate } from '../utils/date-utils.js';
-import { init } from '../init.js';
-const DEFAULT_DIARY = "diary-01";
+import { redirectTo } from '../init.js';
+const DEFAULT_DIARY = { uri: "diary-01" };
 function onDayChanged(day, diary) {
-    init('/entry/', new URLSearchParams(`?day=${day}&diary=${diary}`));
+    redirectTo('/entry/', new URLSearchParams(`?day=${day}&diary=${diary}`));
 }
-function onEntryChanged(app, user, entry) {
+function onEntryChanged(app, user, diary, entry) {
     return __awaiter(this, void 0, void 0, function* () {
-        return setDayEntry(app, user, DEFAULT_DIARY, entry.date, entry);
+        return setDayEntry(app, user, diary.uri, entry.date, entry);
     });
 }
 function switchPage(user, day) {
-    var _a;
     return __awaiter(this, void 0, void 0, function* () {
         document.title = `${getDisplayableDate(new Date(day))} | Lifetime Journal`;
         const settings = yield getUserSettings(app, user);
-        const diaryUri = ((_a = settings.diaries[0]) === null || _a === void 0 ? void 0 : _a.uri) || DEFAULT_DIARY;
-        const entry = yield getDayEntry(app, user, diaryUri, day);
-        appendChild(document.body, day, entry, (day) => onDayChanged(day, diaryUri), (entry) => onEntryChanged(app, user, entry), []);
+        const diary = settings.diaries[0] || DEFAULT_DIARY;
+        const entry = yield getDayEntry(app, user, diary, day);
+        appendChild(document.body, day, entry, (day) => onDayChanged(day, diary.uri), (entry) => onEntryChanged(app, user, diary, entry), []);
     });
 }
 export { switchPage };

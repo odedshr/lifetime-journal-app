@@ -13,14 +13,20 @@ type Settings = {
   diaries: Diary[];
 }
 
-type FieldType = 'text' | 'number' | 'emoji';
+type FieldType = 'text' | 'number' | 'emoji' | 'color';
 
 type FieldTemplate = {
   label?: string,
-  type: FieldType,
-  unit?: string
+  type: FieldType
 }
 type Field<T> = FieldTemplate & { value: T };
+
+type NumberField = Field<number> & {
+  unit?: string,
+  max?: number,
+  min?: number,
+  step?: number
+}
 
 type Entry = {
   date: string,
@@ -33,4 +39,14 @@ type Annual = {
   endDate?: string
 }
 
-export { FirebaseApp, User, Diary, Settings, Entry, Field, FieldTemplate, Annual };
+export {
+  FirebaseApp,
+  User,
+  Diary,
+  Settings,
+  Entry,
+  NumberField,
+  Field,
+  FieldTemplate,
+  Annual
+};

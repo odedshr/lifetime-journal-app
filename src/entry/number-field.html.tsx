@@ -1,38 +1,38 @@
 import { render } from 'nano-jsx';
-import { Field } from '../types.js';
+import { NumberField } from '../types.js';
 
 type Props = {
-  field: Field<string>,
-  onValueChanged: (field: Field<string>, value: string) => Promise<boolean>
+  field: NumberField,
+  onValueChanged: (field: NumberField, value: number) => Promise<boolean>
 }
 type ElementType = (props: Props) => HTMLElement;
-
-function sanitizeHTML(html: string) {
-  return html.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
 
 const Element: ElementType = (props) => {
   let oldValue = props.field.value;
 
   const onBlur = async (evt: InputEvent) => {
     const inputField = evt.target as HTMLInputElement;
-    const newValue: string = sanitizeHTML(inputField.value);
+    const newValue: number = +inputField.value;
     if (newValue !== oldValue) {
       inputField.setAttribute('data-saving', 'true');
       const updateResult = await props.onValueChanged(props.field, newValue);
       if (!updateResult) {
-        inputField.value = oldValue;
+        inputField.value = `${oldValue}`;
       }
       inputField.removeAttribute('data-saving');
     }
   };
 
-  return (<div class="emoji-field">
-    <label for="entry-emoji" class="entry-label">{props.field.label}</label>
-    <input type="text" id="entry-emoji" class="emoji-field"
-      name="entry-emoji" max-length="1"
+  return (<div class="number-field">
+    <label for="entry-number" class="entry-label">{props.field.label}</label>
+    <input type="number" id="entry-number" class="number-field"
+      name="entry-number"
+      min={props.field.min || ''}
+      max={props.field.max || ''}
+      step={props.field.step || ''}
       onBlur={onBlur} value={props.field.value}
     />
+    <span class="entry-unit">{props.field.unit}</span>
   </div>)
 };
 

@@ -12,6 +12,8 @@ import { render } from 'nano-jsx';
 import { Element as DaySelector } from './day-selector.html.js';
 import { Element as TextField } from './text-field.html.js';
 import { Element as EmojiField } from './emoji-field.html.js';
+import { Element as NumberField } from './number-field.html.js';
+import { Element as ColorField } from './color-field.html.js';
 const Element = (props) => {
     const fieldElementMap = new Map();
     const onValueChanged = (field, value) => __awaiter(void 0, void 0, void 0, function* () {
@@ -43,6 +45,10 @@ function getFieldElement(field, onValueChanged) {
             return _jsx(TextField, { field: field, onValueChanged: onValueChanged });
         case 'emoji':
             return _jsx(EmojiField, { field: field, onValueChanged: onValueChanged });
+        case 'number':
+            return _jsx(NumberField, { field: field, onValueChanged: onValueChanged });
+        case 'color':
+            return _jsx(ColorField, { field: field, onValueChanged: onValueChanged });
         default:
             return _jsxs("p", { children: ["Unknown field type: ", field.type] });
     }

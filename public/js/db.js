@@ -19,12 +19,12 @@ function getUserId(user) {
 }
 function getDayEntry(app, user, diary, date) {
     return __awaiter(this, void 0, void 0, function* () {
-        const document = yield getDoc(doc(collection(getDB(app), getUserId(user)), diary, "entries", date));
+        const document = yield getDoc(doc(collection(getDB(app), getUserId(user)), diary.uri, "entries", date));
         if (document.exists()) {
             return document.data();
         }
-        const defaultField = { type: 'text', value: '' };
-        return { date, fields: [defaultField] };
+        const fields = diary.defaultFields || [{ type: 'text', value: '' }];
+        return { date, fields };
     });
 }
 function setDayEntry(app, user, diary, day, entry) {

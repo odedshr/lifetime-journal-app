@@ -54,20 +54,20 @@ describe('Entry.Controller', () => {
       expect(getDayEntry).toHaveBeenCalledWith(
         expect.any(Function),
         expect.any(Object),
-        'diary-01',
+        { "uri": "diary-01" },
         '2023-01-01'
       );
     });
 
     it('gets entry for configured diary', async () => {
       getUserSettings.mockResolvedValueOnce({
-        diaries: [{ uri: 'custom' }]
+        diaries: [{ "uri": "custom" }]
       });
       await switchPage({}, '2023-01-01');
       expect(getDayEntry).toHaveBeenCalledWith(
         expect.any(Function),
         {},
-        'custom',
+        { "uri": "custom" },
         '2023-01-01'
       );
     });

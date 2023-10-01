@@ -31,7 +31,7 @@ function toggleEditOn(evt: MouseEvent) {
 }
 
 const Element: ElementType = (props) => {
-  const oldValue = props.field.value;
+  const oldValue = props.field.value || '';
 
   const getPreviewModeStatus = (value: string) => value.trim().length > 0;
 
@@ -45,12 +45,12 @@ const Element: ElementType = (props) => {
   };
 
   return (<div class="text-field">
-    <label for="entry-text">{props.field.label}</label>
+    <label for="entry-text" class="entry-label">{props.field.label}</label>
     <div
       id="text-field-preview"
       class="text-field-preview"
       data-preview={getPreviewModeStatus(oldValue)}
-      innerHTML={{ __dangerousHtml: parseMarkdown(sanitizeHTML(props.field.value)) }}
+      innerHTML={{ __dangerousHtml: parseMarkdown(sanitizeHTML(oldValue)) }}
       onClick={toggleEditOn}></div>
     <textarea id="entry-text" class="text-field"
       name="entry-text" rows="10" cols="50"

@@ -15,17 +15,16 @@ function init(url, parameters = new URLSearchParams()) {
     return __awaiter(this, void 0, void 0, function* () {
         const user = yield getAuthenticateUser().catch(() => {
             if (url !== '/') {
-                navToUrl('/');
+                return redirectTo('/');
             }
-            switchToSignInPage();
+            return switchToSignInPage();
         });
         if (!user) {
             return;
         }
         if (url === '/signout/') {
             signOut();
-            navToUrl('/');
-            return switchToSignInPage();
+            return yield redirectTo('/');
         }
         if (url === '/overview/') {
             // switchToOverviewPage
@@ -33,20 +32,23 @@ function init(url, parameters = new URLSearchParams()) {
         if (url === '/diaries/') {
             // switchToDiariesPage
         }
-        if (url !== '/entry/') {
-            navToUrl('/entry');
+        if (url === '/' || url === '/entry/') {
+            let day = parameters.get('day') || '';
+            // if day doesn't match yyyy-mm-dd format then get today's date
+            if (/^\d{4}\-\d{2}\-\d{2}$/.exec(day) === null) {
+                day = getFormattedDate(new Date());
+                return yield redirectTo('/entry/', new URLSearchParams(`day=${day}`));
+            }
+            return yield switchToEntryPage(user, day);
         }
-        let day = parameters.get('day') || '';
-        // if day doesn't match yyyy-mm-dd format then get today's date
-        if (/^\d{4}\-\d{2}\-\d{2}$/.exec(day) === null) {
-            day = getFormattedDate(new Date());
-            navToUrl('/entry/?day=' + day);
-        }
-        switchToEntryPage(user, day);
+        console.log('page not found', url);
     });
 }
-function navToUrl(url) {
-    history.pushState({}, '', url);
+function redirectTo(url, parameters = new URLSearchParams()) {
+    return __awaiter(this, void 0, void 0, function* () {
+        history.pushState({}, '', `${url}?${parameters.toString()}`);
+        return init(url, parameters);
+    });
 }
 window.addEventListener('load', () => init(location.pathname, new URLSearchParams(location.search)));
-export { init };
+export { init, redirectTo };

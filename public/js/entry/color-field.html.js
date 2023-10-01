@@ -26,7 +26,7 @@ const Element = (props) => {
             inputField.removeAttribute('data-saving');
         }
     });
-    return (_jsxs("div", { class: "emoji-field", children: [_jsx("label", { for: "entry-emoji", class: "entry-label", children: props.field.label }), _jsx("input", { type: "text", id: "entry-emoji", class: "emoji-field", name: "entry-emoji", "max-length": "1", onBlur: onBlur, value: props.field.value })] }));
+    return (_jsxs("div", { class: "color-field", children: [_jsx("label", { for: "entry-color", class: "entry-label", children: props.field.label }), _jsx("input", { type: "color", id: "entry-color", class: "color-field", name: "entry-color", "max-length": "1", onBlur: onBlur, value: props.field.value })] }));
 };
 function appendChild(parent, props) {
     render(_jsx(Element, { field: props.field, onValueChanged: props.onValueChanged }), parent);

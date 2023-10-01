@@ -1,7 +1,7 @@
 import {
   Firestore, getFirestore, collection, doc, getDoc, setDoc
 } from '@firebase/firestore';
-import { FirebaseApp, Settings, Entry, Field, User } from './types.js';
+import { FirebaseApp, Settings, Diary, Entry, Field, User } from './types.js';
 
 
 function getDB(app: FirebaseApp): Firestore {
@@ -15,14 +15,14 @@ function getUserId(user: User): string {
   return user.email.replace(/\./g, '-');
 }
 
-async function getDayEntry(app: FirebaseApp, user: User, diary: string, date: string) {
-  const document = await getDoc(doc(collection(getDB(app), getUserId(user)), diary, "entries", date));
+async function getDayEntry(app: FirebaseApp, user: User, diary: Diary, date: string) {
+  const document = await getDoc(doc(collection(getDB(app), getUserId(user)), diary.uri, "entries", date));
 
   if (document.exists()) {
     return document.data() as Entry
   }
-  const defaultField: Field<string> = { type: 'text', value: '' };
-  return { date, fields: [defaultField] };
+  const fields = diary.defaultFields || [{ type: 'text', value: '' }];
+  return { date, fields } as Entry;
 }
 
 async function setDayEntry(app: FirebaseApp, user: User, diary: string, day: string, entry: Entry): Promise<boolean> {

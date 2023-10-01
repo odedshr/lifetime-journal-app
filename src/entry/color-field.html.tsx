@@ -27,10 +27,10 @@ const Element: ElementType = (props) => {
     }
   };
 
-  return (<div class="emoji-field">
-    <label for="entry-emoji" class="entry-label">{props.field.label}</label>
-    <input type="text" id="entry-emoji" class="emoji-field"
-      name="entry-emoji" max-length="1"
+  return (<div class="color-field">
+    <label for="entry-color" class="entry-label">{props.field.label}</label>
+    <input type="color" id="entry-color" class="color-field"
+      name="entry-color" max-length="1"
       onBlur={onBlur} value={props.field.value}
     />
   </div>)

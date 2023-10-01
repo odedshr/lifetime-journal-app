@@ -49,3 +49,18 @@
   gap: 0.5rem;
   padding: 0.5rem;
 }
+
+input[type="number"] {
+  text-align: right;
+}
+
+.entry-label {
+  color: var(--color-pink);
+  display: block;
+  font-size: 1.2rem;
+}
+
+.entry-unit {
+  color: var(--color-orange);
+  margin-left: 0.5rem;
+}

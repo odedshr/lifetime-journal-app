@@ -9,24 +9,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { jsx as _jsx, jsxs as _jsxs } from "nano-jsx/esm/jsx-runtime";
 import { render } from 'nano-jsx';
-function sanitizeHTML(html) {
-    return html.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
 const Element = (props) => {
     let oldValue = props.field.value;
     const onBlur = (evt) => __awaiter(void 0, void 0, void 0, function* () {
         const inputField = evt.target;
-        const newValue = sanitizeHTML(inputField.value);
+        const newValue = +inputField.value;
         if (newValue !== oldValue) {
             inputField.setAttribute('data-saving', 'true');
             const updateResult = yield props.onValueChanged(props.field, newValue);
             if (!updateResult) {
-                inputField.value = oldValue;
+                inputField.value = `${oldValue}`;
             }
             inputField.removeAttribute('data-saving');
         }
     });
-    return (_jsxs("div", { class: "emoji-field", children: [_jsx("label", { for: "entry-emoji", class: "entry-label", children: props.field.label }), _jsx("input", { type: "text", id: "entry-emoji", class: "emoji-field", name: "entry-emoji", "max-length": "1", onBlur: onBlur, value: props.field.value })] }));
+    return (_jsxs("div", { class: "number-field", children: [_jsx("label", { for: "entry-number", class: "entry-label", children: props.field.label }), _jsx("input", { type: "number", id: "entry-number", class: "number-field", name: "entry-number", min: props.field.min || '', max: props.field.max || '', step: props.field.step || '', onBlur: onBlur, value: props.field.value }), _jsx("span", { class: "entry-unit", children: props.field.unit })] }));
 };
 function appendChild(parent, props) {
     render(_jsx(Element, { field: props.field, onValueChanged: props.onValueChanged }), parent);
