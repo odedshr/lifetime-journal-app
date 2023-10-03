@@ -11,6 +11,7 @@ import { getAuthenticateUser, signOut } from "./firebase.app.js";
 import { getFormattedDate } from "./utils/date-utils.js";
 import { switchPage as switchToSignInPage } from "./signin/signin.controller.js";
 import { switchPage as switchToEntryPage } from "./entry/entry.controller.js";
+import { switchPage as switchToPageNotFound } from "./404/404.controller.js";
 function init(url, parameters = new URLSearchParams()) {
     return __awaiter(this, void 0, void 0, function* () {
         const user = yield getAuthenticateUser().catch(() => {
@@ -41,7 +42,7 @@ function init(url, parameters = new URLSearchParams()) {
             }
             return yield switchToEntryPage(user, day);
         }
-        console.log('page not found', url);
+        return yield switchToPageNotFound();
     });
 }
 function redirectTo(url, parameters = new URLSearchParams()) {

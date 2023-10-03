@@ -13,21 +13,20 @@ jest.unstable_mockModule('../public/js/db.js', () => ({
   getUserSettings: jest.fn(async () => ({ diaries: [] }))
 }));
 
-jest.unstable_mockModule('../public/js/entry/entry.controller.js', () => ({
+const mockedController = () => ({
   switchPage: jest.fn(() => ({}))
-}));
+});
 
-jest.unstable_mockModule('../public/js/signin/signin.controller.js', () => ({
-  switchPage: jest.fn(() => ({}))
-}));
+jest.unstable_mockModule('../public/js/entry/entry.controller.js', mockedController);
 
+jest.unstable_mockModule('../public/js/signin/signin.controller.js', mockedController);
+
+jest.unstable_mockModule('../public/js/404/404.controller.js', mockedController);
+
+jest.unstable_mockModule('../public/js/entry/entry.controller.js', mockedController);
 
 jest.unstable_mockModule('../public/js/utils/date-utils.js', () => ({
   getFormattedDate: jest.fn(() => ({}))
-}));
-
-jest.unstable_mockModule('../public/js/entry/entry.controller.js', () => ({
-  switchPage: jest.fn(() => ({}))
 }));
 
 const { init } = await import('../public/js/init.js');
@@ -35,6 +34,7 @@ const { getAuthenticateUser, signOut } = await import('../public/js/firebase.app
 const { getFormattedDate } = await import('../public/js/utils/date-utils.js');
 const { switchPage: switchToEntryPage } = await import('../public/js/entry/entry.controller.js');
 const { switchPage: switchToSignInPage } = await import('../public/js/signin/signin.controller.js');
+const { switchPage: switchToPageNotFound } = await import('../public/js/404/404.controller.js');
 
 describe('Init', () => {
 
@@ -76,5 +76,11 @@ describe('Init', () => {
     signOut.mockImplementationOnce(() => { });
     await init('/signout/');
     expect(signOut).toHaveBeenCalledTimes(1);
+  });
+
+  it('redirects to page not found if url not recognized', async () => {
+    getAuthenticateUser.mockResolvedValueOnce({});
+    await init('/not-found/');
+    expect(switchToPageNotFound).toHaveBeenCalledTimes(1);
   });
 });

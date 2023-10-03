@@ -2,6 +2,7 @@ import { getAuthenticateUser, signOut } from "./firebase.app.js";
 import { getFormattedDate } from "./utils/date-utils.js";
 import { switchPage as switchToSignInPage } from "./signin/signin.controller.js";
 import { switchPage as switchToEntryPage } from "./entry/entry.controller.js";
+import { switchPage as switchToPageNotFound } from "./404/404.controller.js";
 
 async function init(url: string, parameters: URLSearchParams = new URLSearchParams()): Promise<void> {
   const user = await getAuthenticateUser().catch(() => {
@@ -40,7 +41,7 @@ async function init(url: string, parameters: URLSearchParams = new URLSearchPara
     return await switchToEntryPage(user, day);
   }
 
-  console.log('page not found', url)
+  return await switchToPageNotFound();
 }
 
 
