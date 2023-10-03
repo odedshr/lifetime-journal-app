@@ -14,33 +14,39 @@ function sanitizeHTML(html) {
     return html.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 function getPreviewElement() {
-    return document.getElementById('text-field-preview');
+    const previewElement = document.getElementById('text-field-preview');
+    return previewElement;
 }
 function setPreviewElementContent(previewElement, value, visible) {
     previewElement.setAttribute('data-preview', `${visible}`);
     previewElement.innerHTML = parseMarkdown(value);
 }
-function toggleEditOn(evt) {
+function toggleEditOn(evt, textarea) {
     evt.preventDefault();
     evt.stopPropagation();
     getPreviewElement().setAttribute('data-preview', 'false');
-    const textarea = document.getElementById('entry-text');
     textarea.focus();
     textarea.select();
     return false;
 }
 const Element = (props) => {
-    const oldValue = props.field.value || '';
+    let previewElement;
+    let inputField;
+    let oldValue = props.field.value || '';
     const getPreviewModeStatus = (value) => value.trim().length > 0;
     const toggleEditOff = (evt) => __awaiter(void 0, void 0, void 0, function* () {
-        const textarea = evt.target;
-        const newValue = sanitizeHTML(textarea.value);
-        textarea.setAttribute('data-saving', 'true');
-        const value = (yield props.onValueChanged(props.field, newValue)) ? newValue : oldValue;
-        setPreviewElementContent(getPreviewElement(), value, getPreviewModeStatus(value));
-        textarea.removeAttribute('data-saving');
+        const newValue = sanitizeHTML(inputField.value);
+        if (newValue !== oldValue) {
+            inputField.setAttribute('data-saving', 'true');
+            if (yield props.onValueChanged(props.field, newValue)) {
+                oldValue = newValue;
+            }
+            inputField.value = oldValue;
+            setPreviewElementContent(previewElement, oldValue, getPreviewModeStatus(oldValue));
+            inputField.removeAttribute('data-saving');
+        }
     });
-    return (_jsxs("div", { class: "text-field", children: [_jsx("label", { for: "entry-text", class: "entry-label", children: props.field.label }), _jsx("div", { id: "text-field-preview", class: "text-field-preview", "data-preview": getPreviewModeStatus(oldValue), innerHTML: { __dangerousHtml: parseMarkdown(sanitizeHTML(oldValue)) }, onClick: toggleEditOn }), _jsx("textarea", { id: "entry-text", class: "text-field", name: "entry-text", rows: "10", cols: "50", onBlur: toggleEditOff, children: props.field.value ? props.field.value : '' })] }));
+    return (_jsxs("div", { class: "text-field", children: [_jsx("label", { for: "entry-text", class: "entry-label", children: props.field.label }), _jsx("div", { ref: (el) => { previewElement = el; }, id: "text-field-preview", class: "text-field-preview", "data-preview": getPreviewModeStatus(oldValue), innerHTML: { __dangerousHtml: parseMarkdown(sanitizeHTML(oldValue)) }, onClick: (evt) => toggleEditOn(evt, inputField) }), _jsx("textarea", { id: "entry-text", class: "text-field", ref: (el) => { inputField = el; }, name: "entry-text", rows: "10", cols: "50", onBlur: toggleEditOff, children: props.field.value ? props.field.value : '' })] }));
 };
 function appendChild(parent, props) {
     render(_jsx(Element, { field: props.field, onValueChanged: props.onValueChanged }), parent);

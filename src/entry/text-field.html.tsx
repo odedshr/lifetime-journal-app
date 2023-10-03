@@ -12,7 +12,8 @@ function sanitizeHTML(html: string) {
 }
 
 function getPreviewElement() {
-  return document.getElementById('text-field-preview') as HTMLDivElement;
+  const previewElement = document.getElementById('text-field-preview') as HTMLDivElement
+  return previewElement;
 }
 
 function setPreviewElementContent(previewElement: HTMLDivElement, value: string, visible: boolean) {
@@ -20,39 +21,47 @@ function setPreviewElementContent(previewElement: HTMLDivElement, value: string,
   previewElement.innerHTML = parseMarkdown(value);
 }
 
-function toggleEditOn(evt: MouseEvent) {
+function toggleEditOn(evt: MouseEvent, textarea: HTMLTextAreaElement) {
   evt.preventDefault();
   evt.stopPropagation();
   getPreviewElement().setAttribute('data-preview', 'false');
-  const textarea = document.getElementById('entry-text') as HTMLTextAreaElement;
   textarea.focus();
   textarea.select();
   return false;
 }
 
 const Element: ElementType = (props) => {
-  const oldValue = props.field.value || '';
+  let previewElement: HTMLDivElement;
+  let inputField: HTMLTextAreaElement
+
+  let oldValue = props.field.value || '';
 
   const getPreviewModeStatus = (value: string) => value.trim().length > 0;
 
   const toggleEditOff = async (evt: InputEvent) => {
-    const textarea = evt.target as HTMLTextAreaElement;
-    const newValue: string = sanitizeHTML(textarea.value);
-    textarea.setAttribute('data-saving', 'true');
-    const value = (await props.onValueChanged(props.field, newValue)) ? newValue : oldValue;
-    setPreviewElementContent(getPreviewElement(), value, getPreviewModeStatus(value))
-    textarea.removeAttribute('data-saving');
+    const newValue: string = sanitizeHTML(inputField.value);
+    if (newValue !== oldValue) {
+      inputField.setAttribute('data-saving', 'true');
+      if (await props.onValueChanged(props.field, newValue)) {
+        oldValue = newValue;
+      }
+      inputField.value = oldValue;
+      setPreviewElementContent(previewElement, oldValue, getPreviewModeStatus(oldValue));
+      inputField.removeAttribute('data-saving');
+    }
   };
 
   return (<div class="text-field">
     <label for="entry-text" class="entry-label">{props.field.label}</label>
     <div
+      ref={(el: HTMLDivElement) => { previewElement = el; }}
       id="text-field-preview"
       class="text-field-preview"
       data-preview={getPreviewModeStatus(oldValue)}
       innerHTML={{ __dangerousHtml: parseMarkdown(sanitizeHTML(oldValue)) }}
-      onClick={toggleEditOn}></div>
+      onClick={(evt: MouseEvent) => toggleEditOn(evt, inputField)}></div>
     <textarea id="entry-text" class="text-field"
+      ref={(el: HTMLTextAreaElement) => { inputField = el; }}
       name="entry-text" rows="10" cols="50"
       onBlur={toggleEditOff}
     >
