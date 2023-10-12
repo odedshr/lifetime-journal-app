@@ -14,7 +14,7 @@ function onSignInButtonClicked() {
     return __awaiter(this, void 0, void 0, function* () {
         const result = yield signIn();
         if (result) {
-            initApp('/');
+            yield initApp('/');
         }
         return result;
     });

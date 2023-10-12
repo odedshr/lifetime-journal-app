@@ -1,5 +1,6 @@
 @import url('./colors.css');
 @import url('./entry.css');
+@import url('./annuals.css');
 
 html {
   font-size: 62.5%;
@@ -39,4 +40,10 @@ body {
 
 .btn {
   background-color: var(--color-button);
+}
+
+label:has(+ input[required])::after {
+  content: "*";
+  color: red;
+  margin-left: 0.5rem;
 }

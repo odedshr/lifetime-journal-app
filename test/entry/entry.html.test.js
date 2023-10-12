@@ -1,49 +1,42 @@
 import { jest } from '@jest/globals';
 
-// Mock props and utils 
-jest.mock('nano-jsx', () => {
-  return { render: jest.fn() };
-});
-
-jest.mock('nano-jsx/esm/jsx-runtime', () => {
-  return {
-    jsx: jest.fn(),
-    jsxs: jest.fn()
-  };
-});
+jest.useFakeTimers();
 
 const { appendChild } = await import('../../public/js/entry/entry.html.js');
-const { render } = await import('nano-jsx');
 
 describe('Entry.html', () => {
   describe('appendChild', () => {
     it('should call render with the correct props', () => {
       const parent = document.createElement('div');
       const date = '2020-01-13';
-      appendChild(parent, date, { date, fields: [{ type: 'text', value: 'foo' }] }, {
-        onEntryChanged: (entry => { }),
-        onDateChanged: (date => { })
-      });
-      expect(render).toHaveBeenCalled();
+      appendChild(parent, date, { date, fields: [{ type: 'text', value: 'foo' }] }, [], [],
+        (date => { }), // onDayChange  
+        (entry => { }), // onEntryChanged
+        (date => { }) // onDateChanged
+      );
       expect(parent.querySelector('main.entry')).toBeDefined();
     });
 
-    // it fails to actually add the element to the parent
-    // it('should call onEntryChanged when the entry changes', () => {
-    //   const parent = document.createElement('div');
-    //   const date = '2020-01-13';
-    //   const onEntryChanged = jest.fn();
-    //   appendChild(parent, date, { date, fields: [{ type: 'text', value: 'foo' }] }, {
-    //     onEntryChanged,
-    //     onDateChanged: (date => { })
-    //   });
-    //   expect(parent.querySelector('main.entry')).toBeDefined();
+    it('should call onEntryChanged when the entry changes', async () => {
+      const parent = document.createElement('div');
+      const date = '2020-01-13';
+      const onEntryChanged = jest.fn();
+      appendChild(parent, date,
+        { date, fields: [{ type: 'text', value: 'foo' }] }, //entry
+        [], // annuals
+        [], // read-only annuals
+        (date => { }), // onDayChange
+        onEntryChanged,
+        (date => { }) // onDateChanged
+      );
+      expect(parent.querySelector('main.entry')).toBeDefined();
 
-    //   const inputField = parent.querySelector('textarea');
-    //   inputField.value = 'bar';
-    //   inputField.dispatchEvent(new Event('blur'));
-    //   expect(onEntryChanged).toHaveBeenCalled();
-    // });
+      const inputField = parent.querySelector('textarea');
+      inputField.value = 'bar';
+      inputField.dispatchEvent(new Event('blur'));
+      // await new Promise(process.nextTick);
+      expect(onEntryChanged).toHaveBeenCalled();
+    });
   });
 
 });

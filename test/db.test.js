@@ -13,7 +13,9 @@ const {
   getUserSettings,
   saveUserSettings,
   getDayEntry,
-  setDayEntry
+  setDayEntry,
+  getDayAnnuals,
+  setDayAnnuals
 } = await import('../public/js/db.js');
 
 describe('DB utils', () => {
@@ -23,6 +25,7 @@ describe('DB utils', () => {
     mood: 'happy',
     thoughts: 'I am feeling great!'
   };
+  const events = [{ label: 'ev1' }, { label: 'ev2' }, { label: 'ev3' }];
 
   let app;
   let user;
@@ -149,6 +152,68 @@ describe('DB utils', () => {
 
       expect(setDoc).toHaveBeenCalledTimes(1);
       expect(setDoc).toHaveBeenCalledWith(docReference, entry);
+      expect(result).toEqual(false);
+    });
+  });
+
+  describe('getDayAnnuals', () => {
+    it('should get day annuals', async () => {
+
+      getDoc.mockResolvedValue({
+        data: () => ({ events }),
+        exists: () => true
+      });
+
+      const result = await getDayAnnuals(app, user, 'diary', new Date('2000-01-10'));
+
+      expect(getDoc).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({ "annuals": events, "leapYear": [] });
+    });
+
+    it('should return empty array if day entry doesn\'t exists', async () => {
+      getDoc.mockResolvedValue({
+        data: () => null,
+        exists: () => false
+      });
+
+      const result = await getDayAnnuals(app, user, 'diary', new Date('2000-01-10'));
+
+      expect(getDoc).toHaveBeenCalledTimes(1);
+      expect(getDoc).toHaveBeenCalledWith(docReference);
+      expect(result).toEqual({ "annuals": [], "leapYear": [] });
+    });
+
+    it('should get day annuals including leap year', async () => {
+
+      getDoc.mockResolvedValue({
+        data: () => ({ events }),
+        exists: () => true
+      });
+
+      const result = await getDayAnnuals(app, user, 'diary', new Date('2001-02-28'));
+
+      expect(getDoc).toHaveBeenCalledTimes(2);
+      expect(result).toEqual({ "annuals": events, "leapYear": events.map(ev => ({ ...ev, label: `${ev.label} (Feb 29)` })) });
+    });
+  });
+
+  describe('setDayAnnauls', () => {
+    it('should set day annuals', async () => {
+      const result = await setDayAnnuals(app, user, 'diary', '01-01', events);
+
+      // then
+      expect(setDoc).toHaveBeenCalledTimes(1);
+      expect(setDoc).toHaveBeenCalledWith(docReference, { events });
+      expect(result).toEqual(true);
+    });
+
+    it('should return false if setDoc fails', async () => {
+      setDoc.mockRejectedValue(new Error('setDoc failed'));
+
+      const result = await setDayAnnuals(app, user, 'diary', '01-01', events);
+
+      expect(setDoc).toHaveBeenCalledTimes(1);
+      expect(setDoc).toHaveBeenCalledWith(docReference, { events });
       expect(result).toEqual(false);
     });
   });

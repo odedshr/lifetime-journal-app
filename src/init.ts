@@ -1,20 +1,16 @@
 import { getAuthenticateUser, signOut } from "./firebase.app.js";
-import { getFormattedDate } from "./utils/date-utils.js";
+import { getFormattedDate, isDateStringValid } from "./utils/date-utils.js";
 import { switchPage as switchToSignInPage } from "./signin/signin.controller.js";
 import { switchPage as switchToEntryPage } from "./entry/entry.controller.js";
+import { switchPage as switchToAnnualsPage } from "./annuals/annuals.controller.js";
 import { switchPage as switchToPageNotFound } from "./404/404.controller.js";
+import { User } from "./types.js";
 
 async function init(url: string, parameters: URLSearchParams = new URLSearchParams()): Promise<void> {
-  const user = await getAuthenticateUser().catch(() => {
-    if (url !== '/') {
-      return redirectTo('/');
-    }
-
-    return switchToSignInPage();
-  });
+  const user: User | null = await getAuthenticateUser().catch(() => null);
 
   if (!user) {
-    return;
+    return await switchToSignInPage();
   }
 
   if (url === '/signout/') {
@@ -22,20 +18,31 @@ async function init(url: string, parameters: URLSearchParams = new URLSearchPara
     return await redirectTo('/');
   }
 
-  if (url === '/overview/') {
-    // switchToOverviewPage
+  // if (url === '/overview/') {
+  //   // switchToOverviewPage
+  // }
+
+  // if (url === '/diaries/') {
+  //   // switchToDiariesPage
+  // }
+
+  let day = parameters.get('day') || '';
+
+  if (url === '/annuals/') {
+    if (!isDateStringValid(day)) {
+      parameters.set('day', getFormattedDate(new Date()));
+      return await redirectTo(url, parameters);
+    }
+    const id = parameters.get('id');
+    return await switchToAnnualsPage(user, day, id ? +id : undefined);
   }
 
-  if (url === '/diaries/') {
-    // switchToDiariesPage
-  }
 
   if (url === '/' || url === '/entry/') {
-    let day = parameters.get('day') || '';
-    // if day doesn't match yyyy-mm-dd format then get today's date
-    if (/^\d{4}\-\d{2}\-\d{2}$/.exec(day) === null) {
-      day = getFormattedDate(new Date())
-      return await redirectTo('/entry/', new URLSearchParams(`day=${day}`));
+    if (!isDateStringValid(day)) {
+      parameters.set('day', getFormattedDate(new Date()));
+
+      return await redirectTo('/entry/', parameters);
     }
 
     return await switchToEntryPage(user, day);
@@ -43,7 +50,6 @@ async function init(url: string, parameters: URLSearchParams = new URLSearchPara
 
   return await switchToPageNotFound();
 }
-
 
 async function redirectTo(url: string, parameters: URLSearchParams = new URLSearchParams()): Promise<void> {
   history.pushState({}, '', `${url}?${parameters.toString()}`);

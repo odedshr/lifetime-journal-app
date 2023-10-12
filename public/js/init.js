@@ -8,37 +8,40 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { getAuthenticateUser, signOut } from "./firebase.app.js";
-import { getFormattedDate } from "./utils/date-utils.js";
+import { getFormattedDate, isDateStringValid } from "./utils/date-utils.js";
 import { switchPage as switchToSignInPage } from "./signin/signin.controller.js";
 import { switchPage as switchToEntryPage } from "./entry/entry.controller.js";
+import { switchPage as switchToAnnualsPage } from "./annuals/annuals.controller.js";
 import { switchPage as switchToPageNotFound } from "./404/404.controller.js";
 function init(url, parameters = new URLSearchParams()) {
     return __awaiter(this, void 0, void 0, function* () {
-        const user = yield getAuthenticateUser().catch(() => {
-            if (url !== '/') {
-                return redirectTo('/');
-            }
-            return switchToSignInPage();
-        });
+        const user = yield getAuthenticateUser().catch(() => null);
         if (!user) {
-            return;
+            return yield switchToSignInPage();
         }
         if (url === '/signout/') {
             signOut();
             return yield redirectTo('/');
         }
-        if (url === '/overview/') {
-            // switchToOverviewPage
-        }
-        if (url === '/diaries/') {
-            // switchToDiariesPage
+        // if (url === '/overview/') {
+        //   // switchToOverviewPage
+        // }
+        // if (url === '/diaries/') {
+        //   // switchToDiariesPage
+        // }
+        let day = parameters.get('day') || '';
+        if (url === '/annuals/') {
+            if (!isDateStringValid(day)) {
+                parameters.set('day', getFormattedDate(new Date()));
+                return yield redirectTo(url, parameters);
+            }
+            const id = parameters.get('id');
+            return yield switchToAnnualsPage(user, day, id ? +id : undefined);
         }
         if (url === '/' || url === '/entry/') {
-            let day = parameters.get('day') || '';
-            // if day doesn't match yyyy-mm-dd format then get today's date
-            if (/^\d{4}\-\d{2}\-\d{2}$/.exec(day) === null) {
-                day = getFormattedDate(new Date());
-                return yield redirectTo('/entry/', new URLSearchParams(`day=${day}`));
+            if (!isDateStringValid(day)) {
+                parameters.set('day', getFormattedDate(new Date()));
+                return yield redirectTo('/entry/', parameters);
             }
             return yield switchToEntryPage(user, day);
         }

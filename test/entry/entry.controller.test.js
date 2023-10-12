@@ -8,11 +8,12 @@ jest.unstable_mockModule('../../public/js/firebase.app.js', () => ({
   signOut: jest.fn(),
 }));
 
-
 jest.unstable_mockModule('../../public/js/db.js', () => ({
   getUserSettings: jest.fn(async () => ({ diaries: [] })),
   getDayEntry: jest.fn(async () => ({})),
-  setDayEntry: jest.fn(async () => ({}))
+  setDayEntry: jest.fn(async () => ({})),
+  getDayAnnuals: jest.fn(async () => ({})),
+  setDayAnnuals: jest.fn(async () => ({}))
 }));
 
 jest.unstable_mockModule('../../public/js/entry/entry.html.js', () => ({
@@ -22,6 +23,14 @@ jest.unstable_mockModule('../../public/js/entry/entry.html.js', () => ({
 jest.unstable_mockModule('../../public/js/utils/date-utils.js', () => ({
   getDisplayableDate: jest.fn(() => ('xxx')),
   getFormattedDate: jest.fn(() => ('yyyy-mm-dd')),
+  getShorthandedDayOfTheWeekName: jest.fn(),
+  addToDate: jest.fn(),
+  getMmDd: jest.fn(),
+  isDateStringValid: jest.fn(),
+  getMmDdFromString: jest.fn(),
+  isFirstDateBeforeSecondDate: jest.fn(),
+  LEAP_YEAR_MONTH_LENGTH: [],
+  MONTH_NAMES: []
 }));
 
 const { switchPage } = await import('../../public/js/entry/entry.controller.js');

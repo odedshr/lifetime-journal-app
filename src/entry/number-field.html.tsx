@@ -12,7 +12,7 @@ const Element: ElementType = (props) => {
 
   const onBlur = async (evt: InputEvent) => {
     const inputField = evt.target as HTMLInputElement;
-    const newValue: number = +inputField.value;
+    const newValue: number = +(inputField.value || '');
     if (newValue !== oldValue) {
       inputField.setAttribute('data-saving', 'true');
       const updateResult = await props.onValueChanged(props.field, newValue);

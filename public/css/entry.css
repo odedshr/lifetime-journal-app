@@ -1,4 +1,4 @@
-.day-selector {
+.date-selector {
   background-color: var(--color-background-secondary);
   box-shadow: 0 0.5rem 0.5rem rgba(0, 0, 0, 0.5);
   display: flex;
@@ -6,7 +6,7 @@
   padding: 0.5rem;
 }
 
-.day-selector .btn {
+.date-selector .btn {
   align-items: center;
   border: 0;
   border-radius: 0.5rem;
@@ -19,7 +19,7 @@
   ;
 }
 
-.day-selector .btn:hover {
+.date-selector .btn:hover {
   background-color: var(--color-background-secondary);
 }
 
@@ -41,6 +41,12 @@
   font-size: 5vw;
   text-align: center;
   border: 0;
+}
+
+@media screen and (min-width: 768px) {
+  .entry-date-input {
+    font-size: 3.6rem;
+  }
 }
 
 .entry-fields {

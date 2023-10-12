@@ -9,11 +9,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { jsx as _jsx, jsxs as _jsxs } from "nano-jsx/esm/jsx-runtime";
 import { render } from 'nano-jsx';
-import { Element as DaySelector } from './day-selector.html.js';
+import { Element as DaySelector } from '../utils/yyyy-mm-dd-selector.html.js';
 import { Element as TextField } from './text-field.html.js';
 import { Element as EmojiField } from './emoji-field.html.js';
 import { Element as NumberField } from './number-field.html.js';
 import { Element as ColorField } from './color-field.html.js';
+import { Element as Annuals } from '../annuals/annual-list.html.js';
 const Element = (props) => {
     const fieldElementMap = new Map();
     const onValueChanged = (field, value) => __awaiter(void 0, void 0, void 0, function* () {
@@ -29,14 +30,14 @@ const Element = (props) => {
         }
         return result;
     });
-    return (_jsxs("main", { class: "entry", children: [_jsx("header", { children: _jsx(DaySelector, { date: props.date, onDayChanged: props.onDayChanged }) }), _jsx("section", { id: "recurring" }), _jsx("section", { id: "entry", class: "entry-fields", children: props.entry.fields.map(field => {
+    return (_jsxs("main", { class: "entry", children: [_jsx("header", { children: _jsx(DaySelector, { date: props.date, onDayChanged: props.onDayChanged }) }), _jsx("section", { id: "recurring", children: _jsx(Annuals, { date: props.date, items: props.annuals, readonly: props.leapYearAnnuals, onEditRequest: props.onAnnualEditRequest }) }), _jsx("section", { id: "entry", class: "entry-fields", children: props.entry.fields.map(field => {
                     const fieldElement = getFieldElement(field, onValueChanged);
                     fieldElementMap.set(field, fieldElement);
                     return fieldElement;
-                }) }), _jsx("section", { id: "periods" }), _jsx("section", { id: "diaries" })] }));
+                }) }), _jsx("section", { id: "periods" }), _jsx("section", { id: "diaries" }), _jsx("footer", { children: _jsx("a", { href: "#", onClick: () => props.onAnnualEditRequest(), children: _jsx("span", { children: "Add Annual" }) }) })] }));
 };
-function appendChild(parent, dateString, entry, onDayChanged, onEntryChanged, annuals) {
-    const element = _jsx(Element, { date: dateString, entry: entry, annuals: annuals, onDayChanged: onDayChanged, onEntryChanged: onEntryChanged });
+function appendChild(parent, dateString, entry, annuals, leapYear, onDayChanged, onEntryChanged, onAnnualEditRequest) {
+    const element = _jsx(Element, { date: dateString, entry: entry, annuals: annuals, leapYearAnnuals: leapYear, onDayChanged: onDayChanged, onEntryChanged: onEntryChanged, onAnnualEditRequest: onAnnualEditRequest });
     render(element, parent);
 }
 function getFieldElement(field, onValueChanged) {

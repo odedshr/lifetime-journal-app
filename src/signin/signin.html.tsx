@@ -8,16 +8,23 @@ type ElementType = (props: Props) => HTMLElement;
 
 
 const Element: ElementType = (props) => {
+  let signInButton: HTMLButtonElement;
+
   const onClick = async () => {
-    document.querySelector('#btnSignIn')?.setAttribute('disabled', 'true');
+    signInButton.setAttribute('disabled', 'true');
     await props.onSignInButtonClicked();
-    document.querySelector('#btnSignIn')?.removeAttribute('disabled');
+    signInButton.removeAttribute('disabled');
   }
 
   return (<main class="signin">
     <h1>Lifetime Journal</h1>
     <form>
-      <button type="button" class="button-sign-in" onClick={onClick} id="btnSignIn"
+      <button
+        type="button"
+        class="button-sign-in"
+        onClick={onClick}
+        id="btnSignIn"
+        ref={(el: HTMLButtonElement) => signInButton = el}
       ><span>Sign in with Google</span></button>
     </form>
   </main>)

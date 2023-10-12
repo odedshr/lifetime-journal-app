@@ -1,0 +1,51 @@
+.annuals {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 1rem 0.5rem 0.5rem;
+  padding: 0;
+}
+
+.annual-item {
+  align-items: center;
+  border: 0.1rem solid var(--color-button);
+  border-radius: 0.5rem;
+  display: flex;
+  padding: 0.5rem;
+}
+
+.annual-start:before {
+  content: "(";
+  margin-left: 0.5rem;
+}
+
+.annual-end:not(:empty):before {
+  content: " - ";
+  margin: 0 0.5rem;
+}
+
+.annual-end:after {
+  content: ")";
+}
+
+.annual-edit {
+  flex: 1 1 auto;
+  text-align: right;
+}
+
+.annual-edit:before {
+  content: "✍️";
+}
+
+.annual-edit span {
+  display: none;
+}
+
+.future-event {
+  opacity: 0.75;
+}
+
+.past-event {
+  display: none;
+}

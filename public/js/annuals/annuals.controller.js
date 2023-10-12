@@ -8,31 +8,43 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { app } from '../firebase.app.js';
-import { appendChild } from "./entry.html.js";
-import { getUserSettings, getDayEntry, setDayEntry, getDayAnnuals } from '../db.js';
-import { getDisplayableDate } from '../utils/date-utils.js';
+import { appendChild } from "./annuals.html.js";
+import { getUserSettings, getDayAnnuals, setDayAnnuals } from '../db.js';
+import { getMmDd } from '../utils/date-utils.js';
 import { redirectTo } from '../init.js';
 const DEFAULT_DIARY = { uri: "diary-01" };
 function onDayChanged(day, diary) {
+    redirectTo('/annuals/', new URLSearchParams(`?day=${day}&diary=${diary}`));
+}
+function redirectToEntry(day, diary) {
     redirectTo('/entry/', new URLSearchParams(`?day=${day}&diary=${diary}`));
 }
-function onAnnualEditRequest(day, diary, id) {
-    redirectTo('/annuals/', new URLSearchParams(`?${id !== undefined ? `id=${id}&` : ''}day=${day}&diary=${diary}`));
+function onEditRequest(day, diary, id) {
+    redirectTo('/annuals/', new URLSearchParams(`?id=${id}&day=${day}&diary=${diary}`));
 }
-function onEntryChanged(app, user, diary, entry) {
+function onChanged(app, user, diary, day, mmDd, annuals) {
     return __awaiter(this, void 0, void 0, function* () {
-        return setDayEntry(app, user, diary.uri, entry.date, entry);
+        if (yield setDayAnnuals(app, user, diary.uri, mmDd, annuals)) {
+            redirectToEntry(day, diary.uri);
+            return true;
+        }
+        return false;
     });
 }
-function switchPage(user, day) {
+function switchPage(user, day, id) {
     return __awaiter(this, void 0, void 0, function* () {
         const date = new Date(day);
-        document.title = `${getDisplayableDate(date)} | Lifetime Journal`;
+        const mmDd = getMmDd(date);
+        document.title = `${mmDd} | Lifetime Journal`;
         const settings = yield getUserSettings(app, user);
         const diary = settings.diaries[0] || DEFAULT_DIARY;
-        const entry = yield getDayEntry(app, user, diary, day);
         const { annuals, leapYear } = yield getDayAnnuals(app, user, diary, date);
-        appendChild(document.body, day, entry, annuals, leapYear, (day) => onDayChanged(day, diary.uri), (entry) => onEntryChanged(app, user, diary, entry), (id) => onAnnualEditRequest(day, diary.uri, id));
+        const removeItem = (id) => {
+            const newAnnuals = [...annuals];
+            newAnnuals.splice(id, 1);
+            return onChanged(app, user, diary, day, mmDd, newAnnuals);
+        };
+        appendChild(document.body, day, annuals, leapYear, (day) => onDayChanged(day, diary.uri), (annuals) => onChanged(app, user, diary, day, mmDd, annuals), (id) => onEditRequest(day, diary.uri, id), removeItem, () => redirectToEntry(day, diary.uri), id);
     });
 }
 export { switchPage };

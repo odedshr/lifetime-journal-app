@@ -1,5 +1,15 @@
 import { jest } from '@jest/globals';
-import { addToDate, getFormattedDate, getDateFromURL, getDisplayableDate, getShorthandedDayOfTheWeekName } from '../../public/js/utils/date-utils.js';
+import {
+  addToDate,
+  getFormattedDate,
+  getDateFromURL,
+  getDisplayableDate,
+  getMmDd,
+  getShorthandedDayOfTheWeekName,
+  isDateStringValid,
+  isFirstDateBeforeSecondDate,
+  isLeapYear
+} from '../../public/js/utils/date-utils.js';
 
 describe('date utils', () => {
   const date = new Date(2020, 0, 13);
@@ -63,5 +73,62 @@ describe('date utils', () => {
       languageGetter.mockReturnValue('he-IL');
       expect(getShorthandedDayOfTheWeekName(date)).toEqual('יום ב׳');
     });
-  })
+  });
+
+  describe('getMmDd', () => {
+    it('should return a string in the format of MM-DD', () => {
+      expect(getMmDd(date)).toEqual('01-13');
+    });
+  });
+
+  describe('isDateStringValid', () => {
+    it('returns false for invalid date string format', () => {
+      expect(isDateStringValid('2023')).toBe(false);
+      expect(isDateStringValid('2023-01')).toBe(false);
+    });
+
+    it('returns false for invalid months', () => {
+      expect(isDateStringValid('2023-00-01')).toBe(false);
+      expect(isDateStringValid('2023-13-01')).toBe(false);
+    });
+
+    it('returns false for invalid days', () => {
+      expect(isDateStringValid('2023-01-00')).toBe(false);
+      expect(isDateStringValid('2023-01-32')).toBe(false);
+    });
+
+    it('returns false for invalid dates', () => {
+      expect(isDateStringValid('2023-02-29')).toBe(false); // not leap year
+      expect(isDateStringValid('2024-02-30')).toBe(false); // feb doesn't have 30 days
+    });
+
+    it('returns true for valid date strings', () => {
+      expect(isDateStringValid('2023-01-01')).toBe(true);
+      expect(isDateStringValid('2020-02-29')).toBe(true); // leap year
+    });
+  });
+
+  describe('isFirstDateBeforeSecondDate', () => {
+    it('returns true for future dates', () => {
+      const now = new Date(2023, 10, 1);
+      const futureDate = new Date(2100, 1, 1);
+      expect(isFirstDateBeforeSecondDate(now, futureDate)).toBe(true);
+    });
+
+    it('returns false for past dates', () => {
+      const now = new Date(2023, 10, 1);
+      const pastDate = new Date(1900, 1, 1);
+      expect(isFirstDateBeforeSecondDate(now, pastDate)).toBe(false);
+    });
+  });
+
+  describe('isLeapYear', () => {
+    it('returns true for leap years', () => {
+      expect(isLeapYear(new Date(2020, 0, 1))).toBe(true);
+    });
+
+    it('returns false for non-leap years', () => {
+      expect(isLeapYear(new Date(2021, 0, 1))).toBe(false);
+    });
+  });
 });

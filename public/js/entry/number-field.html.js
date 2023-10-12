@@ -13,7 +13,7 @@ const Element = (props) => {
     let oldValue = props.field.value;
     const onBlur = (evt) => __awaiter(void 0, void 0, void 0, function* () {
         const inputField = evt.target;
-        const newValue = +inputField.value;
+        const newValue = +(inputField.value || '');
         if (newValue !== oldValue) {
             inputField.setAttribute('data-saving', 'true');
             const updateResult = yield props.onValueChanged(props.field, newValue);

@@ -1,9 +1,11 @@
 import { render } from 'nano-jsx';
-import { getFormattedDate, addToDate, getShorthandedDayOfTheWeekName } from '../utils/date-utils.js';
+import { getFormattedDate, addToDate, getShorthandedDayOfTheWeekName } from './date-utils.js';
 
 type Props = {
   date: string,
-  onDayChanged: (day: string) => void
+  onDayChanged: (day: string) => void,
+  children: HTMLElement[] | [HTMLElement]
+
 }
 
 type ElementType = (props: Props) => HTMLElement;
@@ -21,7 +23,7 @@ const Element: ElementType = (props) => {
   const todayLink = `/entry/?day=${getFormattedDate(new Date())}`;
   const nextDayLink = `/entry/?day=${getFormattedDate(nextDate)}`;
 
-  return (<div class="day-selector">
+  return (<div class="date-selector">
     <a id="btnPrevious" class="btn"
       href={prevDayLink}
       rel="prev"
@@ -36,15 +38,7 @@ const Element: ElementType = (props) => {
       onClick={onLinkClicked.bind({}, props.onDayChanged, new Date())}>
       <span>Today</span>
     </a>
-    <div class="entry-date">
-      <label for="entry-date-input" class="entry-date-label">Navigate to date:</label>
-      <input type="date"
-        class="entry-date-input"
-        id="entry-date-input"
-        name="entry-date"
-        value={props.date}
-        onChange={(evt: Event) => props.onDayChanged((evt.target as HTMLInputElement).value)} />
-    </div>
+    {props.children}
     <a id="btnNext" class="btn"
       href={nextDayLink}
       rel="today"
@@ -56,10 +50,11 @@ const Element: ElementType = (props) => {
 };
 
 function appendChild(parent: HTMLElement,
-  props: Props) {
+  props: Props, children: HTMLElement[]) {
   render(<Element
     date={props.date}
     onDayChanged={props.onDayChanged}
+    children={children}
   />, parent);
 }
 

@@ -8,6 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { getFirestore, collection, doc, getDoc, setDoc } from '@firebase/firestore';
+import { getMmDd, getShorthandedMonthAndDay, isLeapYear } from './utils/date-utils.js';
 function getDB(app) {
     return getFirestore(app);
 }
@@ -52,4 +53,38 @@ function saveUserSettings(app, user, settings) {
         yield setDoc(doc(collection(getDB(app), getUserId(user)), "settings"), settings);
     });
 }
-export { getUserSettings, saveUserSettings, getDayEntry, setDayEntry };
+function getAnnuals(app, user, diary, mmDd) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const document = yield getDoc(doc(collection(getDB(app), getUserId(user)), diary.uri, "annuals", fixMmDdFormat(mmDd)));
+        return (document.exists() ? sortAnnuals(document.data().events) : []);
+    });
+}
+const LEAP_YEAR_ANNUAL = getShorthandedMonthAndDay(new Date(2024, 1, 29));
+function getDayAnnuals(app, user, diary, date) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const mmDd = getMmDd(date);
+        return {
+            annuals: yield getAnnuals(app, user, diary, mmDd),
+            leapYear: (mmDd !== '02-28' || isLeapYear(new Date(date))) ? [] : (yield getAnnuals(app, user, diary, '02-29'))
+                .map(annual => (Object.assign(Object.assign({}, annual), { label: `${annual.label} (${LEAP_YEAR_ANNUAL})` })))
+        };
+    });
+}
+function sortAnnuals(annuals) {
+    return annuals.sort((a, b) => a.startYear - b.startYear);
+}
+function setDayAnnuals(app, user, diary, mmDd, annuals) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            yield setDoc(doc(collection(getDB(app), getUserId(user)), diary, "annuals", fixMmDdFormat(mmDd)), { events: annuals });
+            return true;
+        }
+        catch (err) {
+            return false;
+        }
+    });
+}
+function fixMmDdFormat(mmDd) {
+    return mmDd.replace(/\//g, '-');
+}
+export { getUserSettings, saveUserSettings, getDayEntry, setDayEntry, getDayAnnuals, setDayAnnuals };

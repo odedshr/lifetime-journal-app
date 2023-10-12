@@ -35,8 +35,9 @@ type Entry = {
 
 type Annual = {
   label: string,
-  color: string,
-  endDate?: string
+  startYear: number,
+  endYear?: number
+  color?: string,
 }
 
 export {

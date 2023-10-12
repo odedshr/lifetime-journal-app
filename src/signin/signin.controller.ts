@@ -7,7 +7,7 @@ async function onSignInButtonClicked(): Promise<boolean> {
   const result = await signIn();
 
   if (result) {
-    initApp('/');
+    await initApp('/');
   }
 
   return result;
