@@ -10,6 +10,7 @@ jest.unstable_mockModule('../../public/js/firebase.app.js', () => ({
 
 jest.unstable_mockModule('../../public/js/db.js', () => ({
   getUserSettings: jest.fn(async () => ({ diaries: [] })),
+  getDefaultFields: jest.fn(() => ({})),
   getDayEntry: jest.fn(async () => ({})),
   setDayEntry: jest.fn(async () => ({})),
   getDayAnnuals: jest.fn(async () => ({})),

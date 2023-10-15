@@ -12,6 +12,16 @@
           "input[type=color]"
         ]
       }
+    ],
+    "compat-api/css": [
+      "default",
+      {
+        "ignore": [
+          "display: grid",
+          "grid-template-columns",
+          "grid-template-rows"
+        ]
+      }
     ]
   }
 }

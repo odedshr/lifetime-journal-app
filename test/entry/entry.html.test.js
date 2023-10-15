@@ -20,11 +20,12 @@ describe('Entry.html', () => {
     it('should call onEntryChanged when the entry changes', async () => {
       const parent = document.createElement('div');
       const date = '2020-01-13';
-      const onEntryChanged = jest.fn();
+      const onEntryChanged = jest.fn(() => true);
       appendChild(parent, date,
         { date, fields: [{ type: 'text', value: 'foo' }] }, //entry
         [], // annuals
         [], // read-only annuals
+        true,
         (date => { }), // onDayChange
         onEntryChanged,
         (date => { }) // onDateChanged
@@ -34,6 +35,7 @@ describe('Entry.html', () => {
       const inputField = parent.querySelector('textarea');
       inputField.value = 'bar';
       inputField.dispatchEvent(new Event('blur'));
+      parent.querySelector('form').dispatchEvent(new Event('submit'));
       // await new Promise(process.nextTick);
       expect(onEntryChanged).toHaveBeenCalled();
     });

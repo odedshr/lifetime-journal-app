@@ -3,7 +3,7 @@ import { Field } from '../types.js';
 
 type Props = {
   field: Field<string>,
-  onValueChanged: (field: Field<string>, value: string) => Promise<boolean>
+  onValueChanged: (field: Field<string>, isDirty: boolean) => void
 }
 type ElementType = (props: Props) => HTMLElement;
 
@@ -12,36 +12,23 @@ function sanitizeHTML(html: string) {
 }
 
 const Element: ElementType = (props) => {
+  let field: HTMLInputElement;
   let oldValue = props.field.value;
 
   const onBlur = async (evt: InputEvent) => {
-    const inputField = evt.target as HTMLInputElement;
-    const newValue: string = sanitizeHTML(inputField.value);
-    if (newValue !== oldValue) {
-      inputField.setAttribute('data-saving', 'true');
-      const updateResult = await props.onValueChanged(props.field, newValue);
-      if (!updateResult) {
-        inputField.value = oldValue;
-      }
-      inputField.removeAttribute('data-saving');
-    }
+    const value: string = sanitizeHTML(field.value);
+    props.onValueChanged({ ...props.field, value }, value !== oldValue);
   };
 
   return (<div class="emoji-field">
     <label for="entry-emoji" class="entry-label">{props.field.label}</label>
-    <input type="text" id="entry-emoji" class="emoji-field"
+    <input type="text" id="entry-emoji" class="entry-input"
       name="entry-emoji" max-length="1"
-      onBlur={onBlur} value={props.field.value}
+      ref={(el: HTMLInputElement) => field = el}
+      onBlur={onBlur}
+      value={props.field.value}
     />
   </div>)
 };
 
-function appendChild(parent: HTMLElement,
-  props: Props) {
-  render(<Element
-    field={props.field}
-    onValueChanged={props.onValueChanged}
-  />, parent);
-}
-
-export { Element, appendChild };
+export { Element };

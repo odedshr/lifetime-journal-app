@@ -3,25 +3,19 @@ import { NumberField } from '../types.js';
 
 type Props = {
   field: NumberField,
-  onValueChanged: (field: NumberField, value: number) => Promise<boolean>
+  onValueChanged: (field: NumberField, isDirty: boolean) => void
 }
 type ElementType = (props: Props) => HTMLElement;
 
 const Element: ElementType = (props) => {
-  let oldValue = props.field.value;
+  const oldValue = props.field.value;
+  let field: HTMLInputElement;
 
   const onBlur = async (evt: InputEvent) => {
-    const inputField = evt.target as HTMLInputElement;
-    const newValue: number = +(inputField.value || '');
-    if (newValue !== oldValue) {
-      inputField.setAttribute('data-saving', 'true');
-      const updateResult = await props.onValueChanged(props.field, newValue);
-      if (!updateResult) {
-        inputField.value = `${oldValue}`;
-      }
-      inputField.removeAttribute('data-saving');
-    }
+    const value: number = +field.value;
+    props.onValueChanged({ ...props.field, value }, value !== oldValue);
   };
+
 
   return (<div class="number-field">
     <label for="entry-number" class="entry-label">{props.field.label}</label>
@@ -30,18 +24,11 @@ const Element: ElementType = (props) => {
       min={props.field.min || ''}
       max={props.field.max || ''}
       step={props.field.step || ''}
+      ref={(el: HTMLInputElement) => field = el}
       onBlur={onBlur} value={props.field.value}
     />
-    <span class="entry-unit">{props.field.unit}</span>
+    <div class="entry-unit">{props.field.unit}</div>
   </div>)
 };
 
-function appendChild(parent: HTMLElement,
-  props: Props) {
-  render(<Element
-    field={props.field}
-    onValueChanged={props.onValueChanged}
-  />, parent);
-}
-
-export { Element, appendChild };
+export { Element };

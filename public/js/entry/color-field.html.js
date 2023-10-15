@@ -13,20 +13,13 @@ function sanitizeHTML(html) {
     return html.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 const Element = (props) => {
+    let field;
     let oldValue = props.field.value;
     const onBlur = (evt) => __awaiter(void 0, void 0, void 0, function* () {
-        const inputField = evt.target;
-        const newValue = sanitizeHTML(inputField.value);
-        if (newValue !== oldValue) {
-            inputField.setAttribute('data-saving', 'true');
-            const updateResult = yield props.onValueChanged(props.field, newValue);
-            if (!updateResult) {
-                inputField.value = oldValue;
-            }
-            inputField.removeAttribute('data-saving');
-        }
+        const value = sanitizeHTML(field.value);
+        props.onValueChanged(Object.assign(Object.assign({}, props.field), { value }), value !== oldValue);
     });
-    return (_jsxs("div", { class: "color-field", children: [_jsx("label", { for: "entry-color", class: "entry-label", children: props.field.label }), _jsx("input", { type: "color", id: "entry-color", class: "color-field", name: "entry-color", "max-length": "1", onBlur: onBlur, value: props.field.value })] }));
+    return (_jsxs("div", { class: "color-field", children: [_jsx("label", { for: "entry-color", class: "entry-label", children: props.field.label }), _jsx("input", { type: "color", id: "entry-color", class: "color-field", name: "entry-color", "max-length": "1", ref: (el) => field = el, onBlur: onBlur, value: props.field.value })] }));
 };
 function appendChild(parent, props) {
     render(_jsx(Element, { field: props.field, onValueChanged: props.onValueChanged }), parent);

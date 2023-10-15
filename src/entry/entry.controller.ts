@@ -1,7 +1,7 @@
 import { app } from '../firebase.app.js';
 import { appendChild } from "./entry.html.js";
-import { getUserSettings, getDayEntry, setDayEntry, getDayAnnuals } from '../db.js';
-import { getDisplayableDate, getMmDd } from '../utils/date-utils.js';
+import { getUserSettings, getDefaultFields, getDayEntry, setDayEntry, getDayAnnuals } from '../db.js';
+import { getDisplayableDate } from '../utils/date-utils.js';
 import { FirebaseApp, User, Settings, Diary, Entry } from '../types.js';
 import { redirectTo } from '../init.js';
 
@@ -19,19 +19,22 @@ async function onEntryChanged(app: FirebaseApp, user: User, diary: Diary, entry:
   return setDayEntry(app, user, diary.uri, entry.date, entry);
 }
 
-async function switchPage(user: User, day: string) {
-  const date = new Date(day);
+async function switchPage(user: User, dateString: string) {
+  const date = new Date(dateString);
   document.title = `${getDisplayableDate(date)} | Lifetime Journal`;
   const settings: Settings = await getUserSettings(app, user);
   const diary = settings.diaries[0] || DEFAULT_DIARY;
 
-  const entry = await getDayEntry(app, user, diary, day);
+  const entry = await getDayEntry(app, user, diary, dateString);
+  const isEditMode = entry.fields === getDefaultFields(diary);
   const { annuals, leapYear } = await getDayAnnuals(app, user, diary, date);
 
-  appendChild(document.body, day, entry, annuals, leapYear,
+  appendChild(document.body, dateString, entry, annuals, leapYear,
+    isEditMode,
     (day: string) => onDayChanged(day, diary.uri),
     (entry: Entry) => onEntryChanged(app, user, diary, entry),
-    (id?: number) => onAnnualEditRequest(day, diary.uri, id));
+    (id?: number) => onAnnualEditRequest(dateString, diary.uri, id)
+  );
 }
 
 export { switchPage };

@@ -49,6 +49,11 @@
   }
 }
 
+.entry-details:not([edit-mode]) .entry-edit,
+.entry-details[edit-mode] .entry-view-wrapper {
+  display: none
+}
+
 .entry-fields {
   display: flex;
   flex-direction: column;
@@ -69,4 +74,23 @@ input[type="number"] {
 .entry-unit {
   color: var(--color-orange);
   margin-left: 0.5rem;
+}
+
+.entry-view {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.number-field-preview:after {
+  content: attr(data-unit);
+  color: var(--color-orange);
+  margin-left: 0.25rem;
+}
+
+.color-field-preview {
+  border-radius: 50%;
+  border: 0.1rem solid var(--color-border);
+  height: 1cm;
+  width: 1cm;
 }

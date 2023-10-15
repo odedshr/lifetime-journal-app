@@ -44,23 +44,15 @@ describe('ColorField', () => {
       inputField.dispatchEvent(new Event('blur'));
 
       expect(props.onValueChanged).toHaveBeenCalledWith(
-        props.field,
-        '#000000'
+        { ...props.field, value: '#000000' },
+        true
       );
     });
 
-    it('should revert to original value if onValueChanged returns false', async () => {
-      props.onValueChanged.mockReturnValueOnce(false);
-      const inputField = Element(props).querySelector('#entry-color')
-      inputField.value = '#ffffff';
-      await inputField.dispatchEvent(new Event('blur'));
-      expect(inputField.value).toEqual(props.field.value);
-    });
-
-    it('should not call onValueChanged if value is not changed', async () => {
+    it('should call onValueChanged with isDirty==false if value is not changed', async () => {
       const inputField = Element(props).querySelector('#entry-color')
       await inputField.dispatchEvent(new Event('blur'));
-      expect(props.onValueChanged).not.toHaveBeenCalled();
+      expect(props.onValueChanged).toHaveBeenCalledWith(props.field, false);
     });
 
   });

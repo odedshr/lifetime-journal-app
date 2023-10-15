@@ -18,13 +18,16 @@ function getUserId(user) {
     }
     return user.email.replace(/\./g, '-');
 }
+function getDefaultFields(diary) {
+    return diary.defaultFields || [{ type: 'text', value: '' }];
+}
 function getDayEntry(app, user, diary, date) {
     return __awaiter(this, void 0, void 0, function* () {
         const document = yield getDoc(doc(collection(getDB(app), getUserId(user)), diary.uri, "entries", date));
         if (document.exists()) {
             return document.data();
         }
-        const fields = diary.defaultFields || [{ type: 'text', value: '' }];
+        const fields = getDefaultFields(diary);
         return { date, fields };
     });
 }
@@ -87,4 +90,4 @@ function setDayAnnuals(app, user, diary, mmDd, annuals) {
 function fixMmDdFormat(mmDd) {
     return mmDd.replace(/\//g, '-');
 }
-export { getUserSettings, saveUserSettings, getDayEntry, setDayEntry, getDayAnnuals, setDayAnnuals };
+export { getUserSettings, saveUserSettings, getDefaultFields, getDayEntry, setDayEntry, getDayAnnuals, setDayAnnuals };

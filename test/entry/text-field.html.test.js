@@ -21,7 +21,7 @@ describe('TextField', () => {
     it('renders correctly', () => {
       const element = Element(props);
 
-      expect(element.querySelector('.text-field')).not.toBeNull();
+      expect(element.querySelector('.entry-input')).not.toBeNull();
       expect(element.querySelector('label[for="entry-text"]')).not.toBeNull();
       expect(element.querySelector('textarea#entry-text')).not.toBeNull();
     });
@@ -31,44 +31,19 @@ describe('TextField', () => {
       inputField.value = `<script>alert("Hacked!")</script>`;
       inputField.dispatchEvent(new Event('blur'));
       expect(props.onValueChanged).toHaveBeenCalledWith(
-        props.field,
-        '&lt;script&gt;alert(\"Hacked!\")&lt;/script&gt;'
+        { ...props.field, value: '&lt;script&gt;alert(\"Hacked!\")&lt;/script&gt;' },
+        true
       );
     });
 
-    it('should revert to original value if onValueChanged returns false', async () => {
-      props.onValueChanged.mockReturnValueOnce(false);
-      const inputField = Element(props).querySelector('#entry-text')
-      inputField.value = 'bar';
-      inputField.dispatchEvent(new Event('blur'));
-      // wait until the async operation is over
-      await new Promise(process.nextTick);
-
-      expect(inputField.value).toEqual(props.field.value);
-    });
-
-    it('should not call onValueChanged if value is not changed', async () => {
+    it('should call onValueChanged with isDirty==false if value is not changed', async () => {
       const inputField = Element(props).querySelector('#entry-text')
       await inputField.dispatchEvent(new Event('blur'));
 
       // wait until the async operation is over
       await new Promise(process.nextTick);
 
-      expect(props.onValueChanged).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('appendChild', () => {
-    it('renders Element', () => {
-      const parent = document.createElement('div');
-      const field = {
-        label: 'Test',
-        value: 'foobar'
-      };
-
-      appendChild(parent, { field });
-
-      expect(parent.querySelector('.text-field')).toBeDefined();
+      expect(props.onValueChanged).toHaveBeenCalledWith(props.field, false);
     });
   });
 });

@@ -10,48 +10,28 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import { jsx as _jsx, jsxs as _jsxs } from "nano-jsx/esm/jsx-runtime";
 import { render } from 'nano-jsx';
 import { Element as DaySelector } from '../utils/yyyy-mm-dd-selector.html.js';
-import { Element as TextField } from './text-field.html.js';
-import { Element as EmojiField } from './emoji-field.html.js';
-import { Element as NumberField } from './number-field.html.js';
-import { Element as ColorField } from './color-field.html.js';
 import { Element as Annuals } from '../annuals/annual-list.html.js';
+import { Element as EntryView } from './entry-view.html.js';
+import { Element as EntryEdit } from './entry-edit.html.js';
 const Element = (props) => {
-    const fieldElementMap = new Map();
-    const onValueChanged = (field, value) => __awaiter(void 0, void 0, void 0, function* () {
-        const targetField = props.entry.fields.find(f => (f === field));
-        if (!targetField) {
-            return false;
-        }
-        const originalValue = targetField.value;
-        targetField.value = value;
-        const result = yield props.onEntryChanged(props.entry);
+    let articleElm;
+    let entryView;
+    const attr = {};
+    if (props.isEditMode) {
+        attr['edit-mode'] = true;
+    }
+    const toggleEdit = () => articleElm.toggleAttribute('edit-mode');
+    const onEntryChanged = (entry) => __awaiter(void 0, void 0, void 0, function* () {
+        const result = yield props.onEntryChanged(entry);
         if (result) {
-            targetField.value = originalValue;
+            render(_jsx(EntryView, { id: "entry-view", entry: entry }), entryView, true);
         }
         return result;
     });
-    return (_jsxs("main", { class: "entry", children: [_jsx("header", { children: _jsx(DaySelector, { date: props.date, onDayChanged: props.onDayChanged }) }), _jsx("section", { id: "recurring", children: _jsx(Annuals, { date: props.date, items: props.annuals, readonly: props.leapYearAnnuals, onEditRequest: props.onAnnualEditRequest }) }), _jsx("section", { id: "entry", class: "entry-fields", children: props.entry.fields.map(field => {
-                    const fieldElement = getFieldElement(field, onValueChanged);
-                    fieldElementMap.set(field, fieldElement);
-                    return fieldElement;
-                }) }), _jsx("section", { id: "periods" }), _jsx("section", { id: "diaries" }), _jsx("footer", { children: _jsx("a", { href: "#", onClick: () => props.onAnnualEditRequest(), children: _jsx("span", { children: "Add Annual" }) }) })] }));
+    return (_jsxs("main", { class: "entry", children: [_jsx("header", { children: _jsx(DaySelector, { date: props.date, onDayChanged: props.onDayChanged }) }), _jsxs("article", Object.assign({ class: "entry-details" }, attr, { ref: (el) => articleElm = el, children: [_jsx(Annuals, { date: props.date, items: props.annuals, readonly: props.leapYearAnnuals, onEditRequest: props.onAnnualEditRequest }), _jsx("div", { class: "entry-view-wrapper", ref: (el) => { entryView = el; }, children: _jsx(EntryView, { id: "entry-view", entry: props.entry }) }), _jsx(EntryEdit, { entry: props.entry, onEntryChanged: onEntryChanged, onExitPage: toggleEdit }), _jsx("section", { id: "periods" }), _jsx("section", { id: "diaries" })] })), _jsxs("footer", { children: [_jsx("a", { href: "#", onClick: toggleEdit, children: _jsx("span", { children: "Edit" }) }), _jsx("a", { href: "#", onClick: () => props.onAnnualEditRequest(), children: _jsx("span", { children: "Add Annual" }) })] })] }));
 };
-function appendChild(parent, dateString, entry, annuals, leapYear, onDayChanged, onEntryChanged, onAnnualEditRequest) {
-    const element = _jsx(Element, { date: dateString, entry: entry, annuals: annuals, leapYearAnnuals: leapYear, onDayChanged: onDayChanged, onEntryChanged: onEntryChanged, onAnnualEditRequest: onAnnualEditRequest });
+function appendChild(parent, dateString, entry, annuals, leapYear, isEditMode, onDayChanged, onEntryChanged, onAnnualEditRequest) {
+    const element = _jsx(Element, { date: dateString, entry: entry, annuals: annuals, leapYearAnnuals: leapYear, isEditMode: isEditMode, onDayChanged: onDayChanged, onEntryChanged: onEntryChanged, onAnnualEditRequest: onAnnualEditRequest });
     render(element, parent);
-}
-function getFieldElement(field, onValueChanged) {
-    switch (field.type) {
-        case 'text':
-            return _jsx(TextField, { field: field, onValueChanged: onValueChanged });
-        case 'emoji':
-            return _jsx(EmojiField, { field: field, onValueChanged: onValueChanged });
-        case 'number':
-            return _jsx(NumberField, { field: field, onValueChanged: onValueChanged });
-        case 'color':
-            return _jsx(ColorField, { field: field, onValueChanged: onValueChanged });
-        default:
-            return _jsxs("p", { children: ["Unknown field type: ", field.type] });
-    }
 }
 export { appendChild };

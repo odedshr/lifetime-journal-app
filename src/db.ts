@@ -15,13 +15,17 @@ function getUserId(user: User): string {
   return user.email.replace(/\./g, '-');
 }
 
+function getDefaultFields(diary: Diary) {
+  return diary.defaultFields || [{ type: 'text', value: '' }];
+}
+
 async function getDayEntry(app: FirebaseApp, user: User, diary: Diary, date: string) {
   const document = await getDoc(doc(collection(getDB(app), getUserId(user)), diary.uri, "entries", date));
 
   if (document.exists()) {
     return document.data() as Entry
   }
-  const fields = diary.defaultFields || [{ type: 'text', value: '' }];
+  const fields = getDefaultFields(diary);
   return { date, fields } as Entry;
 }
 
@@ -91,6 +95,7 @@ function fixMmDdFormat(mmDd: string) {
 export {
   getUserSettings,
   saveUserSettings,
+  getDefaultFields,
   getDayEntry,
   setDayEntry,
   getDayAnnuals,

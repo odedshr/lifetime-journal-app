@@ -8,5 +8,6 @@
 
   --color-background: var(--color-gray);
   --color-background-secondary: var(--color-yellow);
+  --color-border: black;
   --color-button: var(--color-blue);
 }

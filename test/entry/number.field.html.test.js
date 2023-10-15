@@ -44,40 +44,16 @@ describe('NumberField', () => {
       inputField.dispatchEvent(new Event('blur'));
 
       expect(props.onValueChanged).toHaveBeenCalledWith(
-        props.field,
-        0
+        { ...props.field, value: 0 },
+        true
       );
     });
 
-    it('should revert to original value if onValueChanged returns false', async () => {
-      props.onValueChanged.mockReturnValueOnce(false);
-      const inputField = Element(props).querySelector('#entry-number')
-      inputField.value = -1;
-      await inputField.dispatchEvent(new Event('blur'));
-      expect(inputField.value).toEqual(`${props.field.value}`);
-    });
-
-    it('should not call onValueChanged if value is not changed', async () => {
+    it('should call onValueChanged with isDirty==false if value is not changed', async () => {
       const inputField = Element(props).querySelector('#entry-number')
       await inputField.dispatchEvent(new Event('blur'));
-      expect(props.onValueChanged).not.toHaveBeenCalled();
+      expect(props.onValueChanged).toHaveBeenCalledWith(props.field, false);
     });
 
-  });
-  describe('appendChild', () => {
-    it('renders Element', () => {
-      const parent = document.createElement('div');
-      const field = {
-        label: 'Test',
-        value: 123
-      };
-
-      appendChild(parent, { field });
-
-      expect(render).toHaveBeenCalledWith(
-        expect.objectContaining({ "component": Element, "props": { "children": [], "field": { "label": "Test", "value": 123 }, "onValueChanged": undefined } }),
-        parent
-      );
-    });
   });
 });
