@@ -25,6 +25,30 @@ main {
   height: 100%;
 }
 
+footer {
+  background-color: var(--color-background-secondary);
+  box-shadow: 0 0.5rem 0.5rem rgba(0, 0, 0, 0.5);
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem;
+}
+
+footer .btn {
+  align-items: center;
+  border: 0;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  height: 4rem;
+  justify-content: center;
+  text-decoration: none;
+  width: 4.4rem;
+  ;
+}
+
+footer .btn:hover {
+  background-color: var(--color-background-secondary);
+}
 
 /******************************/
 

@@ -51,8 +51,8 @@ const Element: ElementType = (props) => {
       <section id="diaries"></section>
     </article>
     <footer>
-      <a href="#" onClick={toggleEdit}><span>Edit</span></a>
-      <a href="#" onClick={() => props.onAnnualEditRequest()}><span>Add Annual</span></a>
+      <a href="#" class="btn" onClick={toggleEdit}><span>Edit</span></a>
+      <a href="#" class="btn" onClick={() => props.onAnnualEditRequest()}><span>Add Annual</span></a>
     </footer>
   </main>);
 }
