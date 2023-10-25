@@ -4,18 +4,26 @@ jest.unstable_mockModule('@firebase/firestore', () => ({
   collection: jest.fn(),
   doc: jest.fn(),
   getDoc: jest.fn(),
+  deleteDoc: jest.fn(),
   getFirestore: jest.fn(),
-  setDoc: jest.fn()
+  setDoc: jest.fn(),
+  getDocs: jest.fn(),
+  query: jest.fn(),
+  where: jest.fn(),
+  Timestamp: { fromDate: jest.fn((date) => (date)) }
 }));
 
-const { getFirestore, doc, collection, getDoc, setDoc } = await import('@firebase/firestore');
+const { getFirestore, doc, collection, getDoc, getDocs, setDoc, deleteDoc } = await import('@firebase/firestore');
 const {
   getUserSettings,
   saveUserSettings,
   getDayEntry,
   setDayEntry,
-  getDayAnnuals,
-  setDayAnnuals
+  getAnnuals,
+  setAnnuals,
+  getPeriods,
+  getPeriod,
+  setPeriod
 } = await import('../public/js/db.js');
 
 describe('DB utils', () => {
@@ -156,7 +164,7 @@ describe('DB utils', () => {
     });
   });
 
-  describe('getDayAnnuals', () => {
+  describe('getAnnuals', () => {
     it('should get day annuals', async () => {
 
       getDoc.mockResolvedValue({
@@ -164,7 +172,7 @@ describe('DB utils', () => {
         exists: () => true
       });
 
-      const result = await getDayAnnuals(app, user, 'diary', new Date('2000-01-10'));
+      const result = await getAnnuals(app, user, 'diary', new Date('2000-01-10'));
 
       expect(getDoc).toHaveBeenCalledTimes(1);
       expect(result).toEqual({ "annuals": events, "leapYear": [] });
@@ -176,7 +184,7 @@ describe('DB utils', () => {
         exists: () => false
       });
 
-      const result = await getDayAnnuals(app, user, 'diary', new Date('2000-01-10'));
+      const result = await getAnnuals(app, user, 'diary', new Date('2000-01-10'));
 
       expect(getDoc).toHaveBeenCalledTimes(1);
       expect(getDoc).toHaveBeenCalledWith(docReference);
@@ -190,7 +198,7 @@ describe('DB utils', () => {
         exists: () => true
       });
 
-      const result = await getDayAnnuals(app, user, 'diary', new Date('2001-02-28'));
+      const result = await getAnnuals(app, user, 'diary', new Date('2001-02-28'));
 
       expect(getDoc).toHaveBeenCalledTimes(2);
       expect(result).toEqual({ "annuals": events, "leapYear": events.map(ev => ({ ...ev, label: `${ev.label} (Feb 29)` })) });
@@ -199,7 +207,7 @@ describe('DB utils', () => {
 
   describe('setDayAnnauls', () => {
     it('should set day annuals', async () => {
-      const result = await setDayAnnuals(app, user, 'diary', '01-01', events);
+      const result = await setAnnuals(app, user, 'diary', '01-01', events);
 
       // then
       expect(setDoc).toHaveBeenCalledTimes(1);
@@ -210,10 +218,98 @@ describe('DB utils', () => {
     it('should return false if setDoc fails', async () => {
       setDoc.mockRejectedValue(new Error('setDoc failed'));
 
-      const result = await setDayAnnuals(app, user, 'diary', '01-01', events);
+      const result = await setAnnuals(app, user, 'diary', '01-01', events);
 
       expect(setDoc).toHaveBeenCalledTimes(1);
       expect(setDoc).toHaveBeenCalledWith(docReference, { events });
+      expect(result).toEqual(false);
+    });
+  });
+
+  describe('getPeriods', () => {
+    it('should get day periods', async () => {
+      const date = new Date('2000-01-10');
+      const timestamp = { toDate: () => date };
+      const expectedResult = { docs: [{ id: 'period-id', data: () => ({ type: 'period', startDate: timestamp, endDate: timestamp }) }] };
+      getDocs.mockResolvedValue(expectedResult);
+
+      const result = await getPeriods(app, user, 'diary', date);
+
+      expect(getDocs).toHaveBeenCalledTimes(1);
+      expect(result).toEqual([{ "id": "period-id", "type": "period", "startDate": date, "endDate": date }]);
+    });
+
+    it('should filter expired events', async () => {
+      const startDate = { toDate: () => new Date('2000-01-01') };
+      const expectedResult = {
+        docs: [
+          { id: 'period-1', data: () => ({ label: 'a', startDate, endDate: { toDate: () => new Date('2000-01-01') } }) },
+          { id: 'period-2', data: () => ({ label: 'b', startDate, endDate: { toDate: () => new Date('2000-01-10') } }) }]
+      };
+      getDocs.mockResolvedValue(expectedResult);
+
+      const result = await getPeriods(app, user, 'diary', new Date('2000-01-05'));
+
+      expect(getDocs).toHaveBeenCalledTimes(1);
+      expect(result).toEqual([{ "id": "period-2", "label": "b", "startDate": new Date('2000-01-01'), "endDate": new Date('2000-01-10') }]);
+    });
+  });
+
+  describe('getPeriod', () => {
+    it('should get period', async () => {
+      const expectedResult = { exists: () => true, data: () => ({ type: 'period' }) };
+
+      getDoc.mockResolvedValue(expectedResult);
+
+      const result = await getPeriod(app, user, 'diary', "my-id");
+
+      expect(getDoc).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({ type: 'period' });
+    });
+
+    it('should return null if not found', async () => {
+      const expectedResult = { exists: () => false, data: () => ({ type: 'period' }) };
+
+      getDoc.mockResolvedValue(expectedResult);
+
+      const result = await getPeriod(app, user, 'diary', "my-id");
+
+      expect(getDoc).toHaveBeenCalledTimes(1);
+      expect(result).toEqual(null);
+    });
+  });
+
+  describe('setPeriod', () => {
+    const period = { type: "period", id: 'docId', startDate: new Date('2000-01-01'), endDate: new Date('2000-01-10') };
+
+    it('should set a period', async () => {
+      const result = await setPeriod(app, user, 'diary', period.id, period);
+
+      expect(setDoc).toHaveBeenCalledTimes(1);
+      expect(setDoc).toHaveBeenCalledWith(docReference, period);
+      expect(result).toEqual(true);
+    });
+
+    it('should return false if setDoc fails', async () => {
+      setDoc.mockRejectedValue(new Error('setDoc failed'));
+
+      const result = await setPeriod(app, user, 'diary', period.id, period);
+
+      expect(setDoc).toHaveBeenCalledTimes(1);
+      expect(setDoc).toHaveBeenCalledWith(docReference, period);
+      expect(result).toEqual(false);
+    });
+
+    it('should delete a period', async () => {
+      const result = await setPeriod(app, user, 'diary', period.id, null);
+
+      expect(deleteDoc).toHaveBeenCalledTimes(1);
+      expect(deleteDoc).toHaveBeenCalledWith(docReference);
+      expect(result).toEqual(true);
+    });
+
+    it('should return false if failed to save', async () => {
+      const result = await setPeriod(app, user, 'diary', undefined, null);
       expect(result).toEqual(false);
     });
   });

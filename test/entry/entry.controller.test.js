@@ -8,17 +8,25 @@ jest.unstable_mockModule('../../public/js/firebase.app.js', () => ({
   signOut: jest.fn(),
 }));
 
+jest.unstable_mockModule('../../public/js/init.js', () => ({
+  redirectTo: jest.fn(() => { })
+}));
+
 jest.unstable_mockModule('../../public/js/db.js', () => ({
   getUserSettings: jest.fn(async () => ({ diaries: [] })),
   getDefaultFields: jest.fn(() => ({})),
   getDayEntry: jest.fn(async () => ({})),
   setDayEntry: jest.fn(async () => ({})),
-  getDayAnnuals: jest.fn(async () => ({})),
-  setDayAnnuals: jest.fn(async () => ({}))
+  getAnnuals: jest.fn(async () => ({})),
+  setAnnuals: jest.fn(async () => ({})),
+  getPeriods: jest.fn(async () => ({}))
 }));
 
+let inputs;
 jest.unstable_mockModule('../../public/js/entry/entry.html.js', () => ({
-  appendChild: jest.fn(async () => ({}))
+  appendChild: jest.fn(async (parent, dateString, entry, annuals, leapYear, periods, isEditMode, onDayChanged, onEntryChanged, onAnnualEditRequest, onPeriodEditRequest) => {
+    inputs = { parent, dateString, entry, annuals, leapYear, periods, isEditMode, onDayChanged, onEntryChanged, onAnnualEditRequest, onPeriodEditRequest };
+  })
 }));
 
 jest.unstable_mockModule('../../public/js/utils/date-utils.js', () => ({
@@ -34,10 +42,13 @@ jest.unstable_mockModule('../../public/js/utils/date-utils.js', () => ({
   MONTH_NAMES: []
 }));
 
+const { app } = await import('../../public/js/firebase.app.js');
 const { switchPage } = await import('../../public/js/entry/entry.controller.js');
 const { getUserSettings } = await import('../../public/js/db.js');
 const { appendChild } = await import('../../public/js/entry/entry.html.js');
 const { getDayEntry } = await import('../../public/js/db.js');
+const { redirectTo } = await import('../../public/js/init.js');
+const { setDayEntry } = await import('../../public/js/db.js');
 
 describe('Entry.Controller', () => {
 
@@ -87,5 +98,28 @@ describe('Entry.Controller', () => {
       expect(appendChild).toHaveBeenCalled();
     });
 
+    it('calls redirectTo when onDayChanged', async () => {
+      await switchPage({}, '2023-01-01');
+      inputs.onDayChanged('a', 'b');
+      expect(redirectTo).toHaveBeenCalledWith('/entry/', new URLSearchParams('?day=a&diary=diary-01'));
+    });
+
+    it('calls redirect when onAnnualEditRequest', async () => {
+      await switchPage({}, '2023-01-01');
+      inputs.onAnnualEditRequest('a', 'b', 'c');
+      expect(redirectTo).toHaveBeenCalledWith('/annuals/', new URLSearchParams('?id=a&day=2023-01-01&diary=diary-01'));
+    });
+
+    it('calls redirect when onAnnualEditRequest', async () => {
+      await switchPage({}, '2023-01-01');
+      inputs.onPeriodEditRequest('a', 'b', 'c');
+      expect(redirectTo).toHaveBeenCalledWith('/periods/', new URLSearchParams('?id=a&day=2023-01-01&diary=diary-01'));
+    });
+
+    it('calls setDayEntry when onEntryChanged', async () => {
+      await switchPage('user', '2023-01-01');
+      inputs.onEntryChanged({ date: 'a' }, 'b', { uri: 'c' }, 'd', 'a');
+      expect(setDayEntry).toHaveBeenCalledWith(app, 'user', 'diary-01', 'a', { date: 'a' });
+    });
   });
 });

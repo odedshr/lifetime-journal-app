@@ -1,7 +1,7 @@
 import {
-  Firestore, getFirestore, collection, doc, getDoc, setDoc
+  Firestore, getFirestore, collection, deleteDoc, doc, getDoc, getDocs, setDoc, query, where, Timestamp
 } from '@firebase/firestore';
-import { FirebaseApp, Settings, Diary, Entry, User, Annual } from './types.js';
+import { FirebaseApp, Settings, Diary, Entry, User, Annual, Period } from './types.js';
 import { getMmDd, getShorthandedMonthAndDay, isLeapYear } from './utils/date-utils.js';
 
 function getDB(app: FirebaseApp): Firestore {
@@ -53,7 +53,7 @@ async function saveUserSettings(app: FirebaseApp, user: User, settings: Settings
   await setDoc(doc(collection(getDB(app), getUserId(user)), "settings"), settings);
 }
 
-async function getAnnuals(app: FirebaseApp, user: User, diary: Diary, mmDd: string): Promise<Annual[]> {
+async function getAnnualsInternal(app: FirebaseApp, user: User, diary: Diary, mmDd: string): Promise<Annual[]> {
   const document = await getDoc(doc(collection(getDB(app), getUserId(user)), diary.uri, "annuals", fixMmDdFormat(mmDd)));
 
   return (document.exists() ? sortAnnuals(document.data().events) : []) as Annual[];
@@ -61,7 +61,7 @@ async function getAnnuals(app: FirebaseApp, user: User, diary: Diary, mmDd: stri
 
 const LEAP_YEAR_ANNUAL = getShorthandedMonthAndDay(new Date(2024, 1, 29));
 
-async function getDayAnnuals(
+async function getAnnuals(
   app: FirebaseApp,
   user: User,
   diary: Diary,
@@ -69,8 +69,8 @@ async function getDayAnnuals(
 ): Promise<{ annuals: Annual[], leapYear: Annual[] }> {
   const mmDd = getMmDd(date)
   return {
-    annuals: await getAnnuals(app, user, diary, mmDd),
-    leapYear: (mmDd !== '02-28' || isLeapYear(new Date(date))) ? [] : (await getAnnuals(app, user, diary, '02-29'))
+    annuals: await getAnnualsInternal(app, user, diary, mmDd),
+    leapYear: (mmDd !== '02-28' || isLeapYear(new Date(date))) ? [] : (await getAnnualsInternal(app, user, diary, '02-29'))
       .map(annual => ({ ...annual, label: `${annual.label} (${LEAP_YEAR_ANNUAL})` }))
   }
 }
@@ -79,9 +79,60 @@ function sortAnnuals(annuals: Annual[]): Annual[] {
   return annuals.sort((a, b) => a.startYear - b.startYear);
 }
 
-async function setDayAnnuals(app: FirebaseApp, user: User, diary: string, mmDd: string, annuals: Annual[]): Promise<boolean> {
+async function setAnnuals(app: FirebaseApp, user: User, diary: string, mmDd: string, annuals: Annual[]): Promise<boolean> {
   try {
     await setDoc(doc(collection(getDB(app), getUserId(user)), diary, "annuals", fixMmDdFormat(mmDd)), { events: annuals });
+    return true;
+  }
+  catch (err) {
+    return false;
+  }
+}
+
+async function getPeriods(app: FirebaseApp, user: User, diary: Diary, date: Date): Promise<Period[]> {
+  const documents = await getDocs(
+    query(
+      collection(getDB(app), getUserId(user), diary.uri, "periods"),
+      where("startDate", "<=", Timestamp.fromDate(date))
+    ));
+
+  return documents.docs
+    .map(doc => {
+      const data = doc.data() as { label: string, startDate: Timestamp, endDate: Timestamp, color: string };
+      return {
+        ...data,
+        id: doc.id,
+        startDate: data.startDate.toDate(),
+        endDate: data.endDate?.toDate()
+      } as Period;
+    })
+    .filter(period => !period.endDate || period.endDate.getDate() >= date.getDate());
+};
+
+async function getPeriod(app: FirebaseApp, user: User, diary: Diary, id: string): Promise<Period | null> {
+  const document = await getDoc(doc(collection(getDB(app), getUserId(user)), diary.uri, "periods", id));
+
+  return document.exists() ? document.data() as Period : null;
+}
+
+async function setPeriod(app: FirebaseApp, user: User, diary: string, id: string | undefined, period: Period | null): Promise<boolean> {
+  const docReference = id ?
+    doc(collection(getDB(app), getUserId(user)), diary, "period", id) :
+    doc(collection(getDB(app), getUserId(user)), diary, "period");
+
+  try {
+    if (id !== undefined && period === null) {
+      deleteDoc(docReference)
+    } else if (period !== null) {
+      const record: ({ id?: string, label: string, color?: string, startDate: Date | Timestamp, endDate?: Date | Timestamp }) = { ...period, startDate: Timestamp.fromDate(period.startDate) };
+      if (period.endDate) {
+        record.endDate = Timestamp.fromDate(period.endDate);
+      }
+      await setDoc(docReference, record);
+    } else {
+      throw Error('period is null');
+    }
+
     return true;
   }
   catch (err) {
@@ -98,6 +149,9 @@ export {
   getDefaultFields,
   getDayEntry,
   setDayEntry,
-  getDayAnnuals,
-  setDayAnnuals
+  getAnnuals,
+  setAnnuals,
+  getPeriods,
+  getPeriod,
+  setPeriod
 };

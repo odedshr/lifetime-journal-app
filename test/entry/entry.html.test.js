@@ -9,7 +9,10 @@ describe('Entry.html', () => {
     it('should call render with the correct props', () => {
       const parent = document.createElement('div');
       const date = '2020-01-13';
-      appendChild(parent, date, { date, fields: [{ type: 'text', value: 'foo' }] }, [], [],
+      appendChild(parent, date, { date, fields: [{ type: 'text', value: 'foo' }] },
+        [], //annuals
+        [], //leapYear
+        [], // periods,
         (date => { }), // onDayChange  
         (entry => { }), // onEntryChanged
         (date => { }) // onDateChanged
@@ -25,6 +28,7 @@ describe('Entry.html', () => {
         { date, fields: [{ type: 'text', value: 'foo' }] }, //entry
         [], // annuals
         [], // read-only annuals
+        [], // periods
         true,
         (date => { }), // onDayChange
         onEntryChanged,

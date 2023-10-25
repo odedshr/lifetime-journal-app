@@ -11,7 +11,18 @@ const testFields = [
     id: '2',
     type: 'emoji',
     value: '🎉'
+  },
+  {
+    id: '3',
+    type: 'number',
+    value: 2
+  },
+  {
+    id: '4',
+    type: 'color',
+    value: '#000000'
   }
+
 ];
 
 describe('EntryEdit', () => {
@@ -21,7 +32,7 @@ describe('EntryEdit', () => {
   let onExitPageMock;
 
   beforeEach(() => {
-    onEntryChangedMock = jest.fn(() => { console.log('here!'); return true });
+    onEntryChangedMock = jest.fn(() => true);
     onExitPageMock = jest.fn(() => true);
     element = Element({
       entry: { fields: testFields },
@@ -32,6 +43,15 @@ describe('EntryEdit', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  it('handles unknown field types', () => {
+    const form = Element({
+      entry: { fields: [{ type: "foobar" }] },
+      onEntryChanged: onEntryChangedMock,
+      onExitPage: onExitPageMock
+    })
+    expect(form.querySelector("p").outerHTML).toBe("<p>Unknown field type: foobar</p>");
   });
 
   it('renders a field editor for each field', () => {
@@ -51,7 +71,9 @@ describe('EntryEdit', () => {
       expect.objectContaining({
         "fields": [
           { ...testFields[0], "value": "xx" },
-          testFields[1]]
+          testFields[1],
+          testFields[2],
+          testFields[3]]
       })
     );
   });

@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { app } from '../firebase.app.js';
 import { appendChild } from "./entry.html.js";
-import { getUserSettings, getDefaultFields, getDayEntry, setDayEntry, getDayAnnuals } from '../db.js';
+import { getUserSettings, getDefaultFields, getDayEntry, setDayEntry, getAnnuals, getPeriods } from '../db.js';
 import { getDisplayableDate } from '../utils/date-utils.js';
 import { redirectTo } from '../init.js';
 const DEFAULT_DIARY = { uri: "diary-01" };
@@ -18,6 +18,9 @@ function onDayChanged(day, diary) {
 }
 function onAnnualEditRequest(day, diary, id) {
     redirectTo('/annuals/', new URLSearchParams(`?${id !== undefined ? `id=${id}&` : ''}day=${day}&diary=${diary}`));
+}
+function onPeriodEditRequest(day, diary, id) {
+    redirectTo('/periods/', new URLSearchParams(`?${id !== undefined ? `id=${id}&` : ''}day=${day}&diary=${diary}`));
 }
 function onEntryChanged(app, user, diary, entry) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -32,8 +35,9 @@ function switchPage(user, dateString) {
         const diary = settings.diaries[0] || DEFAULT_DIARY;
         const entry = yield getDayEntry(app, user, diary, dateString);
         const isEditMode = entry.fields === getDefaultFields(diary);
-        const { annuals, leapYear } = yield getDayAnnuals(app, user, diary, date);
-        appendChild(document.body, dateString, entry, annuals, leapYear, isEditMode, (day) => onDayChanged(day, diary.uri), (entry) => onEntryChanged(app, user, diary, entry), (id) => onAnnualEditRequest(dateString, diary.uri, id));
+        const { annuals, leapYear } = yield getAnnuals(app, user, diary, date);
+        const periods = yield getPeriods(app, user, diary, date);
+        appendChild(document.body, dateString, entry, annuals, leapYear, periods, isEditMode, (day) => onDayChanged(day, diary.uri), (entry) => onEntryChanged(app, user, diary, entry), (id) => onAnnualEditRequest(dateString, diary.uri, id), (id) => onPeriodEditRequest(dateString, diary.uri, id));
     });
 }
 export { switchPage };

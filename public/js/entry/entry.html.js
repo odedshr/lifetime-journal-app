@@ -11,6 +11,7 @@ import { jsx as _jsx, jsxs as _jsxs } from "nano-jsx/esm/jsx-runtime";
 import { render } from 'nano-jsx';
 import { Element as DaySelector } from '../utils/yyyy-mm-dd-selector.html.js';
 import { Element as Annuals } from '../annuals/annual-list.html.js';
+import { Element as Periods } from '../periods/period-list.html.js';
 import { Element as EntryView } from './entry-view.html.js';
 import { Element as EntryEdit } from './entry-edit.html.js';
 const Element = (props) => {
@@ -28,10 +29,10 @@ const Element = (props) => {
         }
         return result;
     });
-    return (_jsxs("main", { class: "entry", children: [_jsx("header", { children: _jsx(DaySelector, { date: props.date, onDayChanged: props.onDayChanged }) }), _jsxs("article", Object.assign({ class: "entry-details" }, attr, { ref: (el) => articleElm = el, children: [_jsx(Annuals, { date: props.date, items: props.annuals, readonly: props.leapYearAnnuals, onEditRequest: props.onAnnualEditRequest }), _jsx("div", { class: "entry-view-wrapper", ref: (el) => { entryView = el; }, children: _jsx(EntryView, { id: "entry-view", entry: props.entry }) }), _jsx(EntryEdit, { entry: props.entry, onEntryChanged: onEntryChanged, onExitPage: toggleEdit }), _jsx("section", { id: "periods" }), _jsx("section", { id: "diaries" })] })), _jsxs("footer", { children: [_jsx("a", { href: "#", class: "btn", onClick: toggleEdit, children: _jsx("span", { children: "Edit" }) }), _jsx("a", { href: "#", class: "btn", onClick: () => props.onAnnualEditRequest(), children: _jsx("span", { children: "Add Annual" }) })] })] }));
+    return (_jsxs("main", { class: "entry", children: [_jsx("header", { children: _jsx(DaySelector, { date: props.date, onDayChanged: props.onDayChanged }) }), _jsxs("article", Object.assign({ class: "entry-details" }, attr, { ref: (el) => articleElm = el, children: [_jsx(Periods, { date: new Date(props.date), items: props.periods, onEditRequest: props.onPeriodEditRequest }), _jsx(Annuals, { date: props.date, items: props.annuals, readonly: props.leapYearAnnuals, onEditRequest: props.onAnnualEditRequest }), _jsx("div", { class: "entry-view-wrapper", ref: (el) => { entryView = el; }, children: _jsx(EntryView, { id: "entry-view", entry: props.entry }) }), _jsx(EntryEdit, { entry: props.entry, onEntryChanged: onEntryChanged, onExitPage: toggleEdit }), _jsx("section", { id: "diaries" })] })), _jsxs("footer", { children: [_jsx("a", { href: "#", class: "btn", onClick: toggleEdit, children: _jsx("span", { children: "Edit" }) }), _jsx("a", { href: "#", class: "btn", onClick: () => props.onAnnualEditRequest(), children: _jsx("span", { children: "Add Annual" }) }), _jsx("a", { href: "#", class: "btn", onClick: () => props.onPeriodEditRequest(), children: _jsx("span", { children: "Add Period" }) })] })] }));
 };
-function appendChild(parent, dateString, entry, annuals, leapYear, isEditMode, onDayChanged, onEntryChanged, onAnnualEditRequest) {
-    const element = _jsx(Element, { date: dateString, entry: entry, annuals: annuals, leapYearAnnuals: leapYear, isEditMode: isEditMode, onDayChanged: onDayChanged, onEntryChanged: onEntryChanged, onAnnualEditRequest: onAnnualEditRequest });
+function appendChild(parent, dateString, entry, annuals, leapYear, periods, isEditMode, onDayChanged, onEntryChanged, onAnnualEditRequest, onPeriodEditRequest) {
+    const element = _jsx(Element, { date: dateString, entry: entry, annuals: annuals, leapYearAnnuals: leapYear, periods: periods, isEditMode: isEditMode, onDayChanged: onDayChanged, onEntryChanged: onEntryChanged, onAnnualEditRequest: onAnnualEditRequest, onPeriodEditRequest: onPeriodEditRequest });
     render(element, parent);
 }
 export { appendChild };

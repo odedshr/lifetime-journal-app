@@ -12,6 +12,7 @@ import { getFormattedDate, isDateStringValid } from "./utils/date-utils.js";
 import { switchPage as switchToSignInPage } from "./signin/signin.controller.js";
 import { switchPage as switchToEntryPage } from "./entry/entry.controller.js";
 import { switchPage as switchToAnnualsPage } from "./annuals/annuals.controller.js";
+import { switchPage as switchToPeriodsPage } from "./periods/periods.controller.js";
 import { switchPage as switchToPageNotFound } from "./404/404.controller.js";
 function init(url, parameters = new URLSearchParams()) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -30,19 +31,22 @@ function init(url, parameters = new URLSearchParams()) {
         //   // switchToDiariesPage
         // }
         let day = parameters.get('day') || '';
+        if (url === '/') {
+            url = '/entry/';
+        }
+        if (['/annuals/', '/periods/', '/entry/'].indexOf(url) >= 0 && !isDateStringValid(day)) {
+            parameters.set('day', getFormattedDate(new Date()));
+            return yield redirectTo(url, parameters);
+        }
         if (url === '/annuals/') {
-            if (!isDateStringValid(day)) {
-                parameters.set('day', getFormattedDate(new Date()));
-                return yield redirectTo(url, parameters);
-            }
             const id = parameters.get('id');
             return yield switchToAnnualsPage(user, day, id ? +id : undefined);
         }
+        if (url === '/periods/') {
+            const id = parameters.get('id');
+            return yield switchToPeriodsPage(user, day, id ? id : undefined);
+        }
         if (url === '/' || url === '/entry/') {
-            if (!isDateStringValid(day)) {
-                parameters.set('day', getFormattedDate(new Date()));
-                return yield redirectTo('/entry/', parameters);
-            }
             return yield switchToEntryPage(user, day);
         }
         return yield switchToPageNotFound();

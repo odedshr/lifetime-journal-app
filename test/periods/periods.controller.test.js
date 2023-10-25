@@ -13,8 +13,8 @@ jest.unstable_mockModule('../../public/js/db.js', () => ({
   getUserSettings: jest.fn(async () => ({ diaries: [] })),
   getDayEntry: jest.fn(async () => ({})),
   setDayEntry: jest.fn(async () => ({})),
-  getAnnuals: jest.fn(async () => ({ annuals: [{ label: 'a' }, { label: 'b' }, { label: 'c' }], leapYear: [] })),
-  setAnnuals: jest.fn(async () => ({}))
+  getPeriods: jest.fn(async () => ([{ label: 'a' }, { label: 'b' }, { label: 'c' }])),
+  setPeriod: jest.fn(async () => ({}))
 }));
 
 jest.unstable_mockModule('../../public/js/init.js', () => ({
@@ -22,7 +22,7 @@ jest.unstable_mockModule('../../public/js/init.js', () => ({
 }));
 
 let props = [];
-jest.unstable_mockModule('../../public/js/annuals/annuals.html.js', () => ({
+jest.unstable_mockModule('../../public/js/periods/periods.html.js', () => ({
   appendChild: jest.fn((...args) => { props = args; })
 }));
 
@@ -38,12 +38,12 @@ jest.unstable_mockModule('../../public/js/utils/date-utils.js', () => ({
 }));
 
 const { app } = await import('../../public/js/firebase.app.js');
-const { switchPage } = await import('../../public/js/annuals/annuals.controller.js');
-const { getUserSettings, getAnnuals, setAnnuals } = await import('../../public/js/db.js');
-const { appendChild } = await import('../../public/js/annuals/annuals.html.js');
+const { switchPage } = await import('../../public/js/periods/periods.controller.js');
+const { getUserSettings, getPeriods, setPeriod } = await import('../../public/js/db.js');
+const { appendChild } = await import('../../public/js/periods/periods.html.js');
 const { redirectTo } = await import('../../public/js/init.js');
 
-describe('Annuals.Controller', () => {
+describe('Periods.Controller', () => {
 
   describe('switchPage', () => {
 
@@ -53,7 +53,7 @@ describe('Annuals.Controller', () => {
 
     it('sets page title', async () => {
       await switchPage({}, '2023-01-13');
-      expect(document.title).toEqual('mm/dd(2023-01-13) | Lifetime Journal');
+      expect(document.title).toEqual('xxx | Periods | Lifetime Journal');
     });
 
     it('gets user settings', async () => {
@@ -62,12 +62,12 @@ describe('Annuals.Controller', () => {
         expect.any(Function), {});
     });
 
-    it('gets annuals for configured diary', async () => {
+    it('gets periods for configured diary', async () => {
       getUserSettings.mockResolvedValueOnce({
         diaries: [{ "uri": "custom" }]
       });
       await switchPage({}, '2023-01-01');
-      expect(getAnnuals).toHaveBeenCalledWith(
+      expect(getPeriods).toHaveBeenCalledWith(
         expect.any(Function),
         {},
         { "uri": "custom" },
@@ -82,35 +82,35 @@ describe('Annuals.Controller', () => {
 
     it('onDayChanged redirects page', async () => {
       await switchPage({}, '2023-01-01', 1);
-      props[4]('yyyy-mm-dd');
-      expect(redirectTo).toHaveBeenCalledWith('/annuals/', new URLSearchParams('?day=yyyy-mm-dd&diary=diary-01'));
+      props[3]('yyyy-mm-dd');
+      expect(redirectTo).toHaveBeenCalledWith('/periods/', new URLSearchParams('?day=yyyy-mm-dd&diary=diary-01'));
     });
 
-    it('onAnnualChanged sets new annual', async () => {
-      await switchPage({}, '2023-01-01', 1);
-      const result = await props[5]([{ label: 'new' }]);
-      expect(setAnnuals).toHaveBeenCalledWith(app, {}, "diary-01", "mm/dd(2023-01-01)", [{ "label": "new" }]);
+    it('onPeriodChanged sets new period', async () => {
+      await switchPage({}, '2023-01-01', "aaa");
+      const result = await props[4]({ id: "bbb", label: 'new' });
+      expect(setPeriod).toHaveBeenCalledWith(app, {}, "diary-01", "bbb", { "id": "bbb", "label": "new" });
       expect(result).toEqual(true);
     });
 
-    it('onAnnualChanged fails to set new annual', async () => {
-      setAnnuals.mockResolvedValueOnce(false);
-      await switchPage({}, '2023-01-01', 1);
-      const result = await props[5]([{ label: 'new' }]);
-      expect(setAnnuals).toHaveBeenCalledWith(app, {}, "diary-01", "mm/dd(2023-01-01)", [{ "label": "new" }]);
+    it('onPeriodChanged fails to set new period', async () => {
+      setPeriod.mockResolvedValueOnce(false);
+      await switchPage({}, '2023-01-01', "aaa");
+      const result = await props[4]({ id: "bbb", label: 'new' });
+      expect(setPeriod).toHaveBeenCalledWith(app, {}, "diary-01", "bbb", { "id": "bbb", "label": "new" });
       expect(result).toEqual(false);
     });
 
-    it('onAnnualEditRequest redirects to new id', async () => {
+    it('onPeriodEditRequest redirects to new id', async () => {
       await switchPage({}, '2023-01-01', 1);
-      props[6](99);
+      props[5](99);
       expect(redirectTo).toHaveBeenCalled();
     });
 
-    it('onDeleteAnnualRequested sets new manual', async () => {
-      await switchPage({}, '2023-01-01', 1);
-      props[7](1);
-      expect(setAnnuals).toHaveBeenCalledWith(app, {}, "diary-01", "mm/dd(2023-01-01)", [{ label: 'a' }, { label: 'c' }]);
+    it('onDeletePeriodRequested sets new period', async () => {
+      await switchPage({}, '2023-01-01', 'aaa');
+      props[6]('aaa');
+      expect(setPeriod).toHaveBeenCalledWith(app, {}, "diary-01", "aaa", null);
     });
   });
 });

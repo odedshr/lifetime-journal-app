@@ -11,8 +11,8 @@ jest.unstable_mockModule('../public/js/firebase.app.js', () => ({
 
 jest.unstable_mockModule('../public/js/db.js', () => ({
   getUserSettings: jest.fn(async () => ({ diaries: [] })),
-  getDayAnnuals: jest.fn(),
-  setDayAnnuals: jest.fn()
+  getAnnuals: jest.fn(),
+  setAnnuals: jest.fn()
 }));
 
 const mockedController = () => ({
@@ -20,6 +20,8 @@ const mockedController = () => ({
 });
 
 jest.unstable_mockModule('../public/js/annuals/annuals.controller.js', mockedController);
+
+jest.unstable_mockModule('../public/js/periods/periods.controller.js', mockedController);
 
 jest.unstable_mockModule('../public/js/entry/entry.controller.js', mockedController);
 
@@ -41,6 +43,7 @@ const { init } = await import('../public/js/init.js');
 const { getAuthenticateUser, signOut } = await import('../public/js/firebase.app.js');
 const { getFormattedDate, isDateStringValid } = await import('../public/js/utils/date-utils.js');
 const { switchPage: switchToAnnualsPage } = await import('../public/js/annuals/annuals.controller.js');
+const { switchPage: switchToPeriodsPage } = await import('../public/js/periods/periods.controller.js');
 const { switchPage: switchToEntryPage } = await import('../public/js/entry/entry.controller.js');
 const { switchPage: switchToSignInPage } = await import('../public/js/signin/signin.controller.js');
 const { switchPage: switchToPageNotFound } = await import('../public/js/404/404.controller.js');
@@ -62,7 +65,7 @@ describe('Init', () => {
   });
 
   it('redirects to entry page if no url specified', async () => {
-    getAuthenticateUser.mockResolvedValueOnce({});
+    // getAuthenticateUser.mockResolvedValueOnce({});
     isDateStringValid.mockReturnValueOnce(false);
     await init('/');
     expect(switchToEntryPage).toHaveBeenCalledWith({ "type": "user" }, '2023-01-01');
@@ -82,25 +85,50 @@ describe('Init', () => {
     expect(switchToEntryPage).toHaveBeenCalledWith({}, '2023-01-15');
   });
 
-  it('redirects to annuals page for current date if no day specified', async () => {
-    getAuthenticateUser.mockResolvedValueOnce({ "type": "user" });
-    isDateStringValid.mockReturnValueOnce(false);
-    await init('/annuals/');
-    expect(switchToAnnualsPage).toHaveBeenCalledWith({ "type": "user" }, '2023-01-01', undefined);
+  describe("annuals", () => {
+    it('redirects to annuals page for current date if no day specified', async () => {
+      getAuthenticateUser.mockResolvedValueOnce({ "type": "user" });
+      isDateStringValid.mockReturnValueOnce(false);
+      await init('/annuals/');
+      expect(switchToAnnualsPage).toHaveBeenCalledWith({ "type": "user" }, '2023-01-01', undefined);
+    });
+
+    it('redirects to annuals page for specified day', async () => {
+      getAuthenticateUser.mockResolvedValueOnce({ "type": "user" });
+      const params = new URLSearchParams('day=2023-01-15');
+      await init('/annuals/', params);
+      expect(switchToAnnualsPage).toHaveBeenCalledWith({ "type": "user" }, '2023-01-15', undefined);
+    });
+
+    it('redirects to annuals page for specified day and item', async () => {
+      getAuthenticateUser.mockResolvedValueOnce({ "type": "user" });
+      const params = new URLSearchParams('day=2023-01-15&id=1');
+      await init('/annuals/', params);
+      expect(switchToAnnualsPage).toHaveBeenCalledWith({ "type": "user" }, '2023-01-15', 1);
+    });
   });
 
-  it('redirects to annuals page for specified day', async () => {
-    getAuthenticateUser.mockResolvedValueOnce({ "type": "user" });
-    const params = new URLSearchParams('day=2023-01-15');
-    await init('/annuals/', params);
-    expect(switchToAnnualsPage).toHaveBeenCalledWith({ "type": "user" }, '2023-01-15', undefined);
-  });
+  describe("periods", () => {
+    it('redirects to periods page for current date if no day specified', async () => {
+      getAuthenticateUser.mockResolvedValueOnce({ "type": "user" });
+      isDateStringValid.mockReturnValueOnce(false);
+      await init('/periods/');
+      expect(switchToPeriodsPage).toHaveBeenCalledWith({ "type": "user" }, '2023-01-01', undefined);
+    });
 
-  it('redirects to annuals page for specified day and item', async () => {
-    getAuthenticateUser.mockResolvedValueOnce({ "type": "user" });
-    const params = new URLSearchParams('day=2023-01-15&id=1');
-    await init('/annuals/', params);
-    expect(switchToAnnualsPage).toHaveBeenCalledWith({ "type": "user" }, '2023-01-15', 1);
+    it('redirects to periods page for specified day', async () => {
+      getAuthenticateUser.mockResolvedValueOnce({ "type": "user" });
+      const params = new URLSearchParams('day=2023-01-15');
+      await init('/periods/', params);
+      expect(switchToPeriodsPage).toHaveBeenCalledWith({ "type": "user" }, '2023-01-15', undefined);
+    });
+
+    it('redirects to periods page for specified day and item', async () => {
+      getAuthenticateUser.mockResolvedValueOnce({ "type": "user" });
+      const params = new URLSearchParams('day=2023-01-15&id=xxx');
+      await init('/periods/', params);
+      expect(switchToPeriodsPage).toHaveBeenCalledWith({ "type": "user" }, '2023-01-15', "xxx");
+    });
   });
 
   it('signs user out and redirects to sign in', async () => {

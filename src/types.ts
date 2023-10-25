@@ -36,7 +36,15 @@ type Entry = {
 type Annual = {
   label: string,
   startYear: number,
-  endYear?: number
+  endYear?: number,
+  color?: string,
+}
+
+type Period = {
+  id?: string,
+  label: string,
+  startDate: Date,
+  endDate?: Date,
   color?: string,
 }
 
@@ -49,5 +57,6 @@ export {
   NumberField,
   Field,
   FieldTemplate,
-  Annual
+  Annual,
+  Period
 };

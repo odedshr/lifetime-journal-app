@@ -1,0 +1,51 @@
+.periods {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 1rem 0.5rem 0.5rem;
+  padding: 0;
+}
+
+.period-item {
+  align-items: center;
+  border: 0.1rem solid var(--color-button);
+  border-radius: 0.5rem;
+  display: flex;
+  padding: 0.5rem;
+}
+
+.period-start:before {
+  content: "(";
+  margin-left: 0.5rem;
+}
+
+.period-end:not(:empty):before {
+  content: " - ";
+  margin: 0 0.5rem;
+}
+
+.period-end:after {
+  content: ")";
+}
+
+.period-edit {
+  flex: 1 1 auto;
+  text-align: right;
+}
+
+.period-edit:before {
+  content: "✍️";
+}
+
+.period-edit span {
+  display: none;
+}
+
+.future-event {
+  opacity: 0.75;
+}
+
+.past-event {
+  display: none;
+}

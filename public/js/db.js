@@ -7,7 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { getFirestore, collection, doc, getDoc, setDoc } from '@firebase/firestore';
+import { getFirestore, collection, deleteDoc, doc, getDoc, getDocs, setDoc, query, where, Timestamp } from '@firebase/firestore';
 import { getMmDd, getShorthandedMonthAndDay, isLeapYear } from './utils/date-utils.js';
 function getDB(app) {
     return getFirestore(app);
@@ -56,19 +56,19 @@ function saveUserSettings(app, user, settings) {
         yield setDoc(doc(collection(getDB(app), getUserId(user)), "settings"), settings);
     });
 }
-function getAnnuals(app, user, diary, mmDd) {
+function getAnnualsInternal(app, user, diary, mmDd) {
     return __awaiter(this, void 0, void 0, function* () {
         const document = yield getDoc(doc(collection(getDB(app), getUserId(user)), diary.uri, "annuals", fixMmDdFormat(mmDd)));
         return (document.exists() ? sortAnnuals(document.data().events) : []);
     });
 }
 const LEAP_YEAR_ANNUAL = getShorthandedMonthAndDay(new Date(2024, 1, 29));
-function getDayAnnuals(app, user, diary, date) {
+function getAnnuals(app, user, diary, date) {
     return __awaiter(this, void 0, void 0, function* () {
         const mmDd = getMmDd(date);
         return {
-            annuals: yield getAnnuals(app, user, diary, mmDd),
-            leapYear: (mmDd !== '02-28' || isLeapYear(new Date(date))) ? [] : (yield getAnnuals(app, user, diary, '02-29'))
+            annuals: yield getAnnualsInternal(app, user, diary, mmDd),
+            leapYear: (mmDd !== '02-28' || isLeapYear(new Date(date))) ? [] : (yield getAnnualsInternal(app, user, diary, '02-29'))
                 .map(annual => (Object.assign(Object.assign({}, annual), { label: `${annual.label} (${LEAP_YEAR_ANNUAL})` })))
         };
     });
@@ -76,7 +76,7 @@ function getDayAnnuals(app, user, diary, date) {
 function sortAnnuals(annuals) {
     return annuals.sort((a, b) => a.startYear - b.startYear);
 }
-function setDayAnnuals(app, user, diary, mmDd, annuals) {
+function setAnnuals(app, user, diary, mmDd, annuals) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             yield setDoc(doc(collection(getDB(app), getUserId(user)), diary, "annuals", fixMmDdFormat(mmDd)), { events: annuals });
@@ -87,7 +87,52 @@ function setDayAnnuals(app, user, diary, mmDd, annuals) {
         }
     });
 }
+function getPeriods(app, user, diary, date) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const documents = yield getDocs(query(collection(getDB(app), getUserId(user), diary.uri, "periods"), where("startDate", "<=", Timestamp.fromDate(date))));
+        return documents.docs
+            .map(doc => {
+                var _a;
+                const data = doc.data();
+                return Object.assign(Object.assign({}, data), { id: doc.id, startDate: data.startDate.toDate(), endDate: (_a = data.endDate) === null || _a === void 0 ? void 0 : _a.toDate() });
+            })
+            .filter(period => !period.endDate || period.endDate.getDate() >= date.getDate());
+    });
+}
+;
+function getPeriod(app, user, diary, id) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const document = yield getDoc(doc(collection(getDB(app), getUserId(user)), diary.uri, "periods", id));
+        return document.exists() ? document.data() : null;
+    });
+}
+function setPeriod(app, user, diary, id, period) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const docReference = id ?
+            doc(collection(getDB(app), getUserId(user)), diary, "period", id) :
+            doc(collection(getDB(app), getUserId(user)), diary, "period");
+        try {
+            if (id !== undefined && period === null) {
+                deleteDoc(docReference);
+            }
+            else if (period !== null) {
+                const record = Object.assign(Object.assign({}, period), { startDate: Timestamp.fromDate(period.startDate) });
+                if (period.endDate) {
+                    record.endDate = Timestamp.fromDate(period.endDate);
+                }
+                yield setDoc(docReference, record);
+            }
+            else {
+                throw Error('period is null');
+            }
+            return true;
+        }
+        catch (err) {
+            return false;
+        }
+    });
+}
 function fixMmDdFormat(mmDd) {
     return mmDd.replace(/\//g, '-');
 }
-export { getUserSettings, saveUserSettings, getDefaultFields, getDayEntry, setDayEntry, getDayAnnuals, setDayAnnuals };
+export { getUserSettings, saveUserSettings, getDefaultFields, getDayEntry, setDayEntry, getAnnuals, setAnnuals, getPeriods, getPeriod, setPeriod };

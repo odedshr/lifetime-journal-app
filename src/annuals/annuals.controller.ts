@@ -1,6 +1,6 @@
 import { app } from '../firebase.app.js';
 import { appendChild } from "./annuals.html.js";
-import { getUserSettings, getDayAnnuals, setDayAnnuals } from '../db.js';
+import { getUserSettings, getAnnuals, setAnnuals } from '../db.js';
 import { getMmDd } from '../utils/date-utils.js';
 import { FirebaseApp, User, Settings, Diary, Annual } from '../types.js';
 import { redirectTo } from '../init.js';
@@ -20,7 +20,7 @@ function onEditRequest(day: string, diary: string, id: number) {
 }
 
 async function onChanged(app: FirebaseApp, user: User, diary: Diary, day: string, mmDd: string, annuals: Annual[]) {
-  if (await setDayAnnuals(app, user, diary.uri, mmDd, annuals)) {
+  if (await setAnnuals(app, user, diary.uri, mmDd, annuals)) {
     redirectToEntry(day, diary.uri);
     return true;
   }
@@ -35,7 +35,7 @@ async function switchPage(user: User, day: string, id?: number) {
   const settings: Settings = await getUserSettings(app, user);
   const diary = settings.diaries[0] || DEFAULT_DIARY;
 
-  const { annuals, leapYear } = await getDayAnnuals(app, user, diary, date);
+  const { annuals, leapYear } = await getAnnuals(app, user, diary, date);
 
   const removeItem = (id: number) => {
     const newAnnuals = [...annuals];

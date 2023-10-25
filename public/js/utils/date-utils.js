@@ -55,4 +55,9 @@ function isLeapYear(date) {
 function isFirstDateBeforeSecondDate(now, date) {
     return now < date;
 }
-export { MONTH_NAMES, LEAP_YEAR_MONTH_LENGTH, addToDate, getFormattedDate, getDateFromURL, getDisplayableDate, getShorthandedDayOfTheWeekName, getShorthandedMonthAndDay, getMmDd, getMmDdFromString, isDateStringValid, isLeapYear, isFirstDateBeforeSecondDate };
+function isSameDate(date1, date2) {
+    return date1.getFullYear() === date2.getFullYear() &&
+        date1.getMonth() === date2.getMonth() &&
+        date1.getDate() === date2.getDate();
+}
+export { MONTH_NAMES, LEAP_YEAR_MONTH_LENGTH, addToDate, getFormattedDate, getDateFromURL, getDisplayableDate, getShorthandedDayOfTheWeekName, getShorthandedMonthAndDay, getMmDd, getMmDdFromString, isDateStringValid, isLeapYear, isFirstDateBeforeSecondDate, isSameDate };

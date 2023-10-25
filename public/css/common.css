@@ -1,6 +1,7 @@
 @import url('./colors.css');
 @import url('./entry.css');
 @import url('./annuals.css');
+@import url('./periods.css');
 
 html {
   font-size: 62.5%;
