@@ -97,13 +97,13 @@ function setAnnuals(app, user, diary, mmDd, annuals) {
 function getPeriods(app, user, diary, date) {
     return __awaiter(this, void 0, void 0, function* () {
         const documents = yield getDocs(query(collection(getDB(app), getUserId(user), diary.uri, "periods"), where("startDate", "<=", Timestamp.fromDate(date))));
+        const endDate = date.getTime();
         return documents.docs
             .map(doc => {
             var _a;
             const data = doc.data();
             return Object.assign(Object.assign({}, data), { id: doc.id, startDate: data.startDate.toDate(), endDate: (_a = data.endDate) === null || _a === void 0 ? void 0 : _a.toDate() });
-        })
-            .filter(period => !period.endDate || period.endDate.getDate() >= date.getDate());
+        }).filter(period => !period.endDate || period.endDate.getTime() >= endDate);
     });
 }
 ;

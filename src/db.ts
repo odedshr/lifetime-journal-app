@@ -114,6 +114,8 @@ async function getPeriods(app: FirebaseApp, user: User, diary: Diary, date: Date
       where("startDate", "<=", Timestamp.fromDate(date))
     ));
 
+  const endDate = date.getTime();
+
   return documents.docs
     .map(doc => {
       const data = doc.data() as { label: string, startDate: Timestamp, endDate: Timestamp, color: string };
@@ -123,8 +125,7 @@ async function getPeriods(app: FirebaseApp, user: User, diary: Diary, date: Date
         startDate: data.startDate.toDate(),
         endDate: data.endDate?.toDate()
       } as Period;
-    })
-    .filter(period => !period.endDate || period.endDate.getDate() >= date.getDate());
+    }).filter(period => !period.endDate || period.endDate.getTime() >= endDate);
 };
 
 async function getPeriod(app: FirebaseApp, user: User, diary: Diary, id: string): Promise<Period | null> {
