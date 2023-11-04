@@ -4,24 +4,24 @@ import { switchPage as switchToSignInPage } from "./signin/signin.controller.js"
 import { switchPage as switchToEntryPage } from "./entry/entry.controller.js";
 import { switchPage as switchToAnnualsPage } from "./annuals/annuals.controller.js";
 import { switchPage as switchToPeriodsPage } from "./periods/periods.controller.js";
+import { switchPage as switchToOverviewPage } from "./overview/overview.controller.js";
 import { switchPage as switchToPageNotFound } from "./404/404.controller.js";
 import { User } from "./types.js";
 
 async function init(url: string, parameters: URLSearchParams = new URLSearchParams()): Promise<void> {
   const user: User | null = await getAuthenticateUser().catch(() => null);
-
   if (!user) {
     return await switchToSignInPage();
   }
 
-  if (url === '/signout/') {
+  if (url.match(/\/signout\/?/)) {
     signOut();
     return await redirectTo('/');
   }
 
-  // if (url === '/overview/') {
-  //   // switchToOverviewPage
-  // }
+  if (url.match(/\/overview\/?/)) {
+    return await switchToOverviewPage(user);
+  }
 
   // if (url === '/diaries/') {
   //   // switchToDiariesPage

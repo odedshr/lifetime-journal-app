@@ -8,20 +8,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { initializeApp } from "@firebase/app";
-import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, getAuth, signOut as signOutFromFirebase } from "@firebase/auth";
+import { connectAuthEmulator, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, getAuth, signOut as signOutFromFirebase } from "@firebase/auth";
 import { getAnalytics } from "@firebase/analytics";
 import { getFirebaseConfig } from "./firebase.config.js";
 const app = initializeApp(getFirebaseConfig());
 const auth = getAuth(app);
 const user = auth.currentUser;
 const analytics = getAnalytics(app);
-const SIGN_IN_ENDPOINT = '/signin';
-// TBD: check when popstate is triggered
-// window.addEventListener("popstate", (evt) => {
-//   alert(
-//     `popstate: location: ${document.location} ${evt}`
-//   );
-// });
+if (location.hostname === 'localhost') {
+    connectAuthEmulator(auth, 'http://localhost:9099');
+}
 function getAuthenticateUser() {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => {

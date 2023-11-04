@@ -1,0 +1,19 @@
+.chart-container {
+  scroll-behavior: auto;
+  overflow: auto;
+}
+
+.chart {
+  border: 1px solid red;
+  width: 100%;
+}
+
+.chart .row-label {
+  font-size: 1rem;
+}
+
+.chart .item {
+  border: 1px solid red;
+  stroke-width: 1px;
+  stroke: blue;
+}

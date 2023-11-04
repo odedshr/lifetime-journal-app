@@ -1,5 +1,13 @@
 import { FirebaseApp, initializeApp } from "@firebase/app";
-import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, UserCredential, getAuth, User, signOut as signOutFromFirebase } from "@firebase/auth";
+import {
+  connectAuthEmulator,
+  signInWithPopup,
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  getAuth,
+  User,
+  signOut as signOutFromFirebase
+} from "@firebase/auth";
 import { getAnalytics } from "@firebase/analytics";
 
 import { getFirebaseConfig } from "./firebase.config.js";
@@ -9,14 +17,9 @@ const auth = getAuth(app);
 const user: User | null = auth.currentUser;
 const analytics = getAnalytics(app);
 
-const SIGN_IN_ENDPOINT = '/signin';
-
-// TBD: check when popstate is triggered
-// window.addEventListener("popstate", (evt) => {
-//   alert(
-//     `popstate: location: ${document.location} ${evt}`
-//   );
-// });
+if (location.hostname === 'localhost') {
+  connectAuthEmulator(auth, 'http://localhost:9099');
+}
 
 async function getAuthenticateUser(): Promise<User> {
   return new Promise((resolve, reject) => {

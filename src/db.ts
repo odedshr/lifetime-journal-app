@@ -1,11 +1,29 @@
 import {
-  Firestore, getFirestore, collection, deleteDoc, doc, getDoc, getDocs, setDoc, query, where, Timestamp
+  connectFirestoreEmulator,
+  Firestore,
+  getFirestore,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs, setDoc, query, where, Timestamp
 } from '@firebase/firestore';
 import { FirebaseApp, Settings, Diary, Entry, User, Annual, Period } from './types.js';
 import { getMmDd, getShorthandedMonthAndDay, isLeapYear } from './utils/date-utils.js';
 
+
+let fireStore: Firestore | null = null;
+
 function getDB(app: FirebaseApp): Firestore {
-  return getFirestore(app);
+  if (!fireStore) {
+    fireStore = getFirestore(app);
+
+    if (location.hostname === 'localhost') {
+      connectFirestoreEmulator(fireStore, 'localhost', 8080);
+    }
+  }
+
+  return fireStore;
 }
 
 function getUserId(user: User): string {

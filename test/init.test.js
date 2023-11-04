@@ -27,6 +27,8 @@ jest.unstable_mockModule('../public/js/entry/entry.controller.js', mockedControl
 
 jest.unstable_mockModule('../public/js/signin/signin.controller.js', mockedController);
 
+jest.unstable_mockModule('../public/js/overview/overview.controller.js', mockedController);
+
 jest.unstable_mockModule('../public/js/404/404.controller.js', mockedController);
 
 jest.unstable_mockModule('../public/js/utils/date-utils.js', () => ({
@@ -46,6 +48,7 @@ const { switchPage: switchToAnnualsPage } = await import('../public/js/annuals/a
 const { switchPage: switchToPeriodsPage } = await import('../public/js/periods/periods.controller.js');
 const { switchPage: switchToEntryPage } = await import('../public/js/entry/entry.controller.js');
 const { switchPage: switchToSignInPage } = await import('../public/js/signin/signin.controller.js');
+const { switchPage: switchToOverviewPage } = await import('../public/js/overview/overview.controller.js');
 const { switchPage: switchToPageNotFound } = await import('../public/js/404/404.controller.js');
 
 describe('Init', () => {
@@ -142,5 +145,11 @@ describe('Init', () => {
     getAuthenticateUser.mockResolvedValueOnce({});
     await init('/not-found/');
     expect(switchToPageNotFound).toHaveBeenCalledTimes(1);
+  });
+
+  it('redirects to overviewPage', async () => {
+    getAuthenticateUser.mockResolvedValueOnce({ "type": "user" });
+    await init('/overview/');
+    expect(switchToOverviewPage).toHaveBeenCalledTimes(1);
   });
 });

@@ -7,10 +7,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { getFirestore, collection, deleteDoc, doc, getDoc, getDocs, setDoc, query, where, Timestamp } from '@firebase/firestore';
+import { connectFirestoreEmulator, getFirestore, collection, deleteDoc, doc, getDoc, getDocs, setDoc, query, where, Timestamp } from '@firebase/firestore';
 import { getMmDd, getShorthandedMonthAndDay, isLeapYear } from './utils/date-utils.js';
+let fireStore = null;
 function getDB(app) {
-    return getFirestore(app);
+    if (!fireStore) {
+        fireStore = getFirestore(app);
+        if (location.hostname === 'localhost') {
+            connectFirestoreEmulator(fireStore, 'localhost', 8080);
+        }
+    }
+    return fireStore;
 }
 function getUserId(user) {
     if (!user.email) {
@@ -92,10 +99,10 @@ function getPeriods(app, user, diary, date) {
         const documents = yield getDocs(query(collection(getDB(app), getUserId(user), diary.uri, "periods"), where("startDate", "<=", Timestamp.fromDate(date))));
         return documents.docs
             .map(doc => {
-                var _a;
-                const data = doc.data();
-                return Object.assign(Object.assign({}, data), { id: doc.id, startDate: data.startDate.toDate(), endDate: (_a = data.endDate) === null || _a === void 0 ? void 0 : _a.toDate() });
-            })
+            var _a;
+            const data = doc.data();
+            return Object.assign(Object.assign({}, data), { id: doc.id, startDate: data.startDate.toDate(), endDate: (_a = data.endDate) === null || _a === void 0 ? void 0 : _a.toDate() });
+        })
             .filter(period => !period.endDate || period.endDate.getDate() >= date.getDate());
     });
 }
