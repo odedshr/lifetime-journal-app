@@ -42,10 +42,10 @@
   display: none;
 }
 
-.future-event {
+.annuals .future-event {
   opacity: 0.75;
 }
 
-.past-event {
+.annuals .past-event {
   display: none;
 }

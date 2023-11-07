@@ -42,10 +42,10 @@
   display: none;
 }
 
-.future-event {
+.periods .future-event {
   opacity: 0.75;
 }
 
-.past-event {
+.periods .past-event {
   display: none;
 }

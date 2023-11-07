@@ -4,16 +4,19 @@
 }
 
 .chart {
-  border: 1px solid red;
-  width: 100%;
+  border: 1px solid var(--color-blue);
+  box-sizing: border-box;
 }
 
 .chart .row-label {
   font-size: 1rem;
 }
 
-.chart .item {
-  border: 1px solid red;
+.chart .item-circle {
   stroke-width: 1px;
-  stroke: blue;
+  stroke: var(--color-blue);
+}
+
+.chart .label-year {
+  opacity: 0.25;
 }

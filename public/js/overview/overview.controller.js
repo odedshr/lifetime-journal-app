@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import { app } from '../firebase.app.js';
 import { appendChild } from "./overview.html.js";
 import { getUserSettings } from '../db.js';
+import { addToDate } from '../utils/date-utils.js';
 const DEFAULT_DIARY = { uri: "diary-01" };
 function switchPage(user) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -17,16 +18,15 @@ function switchPage(user) {
         const diary = settings.diaries[0] || DEFAULT_DIARY;
         document.title = `${diary.name || 'My Diary'} | Lifetime Journal`;
         const onRequestData = (itemCount, startAt) => __awaiter(this, void 0, void 0, function* () {
-            const data = { type: 'number', min: 0, max: 1, rows: [] };
+            const data = { type: 'number', days: [], now: new Date() };
             const startYear = 1980 + startAt;
-            const now = (new Date()).getTime();
+            let date = new Date(startYear, 0, 1);
             for (let i = 0; i < itemCount; i++) {
-                const values = [];
                 const year = startYear + i;
                 for (let j = 0; j < 12; j++) {
-                    values.push({ value: Math.random(), happened: (new Date(year, j, 1).getTime() < now) });
+                    data.days.push({ value: Math.random(), date });
                 }
-                data.rows.push({ id: i + startAt, label: `${year}`, values });
+                date = addToDate(date, 1);
             }
             return data;
         });

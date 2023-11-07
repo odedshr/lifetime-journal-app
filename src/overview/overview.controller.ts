@@ -1,7 +1,10 @@
 import { app } from '../firebase.app.js';
 import { appendChild, Data } from "./overview.html.js";
 import { getUserSettings } from '../db.js';
+import { addToDate } from '../utils/date-utils.js';
 import { User, Settings } from '../types.js';
+
+
 
 const DEFAULT_DIARY = { uri: "diary-01" };
 
@@ -11,17 +14,16 @@ async function switchPage(user: User) {
   document.title = `${diary.name || 'My Diary'} | Lifetime Journal`;
 
   const onRequestData = async (itemCount: number, startAt: number) => {
-    const data: Data<number> = { type: 'number', min: 0, max: 1, rows: [] };
+    const data: Data<number> = { type: 'number', days: [], now: new Date() };
     const startYear = 1980 + startAt;
-    const now = (new Date()).getTime();
+    let date = new Date(startYear, 0, 1);
 
     for (let i = 0; i < itemCount; i++) {
-      const values = [];
       const year = startYear + i;
       for (let j = 0; j < 12; j++) {
-        values.push({ value: Math.random(), happened: (new Date(year, j, 1).getTime() < now) });
+        data.days.push({ value: Math.random(), date });
       }
-      data.rows.push({ id: i + startAt, label: `${year}`, values });
+      date = addToDate(date, 1);
     }
     return data;
   }
