@@ -1,11 +1,9 @@
 import { app } from '../firebase.app.js';
 import { appendChild } from "./entry.html.js";
-import { getUserSettings, getDefaultFields, getDayEntry, setDayEntry, getAnnuals, getPeriods } from '../db.js';
+import { getDiary, getDefaultFields, getDayEntry, setDayEntry, getAnnuals, getPeriods } from '../db.js';
 import { getDisplayableDate } from '../utils/date-utils.js';
 import { FirebaseApp, User, Settings, Diary, Entry } from '../types.js';
 import { redirectTo } from '../init.js';
-
-const DEFAULT_DIARY = { uri: "diary-01" };
 
 function onDayChanged(day: string, diary: string) {
   redirectTo('/entry/', new URLSearchParams(`?day=${day}&diary=${diary}`));
@@ -26,8 +24,7 @@ async function onEntryChanged(app: FirebaseApp, user: User, diary: Diary, entry:
 async function switchPage(user: User, dateString: string) {
   const date = new Date(dateString);
   document.title = `${getDisplayableDate(date)} | Lifetime Journal`;
-  const settings: Settings = await getUserSettings(app, user);
-  const diary = settings.diaries[0] || DEFAULT_DIARY;
+  const diary = await getDiary(app, user);
 
   const entry = await getDayEntry(app, user, diary, dateString);
   const isEditMode = entry.fields === getDefaultFields(diary);

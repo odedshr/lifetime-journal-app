@@ -1,5 +1,5 @@
 import { render } from 'nano-jsx';
-import { Period } from '../types.js';
+import { ElementType, Period } from '../types.js';
 import { isSameDate } from '../utils/date-utils.js';
 
 type Props = {
@@ -8,9 +8,7 @@ type Props = {
   onEditRequest?: () => void;
 };
 
-type ElementType = (props: Props) => HTMLElement;
-
-const Element: ElementType = (props) => {
+const Element: ElementType<Props> = (props) => {
   const { label, startDate, endDate } = props.data;
   const onClick = (evt: MouseEvent) => {
     evt.preventDefault();

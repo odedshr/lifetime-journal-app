@@ -1,6 +1,6 @@
 import { render } from 'nano-jsx';
 
-import { Period } from '../types.js';
+import { ElementType, Period } from '../types.js';
 import { Element as DaySelector } from '../utils/yyyy-mm-dd-selector.html.js';
 
 import { Element as Periods } from './period-list.html.js';
@@ -16,7 +16,6 @@ type Props = {
   onPeriodEditRequest: (id: string) => void,
   onDeletePeriodRequested: (id: string) => Promise<boolean>
 };
-type ElementType = (props: Props) => HTMLElement;
 
 const EMPTY_PERIOD: Period = {
   id: undefined,
@@ -31,7 +30,7 @@ async function onPeriodChanged(props: Props, period: Period) {
   return false; // prevent default behavior of form submission
 }
 
-const Element: ElementType = (props) => {
+const Element: ElementType<Props> = (props) => {
   const date = new Date(props.date);
   const editedPeriod = props.id !== undefined ? props.periods.find(period => period.id === props.id) : undefined;
 

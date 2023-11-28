@@ -63,3 +63,11 @@ label:has(+ input[required])::after {
   color: red;
   margin-left: 0.5rem;
 }
+
+dialog {
+  background-color: white;
+}
+
+dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}

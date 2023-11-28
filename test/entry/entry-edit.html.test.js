@@ -87,8 +87,12 @@ describe('EntryEdit', () => {
 
   it('tracks dirty state', async () => {
     const textField = element.querySelector('input[type=text]');
-
-    textField.value = 'xx';
+    const original = textField.value;
+    textField.value = 'x1';
+    textField.dispatchEvent(new Event('blur'));
+    textField.value = original; // doing this so we go over dirtyCount--
+    textField.dispatchEvent(new Event('blur'));
+    textField.value = 'x2';
     textField.dispatchEvent(new Event('blur'));
     await element.submit();
 

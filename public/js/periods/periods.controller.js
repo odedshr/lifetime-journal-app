@@ -9,10 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { app } from '../firebase.app.js';
 import { appendChild } from "./periods.html.js";
-import { getUserSettings, getPeriods, setPeriod } from '../db.js';
+import { getDiary, getPeriods, setPeriod } from '../db.js';
 import { getDisplayableDate } from '../utils/date-utils.js';
 import { redirectTo } from '../init.js';
-const DEFAULT_DIARY = { uri: "diary-01" };
 function onDayChanged(day, diary) {
     redirectTo('/periods/', new URLSearchParams(`?day=${day}&diary=${diary}`));
 }
@@ -31,15 +30,23 @@ function onChanged(app, user, diary, day, id, period) {
         return false;
     });
 }
-function switchPage(user, day, id) {
+function switchPage(user, day, periodId) {
     return __awaiter(this, void 0, void 0, function* () {
         const date = new Date(day);
         document.title = `${getDisplayableDate(date)} | Periods | Lifetime Journal`;
-        const settings = yield getUserSettings(app, user);
-        const diary = settings.diaries[0] || DEFAULT_DIARY;
+        const diary = yield getDiary(app, user);
         const periods = yield getPeriods(app, user, diary, date);
         const removeItem = (id) => onChanged(app, user, diary, day, id, null);
-        appendChild(document.body, day, periods, (day) => onDayChanged(day, diary.uri), (period) => onChanged(app, user, diary, day, period.id, period), (id) => onEditRequest(day, diary.uri, id), removeItem, () => redirectToEntry(day, diary.uri), id);
+        appendChild(
+        /*0*/ document.body, 
+        /*1*/ day, 
+        /*2*/ periods, 
+        /*3*/ (day) => onDayChanged(day, diary.uri), 
+        /*4*/ (period) => onChanged(app, user, diary, day, period.id, period), 
+        /*5*/ (id) => onEditRequest(day, diary.uri, id), 
+        /*6*/ removeItem, 
+        /*7*/ () => redirectToEntry(day, diary.uri), 
+        /*8*/ periodId);
     });
 }
 export { switchPage };

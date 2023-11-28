@@ -13,7 +13,7 @@ jest.unstable_mockModule('../../public/js/init.js', () => ({
 }));
 
 jest.unstable_mockModule('../../public/js/db.js', () => ({
-  getUserSettings: jest.fn(async () => ({ diaries: [] })),
+  getDiary: jest.fn(() => ({ uri: 'diary-01' })),
   getDefaultFields: jest.fn(() => ({})),
   getDayEntry: jest.fn(async () => ({})),
   setDayEntry: jest.fn(async () => ({})),
@@ -44,7 +44,7 @@ jest.unstable_mockModule('../../public/js/utils/date-utils.js', () => ({
 
 const { app } = await import('../../public/js/firebase.app.js');
 const { switchPage } = await import('../../public/js/entry/entry.controller.js');
-const { getUserSettings } = await import('../../public/js/db.js');
+const { getDiary } = await import('../../public/js/db.js');
 const { appendChild } = await import('../../public/js/entry/entry.html.js');
 const { getDayEntry } = await import('../../public/js/db.js');
 const { redirectTo } = await import('../../public/js/init.js');
@@ -63,32 +63,30 @@ describe('Entry.Controller', () => {
       expect(document.title).toEqual('xxx | Lifetime Journal');
     });
 
-    it('gets user settings', async () => {
+    it('gets current diary', async () => {
       await switchPage({}, '2023-01-01');
-      expect(getUserSettings).toHaveBeenCalledWith(
+      expect(getDiary).toHaveBeenCalledWith(
         expect.any(Function), {});
     });
 
     it('gets entry for default diary if none configured', async () => {
-      getUserSettings.mockResolvedValueOnce({ diaries: [] });
+      getDiary.mockResolvedValueOnce({ uri: "custom1" });
       await switchPage({}, '2023-01-01');
       expect(getDayEntry).toHaveBeenCalledWith(
         expect.any(Function),
         expect.any(Object),
-        { "uri": "diary-01" },
+        { "uri": "custom1" },
         '2023-01-01'
       );
     });
 
     it('gets entry for configured diary', async () => {
-      getUserSettings.mockResolvedValueOnce({
-        diaries: [{ "uri": "custom" }]
-      });
+      getDiary.mockResolvedValueOnce({ "uri": "custom2" });
       await switchPage({}, '2023-01-01');
       expect(getDayEntry).toHaveBeenCalledWith(
         expect.any(Function),
         {},
-        { "uri": "custom" },
+        { "uri": "custom2" },
         '2023-01-01'
       );
     });

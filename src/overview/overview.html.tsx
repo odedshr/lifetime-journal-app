@@ -1,6 +1,7 @@
 import { render } from 'nano-jsx';
 import * as d3 from 'd3';
 import { isFirstDateBeforeSecondDate } from '../utils/date-utils.js';
+import { ElementType } from '../types.js';
 
 type Day<T> = { date: Date, value: T };
 
@@ -15,8 +16,6 @@ type OnRequestData = (itemCount: number, startAt: number) => Promise<Data<any>>;
 type Props = {
   onRequestData: OnRequestData
 };
-
-type ElementType = (props: Props) => HTMLElement;
 
 const PADDING = 2;
 const ITEM_RADIUS = 10;
@@ -173,7 +172,7 @@ function redraw(timeline: d3.Selection<SVGGElement, unknown, null, undefined>) {
   // }
 }
 
-const Element: ElementType = (props: Props) => {
+const Element: ElementType<Props> = (props: Props) => {
   let container: HTMLElement;
   let svgElement: SVGSVGElement
 

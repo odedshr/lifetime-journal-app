@@ -3,22 +3,6 @@ import { appendChild } from '../../public/js/annuals/annuals.html.js';
 
 jest.useFakeTimers();
 
-// Mock props and utils 
-// jest.unstable_mockModule('nano-jsx', () => {
-//   return { render: jest.fn() };
-// });
-
-// jest.unstable_mockModule('nano-jsx/esm/jsx-runtime', () => {
-//   return {
-//     jsx: jest.fn(),
-//     jsxs: jest.fn()
-//   };
-// });
-
-// const { render } = await import('nano-jsx');
-// const { jsx } = await import('nano-jsx/esm/jsx-runtime');
-
-// Tests
 describe('Annuals', () => {
   describe('appendChild', () => {
     const onDayChanged = jest.fn();

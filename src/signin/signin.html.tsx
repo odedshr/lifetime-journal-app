@@ -1,13 +1,13 @@
 import { render } from 'nano-jsx';
+import { ElementType } from '../types.js';
 
 type Props = {
   onSignInButtonClicked: () => Promise<boolean>
 }
 
-type ElementType = (props: Props) => HTMLElement;
 
 
-const Element: ElementType = (props) => {
+const Element: ElementType<Props> = (props) => {
   let signInButton: HTMLButtonElement;
 
   const onClick = async () => {

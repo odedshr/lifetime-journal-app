@@ -1,13 +1,12 @@
 import { render } from 'nano-jsx';
-import { NumberField } from '../types.js';
+import { ElementType, NumberField } from '../types.js';
 
 type Props = {
   field: NumberField,
   onValueChanged: (field: NumberField, isDirty: boolean) => void
 }
-type ElementType = (props: Props) => HTMLElement;
 
-const Element: ElementType = (props) => {
+const Element: ElementType<Props> = (props) => {
   const oldValue = props.field.value;
   let field: HTMLInputElement;
 

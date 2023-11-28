@@ -14,6 +14,7 @@ import { switchPage as switchToEntryPage } from "./entry/entry.controller.js";
 import { switchPage as switchToAnnualsPage } from "./annuals/annuals.controller.js";
 import { switchPage as switchToPeriodsPage } from "./periods/periods.controller.js";
 import { switchPage as switchToOverviewPage } from "./overview/overview.controller.js";
+import { switchPage as switchToDiariesPage } from "./diaries/diaries.controller.js";
 import { switchPage as switchToPageNotFound } from "./404/404.controller.js";
 function init(url, parameters = new URLSearchParams()) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -28,9 +29,9 @@ function init(url, parameters = new URLSearchParams()) {
         if (url.match(/\/overview\/?/)) {
             return yield switchToOverviewPage(user);
         }
-        // if (url === '/diaries/') {
-        //   // switchToDiariesPage
-        // }
+        if (url.match(/\/diaries\/?/)) {
+            return yield switchToDiariesPage(user);
+        }
         let day = parameters.get('day') || '';
         if (url === '/') {
             url = '/entry/';

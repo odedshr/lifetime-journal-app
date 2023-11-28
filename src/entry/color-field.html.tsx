@@ -1,17 +1,16 @@
 import { render } from 'nano-jsx';
-import { Field } from '../types.js';
+import { ElementType, Field } from '../types.js';
 
 type Props = {
   field: Field<string>,
   onValueChanged: (field: Field<string>, isDirty: boolean) => void
 }
-type ElementType = (props: Props) => HTMLElement;
 
 function sanitizeHTML(html: string) {
   return html.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-const Element: ElementType = (props) => {
+const Element: ElementType<Props> = (props) => {
   let field: HTMLInputElement;
   let oldValue = props.field.value;
 

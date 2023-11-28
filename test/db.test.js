@@ -1,6 +1,8 @@
 import { jest } from '@jest/globals';
 
 jest.unstable_mockModule('@firebase/firestore', () => ({
+  connectAuthEmulator: jest.fn(),
+  connectFirestoreEmulator: jest.fn(),
   collection: jest.fn(),
   doc: jest.fn(),
   getDoc: jest.fn(),
@@ -10,20 +12,26 @@ jest.unstable_mockModule('@firebase/firestore', () => ({
   getDocs: jest.fn(),
   query: jest.fn(),
   where: jest.fn(),
+  writeBatch: jest.fn(() => ({ set: () => { }, commit: () => { } })),
   Timestamp: { fromDate: jest.fn((date) => (date)) }
 }));
 
-const { getFirestore, doc, collection, getDoc, getDocs, setDoc, deleteDoc } = await import('@firebase/firestore');
+const { getFirestore, doc, collection, getDoc, getDocs, setDoc, deleteDoc, writeBatch } = await import('@firebase/firestore');
 const {
   getUserSettings,
   saveUserSettings,
   getDayEntry,
   setDayEntry,
+  getDiary,
+  getDiaryContent,
+  setDiaryContent,
+  deleteDiaryContent,
   getAnnuals,
   setAnnuals,
   getPeriods,
   getPeriod,
-  setPeriod
+  setPeriod,
+  DEFAULT_DIARY
 } = await import('../public/js/db.js');
 
 describe('DB utils', () => {
@@ -74,7 +82,6 @@ describe('DB utils', () => {
 
     it('should throw error if user does not have email property', async () => {
       // given
-      const expectedSettings = { diaries: ['personal'] };
       user = {};
 
       // when
@@ -85,9 +92,9 @@ describe('DB utils', () => {
 
     });
 
-    it('should return an empty diary list of settings object doesn\'t exists', async () => {
+    it('should return an diary list with default diary if settings object doesn\'t exists', async () => {
       // given
-      const expectedSettings = { diaries: [] };
+      const expectedSettings = { currentDiaryIndex: 0, diaries: [DEFAULT_DIARY] };
 
       getDoc.mockResolvedValue({
         data: () => null,
@@ -224,6 +231,75 @@ describe('DB utils', () => {
       expect(setDoc).toHaveBeenCalledWith(docReference, { events });
       expect(result).toEqual(false);
     });
+  });
+
+  describe('getDiary', () => {
+    it('should get period', async () => {
+      const expectedSettings = { currentDiaryIndex: 0, diaries: [DEFAULT_DIARY] };
+      const expectedResult = { exists: () => true, data: () => expectedSettings };
+
+      getDoc.mockResolvedValue(expectedResult);
+
+      const result = await getDiary(app, user);
+
+      expect(getDoc).toHaveBeenCalledTimes(1);
+      expect(result).toEqual(DEFAULT_DIARY);
+    });
+  });
+
+  describe('getDiaryContent', () => {
+    it("should get diary content", async () => {
+      const data = { a: "aa", b: "bb" };
+      const expectedResult = { docs: [{ id: "a", data: () => "aa" }, { id: "b", data: () => "bb" }] };
+
+      getDocs.mockResolvedValue(expectedResult);
+
+      const result = await getDiaryContent(app, user, "diary-01");
+
+      expect(getDocs).toHaveBeenCalledTimes(3);
+      expect(result).toEqual({ "entries": data, "annuals": data, "periods": data, "settings": "diary-01" });
+    });
+  });
+
+  describe('setDiaryContent', () => {
+    it("should add new diary", async () => {
+      const diaryContent = {
+        settings: { uri: "diary-01" },
+        entries: [{ a: "aa" }],
+        annuals: [{ b: "bb" }],
+        periods: [{ c: "cc" }]
+      };
+
+      const result = await setDiaryContent(app, user, { diaries: [] }, diaryContent, "replace");
+
+      expect(writeBatch).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({ "diaries": [{ uri: "diary-01" }] });
+    });
+
+    it("should replace diary content", async () => {
+      const diaryContent = { settings: { uri: "diary-01" }, entries: [], annuals: [], periods: [] };
+
+      const result = await setDiaryContent(app, user, { diaries: [{ uri: "diary-01", name: "old" }] }, diaryContent, "replace");
+
+      expect(writeBatch).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({ "diaries": [{ uri: "diary-01" }] });
+    });
+
+    it("should merge diary content", async () => {
+      const diaryContent = { settings: { uri: "diary-01" }, entries: [], annuals: [], periods: [] };
+
+      const result = await setDiaryContent(app, user, { diaries: [{ uri: "diary-01", name: "old" }] }, diaryContent, "merge");
+
+      expect(writeBatch).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({ "diaries": [{ "uri": "diary-01", "name": "old" }] });
+    });
+  });
+
+  describe('deleteDiaryContent', () => {
+    it("should delete the diary", () => {
+      deleteDiaryContent(app, user, "diary-uri");
+      expect(deleteDoc).toHaveBeenCalledTimes(1);
+    })
   });
 
   describe('getPeriods', () => {

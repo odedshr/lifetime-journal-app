@@ -1,16 +1,12 @@
 import { jest } from '@jest/globals';
 
 // Mock props and utils 
-jest.mock('nano-jsx', () => {
-  return { render: jest.fn() };
-});
+jest.mock('nano-jsx', () => ({ render: jest.fn() }));
 
-jest.mock('nano-jsx/esm/jsx-runtime', () => {
-  return {
-    jsx: jest.fn(),
-    jsxs: jest.fn()
-  };
-});
+jest.mock('nano-jsx/esm/jsx-runtime', () => ({
+  jsx: jest.fn(),
+  jsxs: jest.fn()
+}));
 
 const { Element, appendChild } = await import('../../public/js/annuals/annual-edit.html.js');
 const { render } = await import('nano-jsx');

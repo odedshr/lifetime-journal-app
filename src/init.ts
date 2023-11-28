@@ -5,6 +5,7 @@ import { switchPage as switchToEntryPage } from "./entry/entry.controller.js";
 import { switchPage as switchToAnnualsPage } from "./annuals/annuals.controller.js";
 import { switchPage as switchToPeriodsPage } from "./periods/periods.controller.js";
 import { switchPage as switchToOverviewPage } from "./overview/overview.controller.js";
+import { switchPage as switchToDiariesPage } from "./diaries/diaries.controller.js";
 import { switchPage as switchToPageNotFound } from "./404/404.controller.js";
 import { User } from "./types.js";
 
@@ -23,9 +24,9 @@ async function init(url: string, parameters: URLSearchParams = new URLSearchPara
     return await switchToOverviewPage(user);
   }
 
-  // if (url === '/diaries/') {
-  //   // switchToDiariesPage
-  // }
+  if (url.match(/\/diaries\/?/)) {
+    return await switchToDiariesPage(user);
+  }
 
   let day = parameters.get('day') || '';
 

@@ -1,6 +1,6 @@
 import { render } from 'nano-jsx';
 
-import { Annual } from '../types.js';
+import { Annual, ElementType } from '../types.js';
 import { Element as DaySelector } from '../utils/mm-dd-selector.html.js';
 
 import { Element as Annuals } from './annual-list.html.js';
@@ -17,7 +17,6 @@ type Props = {
   onAnnualEditRequest: (id: number) => void,
   onDeleteAnnualRequested: (id: number) => Promise<boolean>
 };
-type ElementType = (props: Props) => HTMLElement;
 
 const EMPTY_ANNUAL: Annual = {
   label: '',
@@ -35,7 +34,7 @@ async function onAnnualChanged(props: Props, newEntry: Annual) {
   }
   return false; // prevent default behavior of form submission
 }
-const Element: ElementType = (props) => (<main class="annuals">
+const Element: ElementType<Props> = (props) => (<main class="annuals">
   <header>
     <DaySelector date={props.date} onDayChanged={props.onDayChanged} />
   </header>

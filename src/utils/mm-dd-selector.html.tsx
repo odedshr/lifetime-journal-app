@@ -1,15 +1,14 @@
 import { render } from 'nano-jsx';
-import { MONTH_NAMES, LEAP_YEAR_MONTH_LENGTH, addToDate, getFormattedDate, getShorthandedDayOfTheWeekName } from './date-utils.js';
+import { MONTH_NAMES, LEAP_YEAR_MONTH_LENGTH, getFormattedDate } from './date-utils.js';
 import { Element as DateSelector } from './date-selector.html.js';
+import { ElementType } from '../types.js';
 
 type Props = {
   date: string,
   onDayChanged: (day: string) => void
 }
 
-type ElementType = (props: Props) => HTMLElement;
-
-const Element: ElementType = (props) => {
+const Element: ElementType<Props> = (props) => {
   let monthSelector: HTMLSelectElement;
   let daySelector: HTMLSelectElement;
   const date = new Date(props.date);

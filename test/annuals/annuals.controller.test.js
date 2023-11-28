@@ -10,7 +10,7 @@ jest.unstable_mockModule('../../public/js/firebase.app.js', () => ({
 
 
 jest.unstable_mockModule('../../public/js/db.js', () => ({
-  getUserSettings: jest.fn(async () => ({ diaries: [] })),
+  getDiary: jest.fn(async () => ({ uri: 'diary-01' })),
   getDayEntry: jest.fn(async () => ({})),
   setDayEntry: jest.fn(async () => ({})),
   getAnnuals: jest.fn(async () => ({ annuals: [{ label: 'a' }, { label: 'b' }, { label: 'c' }], leapYear: [] })),
@@ -39,7 +39,7 @@ jest.unstable_mockModule('../../public/js/utils/date-utils.js', () => ({
 
 const { app } = await import('../../public/js/firebase.app.js');
 const { switchPage } = await import('../../public/js/annuals/annuals.controller.js');
-const { getUserSettings, getAnnuals, setAnnuals } = await import('../../public/js/db.js');
+const { getDiary, getAnnuals, setAnnuals } = await import('../../public/js/db.js');
 const { appendChild } = await import('../../public/js/annuals/annuals.html.js');
 const { redirectTo } = await import('../../public/js/init.js');
 
@@ -56,21 +56,19 @@ describe('Annuals.Controller', () => {
       expect(document.title).toEqual('mm/dd(2023-01-13) | Lifetime Journal');
     });
 
-    it('gets user settings', async () => {
+    it('gets current diary', async () => {
       await switchPage({}, '2023-01-01');
-      expect(getUserSettings).toHaveBeenCalledWith(
+      expect(getDiary).toHaveBeenCalledWith(
         expect.any(Function), {});
     });
 
     it('gets annuals for configured diary', async () => {
-      getUserSettings.mockResolvedValueOnce({
-        diaries: [{ "uri": "custom" }]
-      });
+      getDiary.mockResolvedValueOnce({ "uri": "diary-01" });
       await switchPage({}, '2023-01-01');
       expect(getAnnuals).toHaveBeenCalledWith(
         expect.any(Function),
         {},
-        { "uri": "custom" },
+        { "uri": "diary-01" },
         new Date('2023-01-01')
       );
     });

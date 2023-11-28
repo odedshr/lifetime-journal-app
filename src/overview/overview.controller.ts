@@ -1,16 +1,11 @@
 import { app } from '../firebase.app.js';
 import { appendChild, Data } from "./overview.html.js";
-import { getUserSettings } from '../db.js';
+import { getDiary } from '../db.js';
 import { addToDate } from '../utils/date-utils.js';
-import { User, Settings } from '../types.js';
-
-
-
-const DEFAULT_DIARY = { uri: "diary-01" };
+import { User } from '../types.js';
 
 async function switchPage(user: User) {
-  const settings: Settings = await getUserSettings(app, user);
-  const diary = settings.diaries[0] || DEFAULT_DIARY;
+  const diary = await getDiary(app, user);
   document.title = `${diary.name || 'My Diary'} | Lifetime Journal`;
 
   const onRequestData = async (itemCount: number, startAt: number) => {

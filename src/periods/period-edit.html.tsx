@@ -1,5 +1,5 @@
 import { render } from 'nano-jsx';
-import { Period } from '../types.js';
+import { ElementType, Period } from '../types.js';
 import { getFormattedDate } from '../utils/date-utils.js';
 
 type Props = {
@@ -8,7 +8,6 @@ type Props = {
   onCancel?: () => void;
   onDelete?: () => Promise<boolean>;
 };
-type ElementType = (props: Props) => HTMLElement;
 
 function saveForm(formData: FormData, props: Props) {
   let isDirty = false;
@@ -42,7 +41,7 @@ function saveForm(formData: FormData, props: Props) {
   return isDirty ? props.onChanged(props.data) : true;
 }
 
-const Element: ElementType = (props) => {
+const Element: ElementType<Props> = (props) => {
   let form: HTMLFormElement;
   const { label, startDate, color, endDate } = props.data;
   const startDateString = startDate ? getFormattedDate(startDate) : '';

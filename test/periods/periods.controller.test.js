@@ -10,6 +10,7 @@ jest.unstable_mockModule('../../public/js/firebase.app.js', () => ({
 
 
 jest.unstable_mockModule('../../public/js/db.js', () => ({
+  getDiary: jest.fn(async () => ({ uri: 'diary-01' })),
   getUserSettings: jest.fn(async () => ({ diaries: [] })),
   getDayEntry: jest.fn(async () => ({})),
   setDayEntry: jest.fn(async () => ({})),
@@ -39,7 +40,7 @@ jest.unstable_mockModule('../../public/js/utils/date-utils.js', () => ({
 
 const { app } = await import('../../public/js/firebase.app.js');
 const { switchPage } = await import('../../public/js/periods/periods.controller.js');
-const { getUserSettings, getPeriods, setPeriod } = await import('../../public/js/db.js');
+const { getDiary, getPeriods, setPeriod } = await import('../../public/js/db.js');
 const { appendChild } = await import('../../public/js/periods/periods.html.js');
 const { redirectTo } = await import('../../public/js/init.js');
 
@@ -56,21 +57,19 @@ describe('Periods.Controller', () => {
       expect(document.title).toEqual('xxx | Periods | Lifetime Journal');
     });
 
-    it('gets user settings', async () => {
+    it('gets current diary', async () => {
       await switchPage({}, '2023-01-01');
-      expect(getUserSettings).toHaveBeenCalledWith(
+      expect(getDiary).toHaveBeenCalledWith(
         expect.any(Function), {});
     });
 
     it('gets periods for configured diary', async () => {
-      getUserSettings.mockResolvedValueOnce({
-        diaries: [{ "uri": "custom" }]
-      });
+      getDiary.mockResolvedValueOnce({ "uri": "diary-01" });
       await switchPage({}, '2023-01-01');
       expect(getPeriods).toHaveBeenCalledWith(
         expect.any(Function),
         {},
-        { "uri": "custom" },
+        { "uri": "diary-01" },
         new Date('2023-01-01')
       );
     });

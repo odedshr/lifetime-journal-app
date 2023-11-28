@@ -1,11 +1,9 @@
 import { app } from '../firebase.app.js';
 import { appendChild } from "./periods.html.js";
-import { getUserSettings, getPeriods, setPeriod } from '../db.js';
+import { getDiary, getPeriods, setPeriod } from '../db.js';
 import { getDisplayableDate } from '../utils/date-utils.js';
-import { FirebaseApp, User, Settings, Diary, Period } from '../types.js';
+import { FirebaseApp, User, Diary, Period } from '../types.js';
 import { redirectTo } from '../init.js';
-
-const DEFAULT_DIARY = { uri: "diary-01" };
 
 function onDayChanged(day: string, diary: string) {
   redirectTo('/periods/', new URLSearchParams(`?day=${day}&diary=${diary}`));
@@ -27,24 +25,26 @@ async function onChanged(app: FirebaseApp, user: User, diary: Diary, day: string
   return false;
 }
 
-async function switchPage(user: User, day: string, id?: string) {
+async function switchPage(user: User, day: string, periodId?: string) {
   const date = new Date(day);
 
   document.title = `${getDisplayableDate(date)} | Periods | Lifetime Journal`;
-  const settings: Settings = await getUserSettings(app, user);
-  const diary = settings.diaries[0] || DEFAULT_DIARY;
+  const diary = await getDiary(app, user);
 
   const periods = await getPeriods(app, user, diary, date);
 
   const removeItem = (id: string) => onChanged(app, user, diary, day, id, null);
 
-  appendChild(document.body, day, periods,
-    (day: string) => onDayChanged(day, diary.uri),
-    (period: Period) => onChanged(app, user, diary, day, period.id as string, period),
-    (id: string) => onEditRequest(day, diary.uri, id),
-    removeItem,
-    () => redirectToEntry(day, diary.uri),
-    id);
+  appendChild(
+    /*0*/document.body,
+    /*1*/day,
+    /*2*/periods,
+    /*3*/(day: string) => onDayChanged(day, diary.uri),
+    /*4*/(period: Period) => onChanged(app, user, diary, day, period.id as string, period),
+    /*5*/(id: string) => onEditRequest(day, diary.uri, id),
+    /*6*/removeItem,
+    /*7*/() => redirectToEntry(day, diary.uri),
+    /*8*/periodId);
 }
 
 export { switchPage };

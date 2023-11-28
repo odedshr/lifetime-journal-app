@@ -1,5 +1,5 @@
 import { render } from 'nano-jsx';
-import { Annual } from '../types.js';
+import { ElementType, Annual } from '../types.js';
 import { isFirstDateBeforeSecondDate, getMmDdFromString } from '../utils/date-utils.js';
 
 type Props = {
@@ -8,9 +8,7 @@ type Props = {
   onEditRequest?: () => void;
 };
 
-type ElementType = (props: Props) => HTMLElement;
-
-const Element: ElementType = (props) => {
+const Element: ElementType<Props> = (props) => {
   const { label, startYear, color, endYear } = props.data;
   const onClick = (evt: MouseEvent) => {
     evt.preventDefault();

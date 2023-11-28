@@ -9,10 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { app } from '../firebase.app.js';
 import { appendChild } from "./annuals.html.js";
-import { getUserSettings, getAnnuals, setAnnuals } from '../db.js';
+import { getDiary, getAnnuals, setAnnuals } from '../db.js';
 import { getMmDd } from '../utils/date-utils.js';
 import { redirectTo } from '../init.js';
-const DEFAULT_DIARY = { uri: "diary-01" };
 function onDayChanged(day, diary) {
     redirectTo('/annuals/', new URLSearchParams(`?day=${day}&diary=${diary}`));
 }
@@ -31,20 +30,29 @@ function onChanged(app, user, diary, day, mmDd, annuals) {
         return false;
     });
 }
-function switchPage(user, day, id) {
+function switchPage(user, day, annualId) {
     return __awaiter(this, void 0, void 0, function* () {
         const date = new Date(day);
         const mmDd = getMmDd(date);
         document.title = `${mmDd} | Lifetime Journal`;
-        const settings = yield getUserSettings(app, user);
-        const diary = settings.diaries[0] || DEFAULT_DIARY;
+        const diary = yield getDiary(app, user);
         const { annuals, leapYear } = yield getAnnuals(app, user, diary, date);
         const removeItem = (id) => {
             const newAnnuals = [...annuals];
             newAnnuals.splice(id, 1);
             return onChanged(app, user, diary, day, mmDd, newAnnuals);
         };
-        appendChild(document.body, day, annuals, leapYear, (day) => onDayChanged(day, diary.uri), (annuals) => onChanged(app, user, diary, day, mmDd, annuals), (id) => onEditRequest(day, diary.uri, id), removeItem, () => redirectToEntry(day, diary.uri), id);
+        appendChild(
+        /*0*/ document.body, 
+        /*1*/ day, 
+        /*2*/ annuals, 
+        /*3*/ leapYear, 
+        /*4*/ (day) => onDayChanged(day, diary.uri), 
+        /*5*/ (annuals) => onChanged(app, user, diary, day, mmDd, annuals), 
+        /*6*/ (id) => onEditRequest(day, diary.uri, id), 
+        /*7*/ removeItem, 
+        /*8*/ () => redirectToEntry(day, diary.uri), 
+        /*9*/ annualId);
     });
 }
 export { switchPage };

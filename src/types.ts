@@ -1,6 +1,8 @@
 import { FirebaseApp } from "@firebase/app";
 import { User } from "@firebase/auth";
 
+type ElementType<P> = (props: P) => HTMLElement;
+
 type Diary = {
   uri: string;
   startDate: string;
@@ -9,8 +11,16 @@ type Diary = {
   defaultFields: FieldTemplate[];
 };
 
+type DiaryContent = {
+  settings: Diary;
+  entries: { [key: string]: Entry };
+  annuals: { [key: string]: Annual };
+  periods: { [key: string]: Period };
+};
+
 type Settings = {
   diaries: Diary[];
+  currentDiaryIndex: number;
 }
 
 type FieldType = 'text' | 'number' | 'emoji' | 'color';
@@ -52,8 +62,10 @@ export {
   FirebaseApp,
   User,
   Diary,
+  DiaryContent,
   Settings,
   Entry,
+  ElementType,
   NumberField,
   Field,
   FieldTemplate,

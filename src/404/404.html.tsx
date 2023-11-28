@@ -1,11 +1,9 @@
 import { render } from 'nano-jsx';
+import { ElementType } from '../types.js';
 
 type Props = {}
 
-type ElementType = (props: Props) => HTMLElement;
-
-
-const Element: ElementType = (props) => {
+const Element: ElementType<Props> = (props) => {
   return (<main class="page-not-found">
     <h1>404: Page Not Found</h1>
     <h2>Not all those who wander are lost</h2>

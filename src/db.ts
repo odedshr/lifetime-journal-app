@@ -6,9 +6,10 @@ import {
   deleteDoc,
   doc,
   getDoc,
-  getDocs, setDoc, query, where, Timestamp
+  getDocs, setDoc, query, where, Timestamp,
+  writeBatch
 } from '@firebase/firestore';
-import { FirebaseApp, Settings, Diary, Entry, User, Annual, Period } from './types.js';
+import { FirebaseApp, Settings, Diary, DiaryContent, Entry, User, Annual, Period } from './types.js';
 import { getMmDd, getShorthandedMonthAndDay, isLeapYear } from './utils/date-utils.js';
 
 
@@ -57,6 +58,14 @@ async function setDayEntry(app: FirebaseApp, user: User, diary: string, day: str
   }
 }
 
+const DEFAULT_DIARY: Diary = {
+  uri: "diary-01",
+  name: "My Diary",
+  startDate: "2000-01-01",
+  color: "white",
+  defaultFields: [{ type: 'text' }]
+};
+
 async function getUserSettings(app: FirebaseApp, user: User): Promise<Settings> {
   const document = await getDoc(doc(collection(getDB(app), getUserId(user)), "settings"));
 
@@ -64,7 +73,13 @@ async function getUserSettings(app: FirebaseApp, user: User): Promise<Settings> 
     return document.data() as Settings
   }
 
-  return { diaries: [] };
+  return { diaries: [DEFAULT_DIARY], currentDiaryIndex: 0 };
+}
+
+async function getDiary(app: FirebaseApp, user: User) {
+  const settings = await getUserSettings(app, user);
+  return settings.diaries[settings.currentDiaryIndex || 0];
+
 }
 
 async function saveUserSettings(app: FirebaseApp, user: User, settings: Settings) {
@@ -162,7 +177,70 @@ async function setPeriod(app: FirebaseApp, user: User, diary: string, id: string
 function fixMmDdFormat(mmDd: string) {
   return mmDd.replace(/\//g, '-');
 }
+
+async function getDiaryContent(app: FirebaseApp,
+  user: User,
+  diary: Diary): Promise<DiaryContent> {
+  const diaryContent: DiaryContent = { settings: diary, entries: {}, annuals: {}, periods: {} };
+  const [entries, annuals, periods] = await Promise.all(
+    [(getDocs(collection(getDB(app), getUserId(user), diary.uri, 'entries'))),
+    (getDocs(collection(getDB(app), getUserId(user), diary.uri, 'annuals'))),
+    (getDocs(collection(getDB(app), getUserId(user), diary.uri, 'periods')))]);
+
+  entries.docs.forEach(doc => diaryContent.entries[doc.id] = doc.data() as Entry);
+  annuals.docs.forEach(doc => diaryContent.annuals[doc.id] = doc.data() as Annual);
+  periods.docs.forEach(doc => diaryContent.periods[doc.id] = doc.data() as Period);
+
+  return diaryContent;
+}
+
+async function setDiaryContent(app: FirebaseApp,
+  user: User,
+  settings: Settings,
+  diaryContent: DiaryContent,
+  method: "replace" | "merge"): Promise<Settings> {
+  const diaryIndex = settings.diaries.findIndex(diary => diary.uri === diaryContent.settings.uri);
+  if (diaryIndex === -1) {
+    settings.diaries.push(diaryContent.settings);
+  } else if (method === "replace") {
+    settings.diaries[diaryIndex] = diaryContent.settings;
+  } else {
+    settings.diaries[diaryIndex] = { ...settings.diaries[diaryIndex], ...diaryContent.settings };
+  }
+
+  const diaryUri = diaryContent.settings.uri;
+  const batch = writeBatch(getDB(app));
+  // const write = method == 'replace' ? batch.set : batch.update;
+
+  batch.set(doc(getDB(app), getUserId(user), "settings"), settings);
+
+  for (let key in diaryContent.entries) {
+    batch.set(doc(getDB(app), getUserId(user), diaryUri, "entries", key), diaryContent.entries[key]);
+  }
+
+  for (let key in diaryContent.annuals) {
+    batch.set(doc(getDB(app), getUserId(user), diaryUri, "annuals", key), diaryContent.annuals[key]);
+  }
+
+  for (let key in diaryContent.periods) {
+    batch.set(doc(getDB(app), getUserId(user), diaryUri, "periods", key), diaryContent.periods[key]);
+  }
+
+  await batch.commit();
+
+  return settings;
+}
+
+async function deleteDiaryContent(app: FirebaseApp,
+  user: User,
+  diaryUri: string) {
+  const docReference = doc(collection(getDB(app), getUserId(user)), diaryUri);
+  deleteDoc(docReference)
+}
+
 export {
+  DEFAULT_DIARY,
+  getDiary,
   getUserSettings,
   saveUserSettings,
   getDefaultFields,
@@ -172,5 +250,8 @@ export {
   setAnnuals,
   getPeriods,
   getPeriod,
-  setPeriod
+  setPeriod,
+  getDiaryContent,
+  setDiaryContent,
+  deleteDiaryContent,
 };

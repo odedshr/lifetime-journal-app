@@ -1,5 +1,5 @@
 import { render } from 'nano-jsx';
-import { Annual } from '../types.js';
+import { ElementType, Annual } from '../types.js';
 
 type Props = {
   data: Annual
@@ -7,7 +7,6 @@ type Props = {
   onCancel?: () => void;
   onDelete?: () => Promise<boolean>;
 };
-type ElementType = (props: Props) => HTMLElement;
 
 function saveForm(formData: FormData, props: Props) {
   let isDirty = false;
@@ -32,7 +31,7 @@ function saveForm(formData: FormData, props: Props) {
   return isDirty ? props.onChanged(props.data) : true;
 }
 
-const Element: ElementType = (props) => {
+const Element: ElementType<Props> = (props) => {
   let form: HTMLFormElement;
   const { label, startYear, color, endYear } = props.data;
   const onExitPage = (action: 'save' | 'cancel' | 'delete', evt: MouseEvent) => {

@@ -48,6 +48,7 @@ jest.unstable_mockModule('@firebase/auth', () => {
   };
 
   return {
+    connectAuthEmulator: jest.fn(),
     getAuth: jest.fn(() => authInstance),
     GoogleAuthProvider: jest.fn(() => ({
       addScope: () => jest.fn()

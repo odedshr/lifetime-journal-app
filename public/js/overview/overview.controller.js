@@ -9,13 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { app } from '../firebase.app.js';
 import { appendChild } from "./overview.html.js";
-import { getUserSettings } from '../db.js';
+import { getDiary } from '../db.js';
 import { addToDate } from '../utils/date-utils.js';
-const DEFAULT_DIARY = { uri: "diary-01" };
 function switchPage(user) {
     return __awaiter(this, void 0, void 0, function* () {
-        const settings = yield getUserSettings(app, user);
-        const diary = settings.diaries[0] || DEFAULT_DIARY;
+        const diary = yield getDiary(app, user);
         document.title = `${diary.name || 'My Diary'} | Lifetime Journal`;
         const onRequestData = (itemCount, startAt) => __awaiter(this, void 0, void 0, function* () {
             const data = { type: 'number', days: [], now: new Date() };

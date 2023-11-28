@@ -1,5 +1,6 @@
 import { render } from 'nano-jsx';
 import { getFormattedDate, addToDate, getShorthandedDayOfTheWeekName } from './date-utils.js';
+import { ElementType } from '../types.js';
 
 type Props = {
   date: string,
@@ -8,14 +9,12 @@ type Props = {
 
 }
 
-type ElementType = (props: Props) => HTMLElement;
-
 function onLinkClicked(onDayChanged: (day: string) => void, targetDate: Date, evt: MouseEvent) {
   onDayChanged(getFormattedDate(targetDate));
   evt.preventDefault();
 }
 
-const Element: ElementType = (props) => {
+const Element: ElementType<Props> = (props) => {
   const date = new Date(props.date);
   const prevDate = addToDate(date, -1);
   const nextDate = addToDate(date, +1);

@@ -7,7 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { connectFirestoreEmulator, getFirestore, collection, deleteDoc, doc, getDoc, getDocs, setDoc, query, where, Timestamp } from '@firebase/firestore';
+import { connectFirestoreEmulator, getFirestore, collection, deleteDoc, doc, getDoc, getDocs, setDoc, query, where, Timestamp, writeBatch } from '@firebase/firestore';
 import { getMmDd, getShorthandedMonthAndDay, isLeapYear } from './utils/date-utils.js';
 let fireStore = null;
 function getDB(app) {
@@ -49,13 +49,26 @@ function setDayEntry(app, user, diary, day, entry) {
         }
     });
 }
+const DEFAULT_DIARY = {
+    uri: "diary-01",
+    name: "My Diary",
+    startDate: "2000-01-01",
+    color: "white",
+    defaultFields: [{ type: 'text' }]
+};
 function getUserSettings(app, user) {
     return __awaiter(this, void 0, void 0, function* () {
         const document = yield getDoc(doc(collection(getDB(app), getUserId(user)), "settings"));
         if (document.exists()) {
             return document.data();
         }
-        return { diaries: [] };
+        return { diaries: [DEFAULT_DIARY], currentDiaryIndex: 0 };
+    });
+}
+function getDiary(app, user) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const settings = yield getUserSettings(app, user);
+        return settings.diaries[settings.currentDiaryIndex || 0];
     });
 }
 function saveUserSettings(app, user, settings) {
@@ -142,4 +155,51 @@ function setPeriod(app, user, diary, id, period) {
 function fixMmDdFormat(mmDd) {
     return mmDd.replace(/\//g, '-');
 }
-export { getUserSettings, saveUserSettings, getDefaultFields, getDayEntry, setDayEntry, getAnnuals, setAnnuals, getPeriods, getPeriod, setPeriod };
+function getDiaryContent(app, user, diary) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const diaryContent = { settings: diary, entries: {}, annuals: {}, periods: {} };
+        const [entries, annuals, periods] = yield Promise.all([(getDocs(collection(getDB(app), getUserId(user), diary.uri, 'entries'))),
+            (getDocs(collection(getDB(app), getUserId(user), diary.uri, 'annuals'))),
+            (getDocs(collection(getDB(app), getUserId(user), diary.uri, 'periods')))]);
+        entries.docs.forEach(doc => diaryContent.entries[doc.id] = doc.data());
+        annuals.docs.forEach(doc => diaryContent.annuals[doc.id] = doc.data());
+        periods.docs.forEach(doc => diaryContent.periods[doc.id] = doc.data());
+        return diaryContent;
+    });
+}
+function setDiaryContent(app, user, settings, diaryContent, method) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const diaryIndex = settings.diaries.findIndex(diary => diary.uri === diaryContent.settings.uri);
+        if (diaryIndex === -1) {
+            settings.diaries.push(diaryContent.settings);
+        }
+        else if (method === "replace") {
+            settings.diaries[diaryIndex] = diaryContent.settings;
+        }
+        else {
+            settings.diaries[diaryIndex] = Object.assign(Object.assign({}, settings.diaries[diaryIndex]), diaryContent.settings);
+        }
+        const diaryUri = diaryContent.settings.uri;
+        const batch = writeBatch(getDB(app));
+        // const write = method == 'replace' ? batch.set : batch.update;
+        batch.set(doc(getDB(app), getUserId(user), "settings"), settings);
+        for (let key in diaryContent.entries) {
+            batch.set(doc(getDB(app), getUserId(user), diaryUri, "entries", key), diaryContent.entries[key]);
+        }
+        for (let key in diaryContent.annuals) {
+            batch.set(doc(getDB(app), getUserId(user), diaryUri, "annuals", key), diaryContent.annuals[key]);
+        }
+        for (let key in diaryContent.periods) {
+            batch.set(doc(getDB(app), getUserId(user), diaryUri, "periods", key), diaryContent.periods[key]);
+        }
+        yield batch.commit();
+        return settings;
+    });
+}
+function deleteDiaryContent(app, user, diaryUri) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const docReference = doc(collection(getDB(app), getUserId(user)), diaryUri);
+        deleteDoc(docReference);
+    });
+}
+export { DEFAULT_DIARY, getDiary, getUserSettings, saveUserSettings, getDefaultFields, getDayEntry, setDayEntry, getAnnuals, setAnnuals, getPeriods, getPeriod, setPeriod, getDiaryContent, setDiaryContent, deleteDiaryContent, };

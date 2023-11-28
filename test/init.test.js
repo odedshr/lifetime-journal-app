@@ -10,26 +10,34 @@ jest.unstable_mockModule('../public/js/firebase.app.js', () => ({
 
 
 jest.unstable_mockModule('../public/js/db.js', () => ({
+  deleteDiaryContent: jest.fn(),
+  getDiary: jest.fn(),
+  getDiaryContent: jest.fn(),
   getUserSettings: jest.fn(async () => ({ diaries: [] })),
   getAnnuals: jest.fn(),
-  setAnnuals: jest.fn()
+  setAnnuals: jest.fn(),
+  setDiaryContent: jest.fn(),
+  saveUserSettings: jest.fn(),
+  DEFAULT_DIARY: {}
 }));
 
 const mockedController = () => ({
   switchPage: jest.fn(() => ({}))
 });
 
+jest.unstable_mockModule('../public/js/404/404.controller.js', mockedController);
+
 jest.unstable_mockModule('../public/js/annuals/annuals.controller.js', mockedController);
 
-jest.unstable_mockModule('../public/js/periods/periods.controller.js', mockedController);
+jest.unstable_mockModule('../public/js/diaries/diaries.controller.js', mockedController);
 
 jest.unstable_mockModule('../public/js/entry/entry.controller.js', mockedController);
 
-jest.unstable_mockModule('../public/js/signin/signin.controller.js', mockedController);
-
 jest.unstable_mockModule('../public/js/overview/overview.controller.js', mockedController);
 
-jest.unstable_mockModule('../public/js/404/404.controller.js', mockedController);
+jest.unstable_mockModule('../public/js/periods/periods.controller.js', mockedController);
+
+jest.unstable_mockModule('../public/js/signin/signin.controller.js', mockedController);
 
 jest.unstable_mockModule('../public/js/utils/date-utils.js', () => ({
   getFormattedDate: jest.fn(() => ({})),
@@ -46,6 +54,7 @@ const { getAuthenticateUser, signOut } = await import('../public/js/firebase.app
 const { getFormattedDate, isDateStringValid } = await import('../public/js/utils/date-utils.js');
 const { switchPage: switchToAnnualsPage } = await import('../public/js/annuals/annuals.controller.js');
 const { switchPage: switchToPeriodsPage } = await import('../public/js/periods/periods.controller.js');
+const { switchPage: switchToDiariesPage } = await import('../public/js/diaries/diaries.controller.js');
 const { switchPage: switchToEntryPage } = await import('../public/js/entry/entry.controller.js');
 const { switchPage: switchToSignInPage } = await import('../public/js/signin/signin.controller.js');
 const { switchPage: switchToOverviewPage } = await import('../public/js/overview/overview.controller.js');
@@ -151,5 +160,11 @@ describe('Init', () => {
     getAuthenticateUser.mockResolvedValueOnce({ "type": "user" });
     await init('/overview/');
     expect(switchToOverviewPage).toHaveBeenCalledTimes(1);
+  });
+
+  it('redirects to diaries', async () => {
+    getAuthenticateUser.mockResolvedValueOnce({ "type": "user" });
+    await init('/diaries/');
+    expect(switchToDiariesPage).toHaveBeenCalledTimes(1);
   });
 });
