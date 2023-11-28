@@ -12,19 +12,19 @@ import { appendChild } from "./annuals.html.js";
 import { getDiary, getAnnuals, setAnnuals } from '../db.js';
 import { getMmDd } from '../utils/date-utils.js';
 import { redirectTo } from '../init.js';
-function onDayChanged(day, diary) {
-    redirectTo('/annuals/', new URLSearchParams(`?day=${day}&diary=${diary}`));
+function onDayChanged(day) {
+    redirectTo('/annuals/', new URLSearchParams(`?day=${day}`));
 }
-function redirectToEntry(day, diary) {
-    redirectTo('/entry/', new URLSearchParams(`?day=${day}&diary=${diary}`));
+function redirectToEntry(day) {
+    redirectTo('/entry/', new URLSearchParams(`?day=${day}`));
 }
 function onEditRequest(day, diary, id) {
-    redirectTo('/annuals/', new URLSearchParams(`?id=${id}&day=${day}&diary=${diary}`));
+    redirectTo('/annuals/', new URLSearchParams(`?id=${id}&day=${day}`));
 }
 function onChanged(app, user, diary, day, mmDd, annuals) {
     return __awaiter(this, void 0, void 0, function* () {
         if (yield setAnnuals(app, user, diary.uri, mmDd, annuals)) {
-            redirectToEntry(day, diary.uri);
+            redirectToEntry(day);
             return true;
         }
         return false;
@@ -47,11 +47,11 @@ function switchPage(user, day, annualId) {
         /*1*/ day, 
         /*2*/ annuals, 
         /*3*/ leapYear, 
-        /*4*/ (day) => onDayChanged(day, diary.uri), 
+        /*4*/ (day) => onDayChanged(day), 
         /*5*/ (annuals) => onChanged(app, user, diary, day, mmDd, annuals), 
         /*6*/ (id) => onEditRequest(day, diary.uri, id), 
         /*7*/ removeItem, 
-        /*8*/ () => redirectToEntry(day, diary.uri), 
+        /*8*/ () => redirectToEntry(day), 
         /*9*/ annualId);
     });
 }

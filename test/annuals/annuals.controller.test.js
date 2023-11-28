@@ -81,7 +81,7 @@ describe('Annuals.Controller', () => {
     it('onDayChanged redirects page', async () => {
       await switchPage({}, '2023-01-01', 1);
       props[4]('yyyy-mm-dd');
-      expect(redirectTo).toHaveBeenCalledWith('/annuals/', new URLSearchParams('?day=yyyy-mm-dd&diary=diary-01'));
+      expect(redirectTo).toHaveBeenCalledWith('/annuals/', new URLSearchParams('?day=yyyy-mm-dd'));
     });
 
     it('onAnnualChanged sets new annual', async () => {

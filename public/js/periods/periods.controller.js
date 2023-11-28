@@ -13,13 +13,13 @@ import { getDiary, getPeriods, setPeriod } from '../db.js';
 import { getDisplayableDate } from '../utils/date-utils.js';
 import { redirectTo } from '../init.js';
 function onDayChanged(day, diary) {
-    redirectTo('/periods/', new URLSearchParams(`?day=${day}&diary=${diary}`));
+    redirectTo('/periods/', new URLSearchParams(`?day=${day}`));
 }
 function redirectToEntry(day, diary) {
-    redirectTo('/entry/', new URLSearchParams(`?day=${day}&diary=${diary}`));
+    redirectTo('/entry/', new URLSearchParams(`?day=${day}`));
 }
 function onEditRequest(day, diary, id) {
-    redirectTo('/periods/', new URLSearchParams(`?id=${id}&day=${day}&diary=${diary}`));
+    redirectTo('/periods/', new URLSearchParams(`?id=${id}&day=${day}`));
 }
 function onChanged(app, user, diary, day, id, period) {
     return __awaiter(this, void 0, void 0, function* () {

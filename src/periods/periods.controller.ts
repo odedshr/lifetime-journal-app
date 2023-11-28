@@ -6,15 +6,15 @@ import { FirebaseApp, User, Diary, Period } from '../types.js';
 import { redirectTo } from '../init.js';
 
 function onDayChanged(day: string, diary: string) {
-  redirectTo('/periods/', new URLSearchParams(`?day=${day}&diary=${diary}`));
+  redirectTo('/periods/', new URLSearchParams(`?day=${day}`));
 }
 
 function redirectToEntry(day: string, diary: string) {
-  redirectTo('/entry/', new URLSearchParams(`?day=${day}&diary=${diary}`));
+  redirectTo('/entry/', new URLSearchParams(`?day=${day}`));
 }
 
 function onEditRequest(day: string, diary: string, id: string) {
-  redirectTo('/periods/', new URLSearchParams(`?id=${id}&day=${day}&diary=${diary}`));
+  redirectTo('/periods/', new URLSearchParams(`?id=${id}&day=${day}`));
 }
 
 async function onChanged(app: FirebaseApp, user: User, diary: Diary, day: string, id: string, period: Period | null) {

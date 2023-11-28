@@ -13,13 +13,13 @@ import { getDiary, getDefaultFields, getDayEntry, setDayEntry, getAnnuals, getPe
 import { getDisplayableDate } from '../utils/date-utils.js';
 import { redirectTo } from '../init.js';
 function onDayChanged(day, diary) {
-    redirectTo('/entry/', new URLSearchParams(`?day=${day}&diary=${diary}`));
+    redirectTo('/entry/', new URLSearchParams(`?day=${day}`));
 }
 function onAnnualEditRequest(day, diary, id) {
-    redirectTo('/annuals/', new URLSearchParams(`?${id !== undefined ? `id=${id}&` : ''}day=${day}&diary=${diary}`));
+    redirectTo('/annuals/', new URLSearchParams(`?${id !== undefined ? `id=${id}&` : ''}day=${day}`));
 }
 function onPeriodEditRequest(day, diary, id) {
-    redirectTo('/periods/', new URLSearchParams(`?${id !== undefined ? `id=${id}&` : ''}day=${day}&diary=${diary}`));
+    redirectTo('/periods/', new URLSearchParams(`?${id !== undefined ? `id=${id}&` : ''}day=${day}`));
 }
 function onEntryChanged(app, user, diary, entry) {
     return __awaiter(this, void 0, void 0, function* () {

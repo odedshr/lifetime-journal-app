@@ -82,7 +82,7 @@ describe('Periods.Controller', () => {
     it('onDayChanged redirects page', async () => {
       await switchPage({}, '2023-01-01', 1);
       props[3]('yyyy-mm-dd');
-      expect(redirectTo).toHaveBeenCalledWith('/periods/', new URLSearchParams('?day=yyyy-mm-dd&diary=diary-01'));
+      expect(redirectTo).toHaveBeenCalledWith('/periods/', new URLSearchParams('?day=yyyy-mm-dd'));
     });
 
     it('onPeriodChanged sets new period', async () => {

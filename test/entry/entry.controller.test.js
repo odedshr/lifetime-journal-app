@@ -99,19 +99,19 @@ describe('Entry.Controller', () => {
     it('calls redirectTo when onDayChanged', async () => {
       await switchPage({}, '2023-01-01');
       inputs.onDayChanged('a', 'b');
-      expect(redirectTo).toHaveBeenCalledWith('/entry/', new URLSearchParams('?day=a&diary=diary-01'));
+      expect(redirectTo).toHaveBeenCalledWith('/entry/', new URLSearchParams('?day=a'));
     });
 
     it('calls redirect when onAnnualEditRequest', async () => {
       await switchPage({}, '2023-01-01');
       inputs.onAnnualEditRequest('a', 'b', 'c');
-      expect(redirectTo).toHaveBeenCalledWith('/annuals/', new URLSearchParams('?id=a&day=2023-01-01&diary=diary-01'));
+      expect(redirectTo).toHaveBeenCalledWith('/annuals/', new URLSearchParams('?id=a&day=2023-01-01'));
     });
 
     it('calls redirect when onAnnualEditRequest', async () => {
       await switchPage({}, '2023-01-01');
       inputs.onPeriodEditRequest('a', 'b', 'c');
-      expect(redirectTo).toHaveBeenCalledWith('/periods/', new URLSearchParams('?id=a&day=2023-01-01&diary=diary-01'));
+      expect(redirectTo).toHaveBeenCalledWith('/periods/', new URLSearchParams('?id=a&day=2023-01-01'));
     });
 
     it('calls setDayEntry when onEntryChanged', async () => {
