@@ -1,6 +1,7 @@
 import { jest } from '@jest/globals';
 
 jest.unstable_mockModule('@firebase/firestore', () => ({
+  addDoc: jest.fn(),
   connectAuthEmulator: jest.fn(),
   connectFirestoreEmulator: jest.fn(),
   collection: jest.fn(),
@@ -16,7 +17,7 @@ jest.unstable_mockModule('@firebase/firestore', () => ({
   Timestamp: { fromDate: jest.fn((date) => (date)) }
 }));
 
-const { getFirestore, doc, collection, getDoc, getDocs, setDoc, deleteDoc, writeBatch } = await import('@firebase/firestore');
+const { addDoc, getFirestore, doc, collection, getDoc, getDocs, setDoc, deleteDoc, writeBatch } = await import('@firebase/firestore');
 const {
   getUserSettings,
   saveUserSettings,
@@ -356,7 +357,7 @@ describe('DB utils', () => {
   });
 
   describe('setPeriod', () => {
-    const period = { type: "period", id: 'docId', startDate: new Date('2000-01-01'), endDate: new Date('2000-01-10') };
+    const period = { id: 'docId', startDate: new Date('2000-01-01'), endDate: new Date('2000-01-10') };
 
     it('should set a period', async () => {
       const result = await setPeriod(app, user, 'diary', period.id, period);
@@ -366,12 +367,22 @@ describe('DB utils', () => {
       expect(result).toEqual(true);
     });
 
+    it('should add a period', async () => {
+      const result = await setPeriod(app, user, 'diary', undefined, period);
+
+      expect(addDoc).toHaveBeenCalledTimes(1);
+      expect(addDoc).toHaveBeenCalledWith(undefined, period);
+      expect(result).toEqual(true);
+    });
+
     it('should return false if setDoc fails', async () => {
+      global.console.error = jest.fn();
       setDoc.mockRejectedValue(new Error('setDoc failed'));
 
       const result = await setPeriod(app, user, 'diary', period.id, period);
 
       expect(setDoc).toHaveBeenCalledTimes(1);
+      expect(global.console.error).toHaveBeenCalledTimes(1);
       expect(setDoc).toHaveBeenCalledWith(docReference, period);
       expect(result).toEqual(false);
     });

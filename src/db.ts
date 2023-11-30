@@ -1,4 +1,5 @@
 import {
+  addDoc,
   connectFirestoreEmulator,
   Firestore,
   getFirestore,
@@ -149,29 +150,40 @@ async function getPeriod(app: FirebaseApp, user: User, diary: Diary, id: string)
   return document.exists() ? document.data() as Period : null;
 }
 
-async function setPeriod(app: FirebaseApp, user: User, diary: string, id: string | undefined, period: Period | null): Promise<boolean> {
-  const docReference = id ?
-    doc(collection(getDB(app), getUserId(user)), diary, "period", id) :
-    doc(collection(getDB(app), getUserId(user)), diary, "period");
+async function setPeriod(app: FirebaseApp, user: User, diaryUri: string, id: string | undefined, period: Period | null): Promise<boolean> {
+  const record: { [key: string]: any } = {};
+  if (period) {
+    if (period.startDate) { record.startDate = Timestamp.fromDate(period.startDate); }
+    if (period.endDate) { record.endDate = Timestamp.fromDate(period.endDate); }
+    if (period.color) { record.color = period.color; }
+    if (period.label) { record.label = period.label; }
+    if (period.id) { record.id = period.id; }
+  }
 
   try {
-    if (id !== undefined && period === null) {
-      deleteDoc(docReference)
-    } else if (period !== null) {
-      const record: ({ id?: string, label: string, color?: string, startDate: Date | Timestamp, endDate?: Date | Timestamp }) = { ...period, startDate: Timestamp.fromDate(period.startDate) };
-      if (period.endDate) {
-        record.endDate = Timestamp.fromDate(period.endDate);
-      }
-      await setDoc(docReference, record);
-    } else {
-      throw Error('period is null');
-    }
+    if (id !== undefined) {
+      const docReference = doc(collection(getDB(app), getUserId(user)), diaryUri, "periods", id);
 
-    return true;
+      if (period === null) {
+        deleteDoc(docReference)
+      } else if (period !== null) {
+        await setDoc(docReference, record);
+      } else {
+        throw Error('period is null');
+      }
+    } else if (period !== null) {
+      await addDoc(collection(getDB(app), getUserId(user), diaryUri, "periods"), record);
+    } else {
+      // not sure what you were trying to do
+      return false;
+    }
   }
   catch (err) {
+    console.error(err);
     return false;
   }
+
+  return true;
 }
 
 function fixMmDdFormat(mmDd: string) {

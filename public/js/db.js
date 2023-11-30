@@ -7,7 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { connectFirestoreEmulator, getFirestore, collection, deleteDoc, doc, getDoc, getDocs, setDoc, query, where, Timestamp, writeBatch } from '@firebase/firestore';
+import { addDoc, connectFirestoreEmulator, getFirestore, collection, deleteDoc, doc, getDoc, getDocs, setDoc, query, where, Timestamp, writeBatch } from '@firebase/firestore';
 import { getMmDd, getShorthandedMonthAndDay, isLeapYear } from './utils/date-utils.js';
 let fireStore = null;
 function getDB(app) {
@@ -126,30 +126,52 @@ function getPeriod(app, user, diary, id) {
         return document.exists() ? document.data() : null;
     });
 }
-function setPeriod(app, user, diary, id, period) {
+function setPeriod(app, user, diaryUri, id, period) {
     return __awaiter(this, void 0, void 0, function* () {
-        const docReference = id ?
-            doc(collection(getDB(app), getUserId(user)), diary, "period", id) :
-            doc(collection(getDB(app), getUserId(user)), diary, "period");
+        const record = {};
+        if (period) {
+            if (period.startDate) {
+                record.startDate = Timestamp.fromDate(period.startDate);
+            }
+            if (period.endDate) {
+                record.endDate = Timestamp.fromDate(period.endDate);
+            }
+            if (period.color) {
+                record.color = period.color;
+            }
+            if (period.label) {
+                record.label = period.label;
+            }
+            if (period.id) {
+                record.id = period.id;
+            }
+        }
         try {
-            if (id !== undefined && period === null) {
-                deleteDoc(docReference);
+            if (id !== undefined) {
+                const docReference = doc(collection(getDB(app), getUserId(user)), diaryUri, "periods", id);
+                if (period === null) {
+                    deleteDoc(docReference);
+                }
+                else if (period !== null) {
+                    yield setDoc(docReference, record);
+                }
+                else {
+                    throw Error('period is null');
+                }
             }
             else if (period !== null) {
-                const record = Object.assign(Object.assign({}, period), { startDate: Timestamp.fromDate(period.startDate) });
-                if (period.endDate) {
-                    record.endDate = Timestamp.fromDate(period.endDate);
-                }
-                yield setDoc(docReference, record);
+                yield addDoc(collection(getDB(app), getUserId(user), diaryUri, "periods"), record);
             }
             else {
-                throw Error('period is null');
+                // not sure what you were trying to do
+                return false;
             }
-            return true;
         }
         catch (err) {
+            console.error(err);
             return false;
         }
+        return true;
     });
 }
 function fixMmDdFormat(mmDd) {
