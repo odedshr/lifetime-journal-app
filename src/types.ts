@@ -1,7 +1,7 @@
 import { FirebaseApp } from "@firebase/app";
 import { User } from "@firebase/auth";
 
-type ElementType<P> = (props: P) => HTMLElement;
+type ElementType<P, R = HTMLElement> = (props: P) => R;
 
 type Diary = {
   uri: string;

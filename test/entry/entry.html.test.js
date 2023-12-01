@@ -9,14 +9,18 @@ describe('Entry.html', () => {
     it('should call render with the correct props', () => {
       const parent = document.createElement('div');
       const date = '2020-01-13';
-      appendChild(parent, date, { date, fields: [{ type: 'text', value: 'foo' }] },
-        [], //annuals
-        [], //leapYear
-        [], // periods,
-        (date => { }), // onDayChange  
-        (entry => { }), // onEntryChanged
-        (date => { }) // onDateChanged
-      );
+      appendChild(parent, {
+        date,
+        entry: { date, fields: [{ type: 'text', value: 'foo' }] },
+        annuals: [],
+        leapYearAnnuals: [],
+        periods: [],
+        onDayChanged: (date => { }),
+        onEntryChanged: (entry => { }),
+        onAnnualEditRequest: (date => { }),
+        onPeriodChanged: (date => { }),
+        isEditMode: true
+      });
       expect(parent.querySelector('main.entry')).toBeDefined();
     });
 
@@ -24,16 +28,18 @@ describe('Entry.html', () => {
       const parent = document.createElement('div');
       const date = '2020-01-13';
       const onEntryChanged = jest.fn(() => true);
-      appendChild(parent, date,
-        { date, fields: [{ type: 'text', value: 'foo' }] }, //entry
-        [], // annuals
-        [], // read-only annuals
-        [], // periods
-        true,
-        (date => { }), // onDayChange
+      appendChild(parent, {
+        date,
+        entry: { date, fields: [{ type: 'text', value: 'foo' }] },
+        annuals: [],
+        leapYearAnnuals: [],
+        periods: [],
+        onDayChanged: (date => { }),
         onEntryChanged,
-        (date => { }) // onDateChanged
-      );
+        onAnnualEditRequest: (date => { }),
+        onPeriodChanged: (date => { }),
+        isEditMode: true
+      });
       expect(parent.querySelector('main.entry')).toBeDefined();
 
       const inputField = parent.querySelector('textarea');

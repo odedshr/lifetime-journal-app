@@ -152,24 +152,20 @@ function setPeriod(app, user, diaryUri, id, period) {
                 if (period === null) {
                     deleteDoc(docReference);
                 }
-                else if (period !== null) {
-                    yield setDoc(docReference, record);
-                }
                 else {
-                    throw Error('period is null');
+                    yield setDoc(docReference, record);
                 }
             }
             else if (period !== null) {
                 yield addDoc(collection(getDB(app), getUserId(user), diaryUri, "periods"), record);
             }
             else {
-                // not sure what you were trying to do
-                return false;
+                throw new Error("missing input: period");
             }
         }
         catch (err) {
             console.error(err);
-            return false;
+            throw err;
         }
         return true;
     });

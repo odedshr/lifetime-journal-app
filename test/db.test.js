@@ -357,7 +357,13 @@ describe('DB utils', () => {
   });
 
   describe('setPeriod', () => {
-    const period = { id: 'docId', startDate: new Date('2000-01-01'), endDate: new Date('2000-01-10') };
+    const period = {
+      id: 'docId',
+      startDate: new Date('2000-01-01'),
+      endDate: new Date('2000-01-10'),
+      color: '#000000',
+      label: 'label'
+    };
 
     it('should set a period', async () => {
       const result = await setPeriod(app, user, 'diary', period.id, period);
@@ -379,12 +385,11 @@ describe('DB utils', () => {
       global.console.error = jest.fn();
       setDoc.mockRejectedValue(new Error('setDoc failed'));
 
-      const result = await setPeriod(app, user, 'diary', period.id, period);
+      await expect(setPeriod(app, user, 'diary', period.id, period)).rejects.toThrowError("setDoc failed");
 
       expect(setDoc).toHaveBeenCalledTimes(1);
       expect(global.console.error).toHaveBeenCalledTimes(1);
       expect(setDoc).toHaveBeenCalledWith(docReference, period);
-      expect(result).toEqual(false);
     });
 
     it('should delete a period', async () => {
@@ -396,8 +401,7 @@ describe('DB utils', () => {
     });
 
     it('should return false if failed to save', async () => {
-      const result = await setPeriod(app, user, 'diary', undefined, null);
-      expect(result).toEqual(false);
+      await expect(setPeriod(app, user, 'diary', undefined, null)).rejects.toThrowError("missing input: period");
     });
   });
 });

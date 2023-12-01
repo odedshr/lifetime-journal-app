@@ -35,8 +35,6 @@ jest.unstable_mockModule('../public/js/entry/entry.controller.js', mockedControl
 
 jest.unstable_mockModule('../public/js/overview/overview.controller.js', mockedController);
 
-jest.unstable_mockModule('../public/js/periods/periods.controller.js', mockedController);
-
 jest.unstable_mockModule('../public/js/signin/signin.controller.js', mockedController);
 
 jest.unstable_mockModule('../public/js/utils/date-utils.js', () => ({
@@ -53,7 +51,6 @@ const { init } = await import('../public/js/init.js');
 const { getAuthenticateUser, signOut } = await import('../public/js/firebase.app.js');
 const { getFormattedDate, isDateStringValid } = await import('../public/js/utils/date-utils.js');
 const { switchPage: switchToAnnualsPage } = await import('../public/js/annuals/annuals.controller.js');
-const { switchPage: switchToPeriodsPage } = await import('../public/js/periods/periods.controller.js');
 const { switchPage: switchToDiariesPage } = await import('../public/js/diaries/diaries.controller.js');
 const { switchPage: switchToEntryPage } = await import('../public/js/entry/entry.controller.js');
 const { switchPage: switchToSignInPage } = await import('../public/js/signin/signin.controller.js');
@@ -117,29 +114,6 @@ describe('Init', () => {
       const params = new URLSearchParams('day=2023-01-15&id=1');
       await init('/annuals/', params);
       expect(switchToAnnualsPage).toHaveBeenCalledWith({ "type": "user" }, '2023-01-15', 1);
-    });
-  });
-
-  describe("periods", () => {
-    it('redirects to periods page for current date if no day specified', async () => {
-      getAuthenticateUser.mockResolvedValueOnce({ "type": "user" });
-      isDateStringValid.mockReturnValueOnce(false);
-      await init('/periods/');
-      expect(switchToPeriodsPage).toHaveBeenCalledWith({ "type": "user" }, '2023-01-01', undefined);
-    });
-
-    it('redirects to periods page for specified day', async () => {
-      getAuthenticateUser.mockResolvedValueOnce({ "type": "user" });
-      const params = new URLSearchParams('day=2023-01-15');
-      await init('/periods/', params);
-      expect(switchToPeriodsPage).toHaveBeenCalledWith({ "type": "user" }, '2023-01-15', undefined);
-    });
-
-    it('redirects to periods page for specified day and item', async () => {
-      getAuthenticateUser.mockResolvedValueOnce({ "type": "user" });
-      const params = new URLSearchParams('day=2023-01-15&id=xxx');
-      await init('/periods/', params);
-      expect(switchToPeriodsPage).toHaveBeenCalledWith({ "type": "user" }, '2023-01-15', "xxx");
     });
   });
 

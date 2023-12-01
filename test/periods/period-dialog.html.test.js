@@ -1,15 +1,15 @@
 import { jest } from '@jest/globals';
 
-const { Element } = await import('../../public/js/periods/period-edit.html.js');
+const { Element } = await import('../../public/js/periods/period-dialog.html.js');
 
 // Tests
-describe('PeriodEdit', () => {
+describe('PeriodDialog', () => {
   describe('Element', () => {
     let props;
 
     beforeEach(() => {
       props = {
-        data: {
+        period: {
           label: 'Test Label',
           startDate: new Date('2000-01-01'),
           endDate: new Date('2000-02-01'),
@@ -36,7 +36,7 @@ describe('PeriodEdit', () => {
 
     it('hides cancel and delete button according to props', () => {
       const element = Element({
-        data: {
+        period: {
           label: 'Test Label',
           startYear: 2000
         },
@@ -54,14 +54,14 @@ describe('PeriodEdit', () => {
       element.querySelector('#period-start').value = '2000-01-02';
       element.querySelector('#period-end').value = '2000-01-10';
       element.querySelector('#period-color').value = '#000000';
-      await element.submit();
+      await element.querySelector("form").submit();
       expect(props.onChanged).toHaveBeenCalled();
     });
 
     it("allows removing the period end", async () => {
       const element = Element(props);
       element.querySelector('#period-end').value = '';
-      await element.submit();
+      await element.querySelector("form").submit();
       expect(props.onChanged).toHaveBeenCalledWith({
         "color": "#ff0000",
         "endDate": undefined,
@@ -73,7 +73,7 @@ describe('PeriodEdit', () => {
 
     it("doesn't trigger onChanged when no changes made and form is submitted", async () => {
       const element = Element(props);
-      await element.submit();
+      await element.querySelector("form").submit();
       expect(props.onChanged).not.toHaveBeenCalled();
     });
 
@@ -85,6 +85,7 @@ describe('PeriodEdit', () => {
     });
 
     it('triggers onDelete when edit button clicked', () => {
+      global.window.confirm = jest.fn(() => true);
       const element = Element(props);
 
       element.querySelector('.btn-delete').click();

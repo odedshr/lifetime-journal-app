@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { app } from '../firebase.app.js';
 import { appendChild } from "./entry.html.js";
-import { getDiary, getDefaultFields, getDayEntry, setDayEntry, getAnnuals, getPeriods } from '../db.js';
+import { getDiary, getDefaultFields, getDayEntry, setDayEntry, getAnnuals, getPeriods, setPeriod } from '../db.js';
 import { getDisplayableDate } from '../utils/date-utils.js';
 import { redirectTo } from '../init.js';
 function onDayChanged(day, diary) {
@@ -18,12 +18,15 @@ function onDayChanged(day, diary) {
 function onAnnualEditRequest(day, diary, id) {
     redirectTo('/annuals/', new URLSearchParams(`?${id !== undefined ? `id=${id}&` : ''}day=${day}`));
 }
-function onPeriodEditRequest(day, diary, id) {
-    redirectTo('/periods/', new URLSearchParams(`?${id !== undefined ? `id=${id}&` : ''}day=${day}`));
-}
 function onEntryChanged(app, user, diary, entry) {
     return __awaiter(this, void 0, void 0, function* () {
         return setDayEntry(app, user, diary.uri, entry.date, entry);
+    });
+}
+function onPeriodChanged(app, user, date, diary, period, id) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const result = yield setPeriod(app, user, diary.uri, id, period).catch((err) => err);
+        return ("boolean" === typeof result) ? yield getPeriods(app, user, diary, date) : result;
     });
 }
 function switchPage(user, dateString) {
@@ -35,7 +38,18 @@ function switchPage(user, dateString) {
         const isEditMode = entry.fields === getDefaultFields(diary);
         const { annuals, leapYear } = yield getAnnuals(app, user, diary, date);
         const periods = yield getPeriods(app, user, diary, date);
-        appendChild(document.body, dateString, entry, annuals, leapYear, periods, isEditMode, (day) => onDayChanged(day, diary.uri), (entry) => onEntryChanged(app, user, diary, entry), (id) => onAnnualEditRequest(dateString, diary.uri, id), (id) => onPeriodEditRequest(dateString, diary.uri, id));
+        appendChild(document.body, {
+            date: dateString,
+            entry,
+            annuals,
+            leapYearAnnuals: leapYear,
+            periods,
+            onDayChanged: (day) => onDayChanged(day, diary.uri),
+            onEntryChanged: (entry) => onEntryChanged(app, user, diary, entry),
+            onAnnualEditRequest: (id) => onAnnualEditRequest(dateString, diary.uri, id),
+            onPeriodChanged: (period, id) => onPeriodChanged(app, user, date, diary, period, id),
+            isEditMode
+        });
     });
 }
 export { switchPage };

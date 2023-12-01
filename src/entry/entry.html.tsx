@@ -6,7 +6,7 @@ import { Element as EntryView } from './entry-view.html.js';
 import { Element as EntryEdit } from './entry-edit.html.js';
 import { Entry, Annual, Period } from '../types.js';
 
-type ElementType = (props: {
+type Props = {
   date: string,
   entry: Entry,
   annuals: Annual[],
@@ -15,9 +15,10 @@ type ElementType = (props: {
   onDayChanged: (day: string) => void,
   onEntryChanged: (entry: Entry) => Promise<boolean>,
   onAnnualEditRequest: (id?: number) => void,
-  onPeriodEditRequest: (id?: string) => void,
+  onPeriodChanged: (period: Period | null, id?: string) => Promise<Period[] | Error>,
   isEditMode?: boolean;
-}) => HTMLElement;
+};
+type ElementType = (props: Props) => HTMLElement;
 
 const Element: ElementType = (props) => {
   let articleElm: HTMLElement;
@@ -37,6 +38,9 @@ const Element: ElementType = (props) => {
     return result
   }
 
+  let editPeriod: (period?: Period) => void;
+  const periodDelegate = (method: (period?: Period) => void) => { editPeriod = method; }
+
   return (<main class="entry">
     <header>
       <DaySelector date={props.date} onDayChanged={props.onDayChanged} />
@@ -44,7 +48,8 @@ const Element: ElementType = (props) => {
     <article class="entry-details" {...attr} ref={(el: HTMLElement) => articleElm = el}>
       <Periods date={new Date(props.date)}
         items={props.periods}
-        onEditRequest={props.onPeriodEditRequest} />
+        onSetPeriod={props.onPeriodChanged}
+        onSetDelegate={periodDelegate} />
       <Annuals date={props.date}
         items={props.annuals}
         readonly={props.leapYearAnnuals}
@@ -58,34 +63,24 @@ const Element: ElementType = (props) => {
     <footer>
       <a href="#" class="btn" onClick={toggleEdit}><span>Edit</span></a>
       <a href="#" class="btn" onClick={() => props.onAnnualEditRequest()}><span>Add Annual</span></a>
-      <a href="#" class="btn" onClick={() => props.onPeriodEditRequest()}><span>Add Period</span></a>
+      <a href="#" class="btn" onClick={() => editPeriod()}><span>Add Period</span></a>
     </footer>
   </main>);
 }
 
-function appendChild(parent: HTMLElement,
-  dateString: string,
-  entry: Entry,
-  annuals: Annual[],
-  leapYear: Annual[],
-  periods: Period[],
-  isEditMode: boolean,
-  onDayChanged: (day: string) => void,
-  onEntryChanged: (entry: Entry) => Promise<boolean>,
-  onAnnualEditRequest: (id?: number) => void,
-  onPeriodEditRequest: (id?: string) => void) {
+function appendChild(parent: HTMLElement, props: Props) {
 
   const element = <Element
-    date={dateString}
-    entry={entry}
-    annuals={annuals}
-    leapYearAnnuals={leapYear}
-    periods={periods}
-    isEditMode={isEditMode}
-    onDayChanged={onDayChanged}
-    onEntryChanged={onEntryChanged}
-    onAnnualEditRequest={onAnnualEditRequest}
-    onPeriodEditRequest={onPeriodEditRequest}
+    date={props.date}
+    entry={props.entry}
+    annuals={props.annuals}
+    leapYearAnnuals={props.leapYearAnnuals}
+    periods={props.periods}
+    isEditMode={props.isEditMode}
+    onDayChanged={props.onDayChanged}
+    onEntryChanged={props.onEntryChanged}
+    onAnnualEditRequest={props.onAnnualEditRequest}
+    onPeriodChanged={props.onPeriodChanged}
   />
   render(element, parent);
 }
