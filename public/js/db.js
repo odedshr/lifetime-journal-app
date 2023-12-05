@@ -94,7 +94,7 @@ function getAnnuals(app, user, diary, date) {
     });
 }
 function sortAnnuals(annuals) {
-    return annuals.sort((a, b) => a.startYear - b.startYear);
+    return annuals.sort((a, b) => (a.startYear === b.startYear) ? a.label.localeCompare(b.label) : a.startYear - b.startYear);
 }
 function setAnnuals(app, user, diary, mmDd, annuals) {
     return __awaiter(this, void 0, void 0, function* () {

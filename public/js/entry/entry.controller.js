@@ -9,18 +9,32 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { app } from '../firebase.app.js';
 import { appendChild } from "./entry.html.js";
-import { getDiary, getDefaultFields, getDayEntry, setDayEntry, getAnnuals, getPeriods, setPeriod } from '../db.js';
-import { getDisplayableDate } from '../utils/date-utils.js';
+import { getDiary, getDefaultFields, getDayEntry, setDayEntry, getAnnuals, getPeriods, setPeriod, setAnnuals } from '../db.js';
+import { getDisplayableDate, getMmDd } from '../utils/date-utils.js';
 import { redirectTo } from '../init.js';
 function onDayChanged(day, diary) {
     redirectTo('/entry/', new URLSearchParams(`?day=${day}`));
 }
-function onAnnualEditRequest(day, diary, id) {
-    redirectTo('/annuals/', new URLSearchParams(`?${id !== undefined ? `id=${id}&` : ''}day=${day}`));
-}
 function onEntryChanged(app, user, diary, entry) {
     return __awaiter(this, void 0, void 0, function* () {
         return setDayEntry(app, user, diary.uri, entry.date, entry);
+    });
+}
+function onAnnualsChanged(app, user, date, diary, annuals, updated, id) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (updated !== null) {
+            if (id !== undefined) {
+                annuals[id] = updated;
+            }
+            else {
+                annuals.push(updated);
+            }
+        }
+        else if (id !== undefined) {
+            annuals.splice(id, 1);
+        }
+        const result = yield setAnnuals(app, user, diary.uri, getMmDd(date), annuals).catch((err) => err);
+        return ("boolean" === typeof result) ? annuals : result;
     });
 }
 function onPeriodChanged(app, user, date, diary, period, id) {
@@ -46,7 +60,7 @@ function switchPage(user, dateString) {
             periods,
             onDayChanged: (day) => onDayChanged(day, diary.uri),
             onEntryChanged: (entry) => onEntryChanged(app, user, diary, entry),
-            onAnnualEditRequest: (id) => onAnnualEditRequest(dateString, diary.uri, id),
+            onAnnualChanged: (annual, id) => onAnnualsChanged(app, user, date, diary, annuals, annual, id),
             onPeriodChanged: (period, id) => onPeriodChanged(app, user, date, diary, period, id),
             isEditMode
         });

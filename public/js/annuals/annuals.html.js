@@ -10,7 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import { jsx as _jsx, jsxs as _jsxs } from "nano-jsx/esm/jsx-runtime";
 import { render } from 'nano-jsx';
 import { Element as DaySelector } from '../utils/mm-dd-selector.html.js';
-import { Element as Annuals } from './annual-list.html.js';
 import { Element as EditAnnual } from './annual-edit.html.js';
 const EMPTY_ANNUAL = {
     label: '',
@@ -32,7 +31,7 @@ function onAnnualChanged(props, newEntry) {
 }
 const Element = (props) => (_jsxs("main", { class: "annuals", children: [_jsx("header", { children: _jsx(DaySelector, { date: props.date, onDayChanged: props.onDayChanged }) }), (props.id !== undefined) ?
             _jsx(EditAnnual, { data: props.annuals[props.id], onChanged: onAnnualChanged.bind({}, props), onCancel: props.onExitPage, onDelete: props.onDeleteAnnualRequested.bind({}, props.id) }) :
-            _jsxs("section", { children: [_jsx(Annuals, { date: props.date, items: props.annuals, readonly: props.leapYear, onEditRequest: props.onAnnualEditRequest }), _jsx(EditAnnual, { data: EMPTY_ANNUAL, onCancel: props.onExitPage, onChanged: onAnnualChanged.bind({}, props) })] })] }));
+            _jsx("section", { children: _jsx(EditAnnual, { data: EMPTY_ANNUAL, onCancel: props.onExitPage, onChanged: onAnnualChanged.bind({}, props) }) })] }));
 function appendChild(parent, dateString, annuals, leapYear, onDayChanged, onAnnualChanged, onAnnualEditRequest, onDeleteAnnualRequested, onExitPage, id) {
     render(_jsx(Element, { date: dateString, annuals: annuals, leapYear: leapYear, onDayChanged: onDayChanged, onAnnualChanged: onAnnualChanged, onAnnualEditRequest: onAnnualEditRequest, onDeleteAnnualRequested: onDeleteAnnualRequested, onExitPage: onExitPage, id: id }), parent);
 }

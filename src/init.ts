@@ -2,7 +2,6 @@ import { getAuthenticateUser, signOut } from "./firebase.app.js";
 import { getFormattedDate, isDateStringValid } from "./utils/date-utils.js";
 import { switchPage as switchToSignInPage } from "./signin/signin.controller.js";
 import { switchPage as switchToEntryPage } from "./entry/entry.controller.js";
-import { switchPage as switchToAnnualsPage } from "./annuals/annuals.controller.js";
 import { switchPage as switchToOverviewPage } from "./overview/overview.controller.js";
 import { switchPage as switchToDiariesPage } from "./diaries/diaries.controller.js";
 import { switchPage as switchToPageNotFound } from "./404/404.controller.js";
@@ -33,14 +32,9 @@ async function init(url: string, parameters: URLSearchParams = new URLSearchPara
     url = '/entry/';
   }
 
-  if (['/annuals/', '/periods/', '/entry/'].indexOf(url) >= 0 && !isDateStringValid(day)) {
+  if (['/entry/'].indexOf(url) >= 0 && !isDateStringValid(day)) {
     parameters.set('day', getFormattedDate(new Date()));
     return await redirectTo(url, parameters);
-  }
-
-  if (url === '/annuals/') {
-    const id = parameters.get('id');
-    return await switchToAnnualsPage(user, day, id ? +id : undefined);
   }
 
   if (url === '/' || url === '/entry/') {

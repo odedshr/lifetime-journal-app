@@ -27,8 +27,6 @@ const mockedController = () => ({
 
 jest.unstable_mockModule('../public/js/404/404.controller.js', mockedController);
 
-jest.unstable_mockModule('../public/js/annuals/annuals.controller.js', mockedController);
-
 jest.unstable_mockModule('../public/js/diaries/diaries.controller.js', mockedController);
 
 jest.unstable_mockModule('../public/js/entry/entry.controller.js', mockedController);
@@ -50,7 +48,6 @@ jest.unstable_mockModule('../public/js/utils/date-utils.js', () => ({
 const { init } = await import('../public/js/init.js');
 const { getAuthenticateUser, signOut } = await import('../public/js/firebase.app.js');
 const { getFormattedDate, isDateStringValid } = await import('../public/js/utils/date-utils.js');
-const { switchPage: switchToAnnualsPage } = await import('../public/js/annuals/annuals.controller.js');
 const { switchPage: switchToDiariesPage } = await import('../public/js/diaries/diaries.controller.js');
 const { switchPage: switchToEntryPage } = await import('../public/js/entry/entry.controller.js');
 const { switchPage: switchToSignInPage } = await import('../public/js/signin/signin.controller.js');
@@ -92,29 +89,6 @@ describe('Init', () => {
     const params = new URLSearchParams('day=2023-01-15');
     await init('/entry/', params);
     expect(switchToEntryPage).toHaveBeenCalledWith({}, '2023-01-15');
-  });
-
-  describe("annuals", () => {
-    it('redirects to annuals page for current date if no day specified', async () => {
-      getAuthenticateUser.mockResolvedValueOnce({ "type": "user" });
-      isDateStringValid.mockReturnValueOnce(false);
-      await init('/annuals/');
-      expect(switchToAnnualsPage).toHaveBeenCalledWith({ "type": "user" }, '2023-01-01', undefined);
-    });
-
-    it('redirects to annuals page for specified day', async () => {
-      getAuthenticateUser.mockResolvedValueOnce({ "type": "user" });
-      const params = new URLSearchParams('day=2023-01-15');
-      await init('/annuals/', params);
-      expect(switchToAnnualsPage).toHaveBeenCalledWith({ "type": "user" }, '2023-01-15', undefined);
-    });
-
-    it('redirects to annuals page for specified day and item', async () => {
-      getAuthenticateUser.mockResolvedValueOnce({ "type": "user" });
-      const params = new URLSearchParams('day=2023-01-15&id=1');
-      await init('/annuals/', params);
-      expect(switchToAnnualsPage).toHaveBeenCalledWith({ "type": "user" }, '2023-01-15', 1);
-    });
   });
 
   it('signs user out and redirects to sign in', async () => {

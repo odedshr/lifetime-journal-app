@@ -59,7 +59,7 @@ const Element: ElementType = (props) => {
         {getListItems(props.items)}
       </ul>
     </section>
-  )
+  );
 };
 
 export { Element };

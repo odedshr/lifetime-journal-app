@@ -14,7 +14,7 @@ type Props = {
   periods: Period[],
   onDayChanged: (day: string) => void,
   onEntryChanged: (entry: Entry) => Promise<boolean>,
-  onAnnualEditRequest: (id?: number) => void,
+  onAnnualChanged: (annual: Annual | null, id?: number) => Promise<Annual[] | Error>,
   onPeriodChanged: (period: Period | null, id?: string) => Promise<Period[] | Error>,
   isEditMode?: boolean;
 };
@@ -40,6 +40,8 @@ const Element: ElementType = (props) => {
 
   let editPeriod: (period?: Period) => void;
   const periodDelegate = (method: (period?: Period) => void) => { editPeriod = method; }
+  let editAnnual: (id?: number) => void;
+  const annualDelegate = (method: (id?: number) => void) => { editAnnual = method; }
 
   return (<main class="entry">
     <header>
@@ -53,7 +55,8 @@ const Element: ElementType = (props) => {
       <Annuals date={props.date}
         items={props.annuals}
         readonly={props.leapYearAnnuals}
-        onEditRequest={props.onAnnualEditRequest} />
+        onSetAnnuals={props.onAnnualChanged}
+        onSetDelegate={annualDelegate} />
       <div class="entry-view-wrapper" ref={(el: HTMLElement) => { entryView = el }}>
         <EntryView id="entry-view" entry={props.entry} />
       </div>
@@ -62,7 +65,7 @@ const Element: ElementType = (props) => {
     </article>
     <footer>
       <a href="#" class="btn" onClick={toggleEdit}><span>Edit</span></a>
-      <a href="#" class="btn" onClick={() => props.onAnnualEditRequest()}><span>Add Annual</span></a>
+      <a href="#" class="btn" onClick={() => editAnnual()}><span>Add Annual</span></a>
       <a href="#" class="btn" onClick={() => editPeriod()}><span>Add Period</span></a>
     </footer>
   </main>);
@@ -79,7 +82,7 @@ function appendChild(parent: HTMLElement, props: Props) {
     isEditMode={props.isEditMode}
     onDayChanged={props.onDayChanged}
     onEntryChanged={props.onEntryChanged}
-    onAnnualEditRequest={props.onAnnualEditRequest}
+    onAnnualChanged={props.onAnnualChanged}
     onPeriodChanged={props.onPeriodChanged}
   />
   render(element, parent);

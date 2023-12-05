@@ -110,7 +110,7 @@ async function getAnnuals(
 }
 
 function sortAnnuals(annuals: Annual[]): Annual[] {
-  return annuals.sort((a, b) => a.startYear - b.startYear);
+  return annuals.sort((a, b) => (a.startYear === b.startYear) ? a.label.localeCompare(b.label) : a.startYear - b.startYear);
 }
 
 async function setAnnuals(app: FirebaseApp, user: User, diary: string, mmDd: string, annuals: Annual[]): Promise<boolean> {

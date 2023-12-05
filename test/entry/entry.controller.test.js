@@ -17,8 +17,8 @@ jest.unstable_mockModule('../../public/js/db.js', () => ({
   getDefaultFields: jest.fn(() => ({})),
   getDayEntry: jest.fn(async () => ({})),
   setDayEntry: jest.fn(async () => ({})),
-  getAnnuals: jest.fn(async () => ({})),
-  setAnnuals: jest.fn(async () => ({})),
+  getAnnuals: jest.fn(async () => ({ annuals: [1, 2, 3], leapYear: [] })),
+  setAnnuals: jest.fn(async () => true),
   getPeriods: jest.fn(async () => ({})),
   setPeriod: jest.fn(async () => true)
 }));
@@ -43,7 +43,7 @@ jest.unstable_mockModule('../../public/js/utils/date-utils.js', () => ({
 
 const { app } = await import('../../public/js/firebase.app.js');
 const { switchPage } = await import('../../public/js/entry/entry.controller.js');
-const { getDiary, getPeriods, setPeriod } = await import('../../public/js/db.js');
+const { getDiary, getPeriods, setPeriod, setAnnuals } = await import('../../public/js/db.js');
 const { appendChild } = await import('../../public/js/entry/entry.html.js');
 const { getDayEntry } = await import('../../public/js/db.js');
 const { redirectTo } = await import('../../public/js/init.js');
@@ -101,32 +101,57 @@ describe('Entry.Controller', () => {
       expect(redirectTo).toHaveBeenCalledWith('/entry/', new URLSearchParams('?day=a'));
     });
 
-    it('calls redirect when onAnnualEditRequest', async () => {
-      await switchPage({}, '2023-01-01');
-      inputs.onAnnualEditRequest('a', 'b', 'c');
-      expect(redirectTo).toHaveBeenCalledWith('/annuals/', new URLSearchParams('?id=a&day=2023-01-01'));
-    });
-
     it('calls setDayEntry when onEntryChanged', async () => {
       await switchPage('user', '2023-01-01');
       inputs.onEntryChanged({ date: 'a' }, 'b', { uri: 'c' }, 'd', 'a');
       expect(setDayEntry).toHaveBeenCalledWith(app, 'user', 'diary-01', 'a', { date: 'a' });
     });
 
-    it('throws error when failing to write period', async () => {
-      const error = new Error('write failed');
-      setPeriod.mockRejectedValue(error);
+    describe("setAnnual", () => {
+      it('add annual', async () => {
+        await switchPage({}, '2023-01-01');
+        inputs.onAnnualChanged('a');
+        expect(setAnnuals).toHaveBeenCalled();
+      });
 
-      await switchPage({}, '2023-01-01');
-      const result = await inputs.onPeriodChanged('a', 'b');
-      expect(result).toEqual(error);
+      it('update annual', async () => {
+        await switchPage({}, '2023-01-01');
+        inputs.onAnnualChanged('a', 0);
+        expect(setAnnuals).toHaveBeenCalled();
+      });
+
+      it('remove annual', async () => {
+        await switchPage({}, '2023-01-01');
+        inputs.onAnnualChanged(null, 0);
+        expect(setAnnuals).toHaveBeenCalled();
+      });
+
+      it('return error', async () => {
+        const error = new Error('write failed');
+        setAnnuals.mockResolvedValueOnce(error);
+        await switchPage({}, '2023-01-01');
+        const result = await inputs.onAnnualChanged(null, 0);
+        expect(setAnnuals).toHaveBeenCalled();
+        expect(result).toEqual(error);
+      });
     });
 
-    it('set periods to db', async () => {
-      await switchPage({}, '2023-01-01');
-      inputs.onPeriodChanged('a', 'b');
-      expect(setPeriod).toHaveBeenCalled();
-      expect(getPeriods).toHaveBeenCalled();
+    describe("setPeriod", () => {
+      it('set periods to db', async () => {
+        await switchPage({}, '2023-01-01');
+        inputs.onPeriodChanged('a', 'b');
+        expect(setPeriod).toHaveBeenCalled();
+        expect(getPeriods).toHaveBeenCalled();
+      });
+
+      it('throws error when failing to write period', async () => {
+        const error = new Error('write failed');
+        setPeriod.mockRejectedValue(error);
+
+        await switchPage({}, '2023-01-01');
+        const result = await inputs.onPeriodChanged('a', 'b');
+        expect(result).toEqual(error);
+      });
     });
   });
 });
