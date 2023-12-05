@@ -28,6 +28,14 @@ function getDB(app: FirebaseApp): Firestore {
   return fireStore;
 }
 
+function getErrorHandler(methodName: string) {
+  return (error: Error) => {
+    console.error(`::::::::::::
+    DB error in ${methodName}: ${error}`);
+    throw error;
+  };
+}
+
 function getUserId(user: User): string {
   if (!user.email) {
     throw Error('User must have email');
@@ -40,7 +48,8 @@ function getDefaultFields(diary: Diary) {
 }
 
 async function getDayEntry(app: FirebaseApp, user: User, diary: Diary, date: string) {
-  const document = await getDoc(doc(collection(getDB(app), getUserId(user)), diary.uri, "entries", date));
+  const document = await getDoc(doc(collection(getDB(app), getUserId(user)), diary.uri, "entries", date))
+    .catch(getErrorHandler("getDayEntry"));
 
   if (document.exists()) {
     return document.data() as Entry
@@ -50,13 +59,9 @@ async function getDayEntry(app: FirebaseApp, user: User, diary: Diary, date: str
 }
 
 async function setDayEntry(app: FirebaseApp, user: User, diary: string, day: string, entry: Entry): Promise<boolean> {
-  try {
-    await setDoc(doc(collection(getDB(app), getUserId(user)), diary, "entries", day), entry);
-    return true;
-  }
-  catch (err) {
-    return false;
-  }
+  await setDoc(doc(collection(getDB(app), getUserId(user)), diary, "entries", day), entry)
+    .catch(getErrorHandler("setDayEntry"));
+  return true;
 }
 
 const DEFAULT_DIARY: Diary = {
@@ -68,7 +73,8 @@ const DEFAULT_DIARY: Diary = {
 };
 
 async function getUserSettings(app: FirebaseApp, user: User): Promise<Settings> {
-  const document = await getDoc(doc(collection(getDB(app), getUserId(user)), "settings"));
+  const document = await getDoc(doc(collection(getDB(app), getUserId(user)), "settings"))
+    .catch(getErrorHandler("getUserSettings"));
 
   if (document.exists()) {
     return document.data() as Settings
@@ -84,11 +90,13 @@ async function getDiary(app: FirebaseApp, user: User) {
 }
 
 async function saveUserSettings(app: FirebaseApp, user: User, settings: Settings) {
-  await setDoc(doc(collection(getDB(app), getUserId(user)), "settings"), settings);
+  await setDoc(doc(collection(getDB(app), getUserId(user)), "settings"), settings)
+    .catch(getErrorHandler("saveUserSettings"));
 }
 
 async function getAnnualsInternal(app: FirebaseApp, user: User, diary: Diary, mmDd: string): Promise<Annual[]> {
-  const document = await getDoc(doc(collection(getDB(app), getUserId(user)), diary.uri, "annuals", fixMmDdFormat(mmDd)));
+  const document = await getDoc(doc(collection(getDB(app), getUserId(user)), diary.uri, "annuals", fixMmDdFormat(mmDd)))
+    .catch(getErrorHandler("getAnnualsInternal"));
 
   return (document.exists() ? sortAnnuals(document.data().events) : []) as Annual[];
 }
@@ -101,26 +109,25 @@ async function getAnnuals(
   diary: Diary,
   date: Date
 ): Promise<{ annuals: Annual[], leapYear: Annual[] }> {
-  const mmDd = getMmDd(date)
+  const mmDd = getMmDd(date);
+  const includeLeapYearContent = (mmDd !== '02-28' || isLeapYear(new Date(date)));
   return {
     annuals: await getAnnualsInternal(app, user, diary, mmDd),
-    leapYear: (mmDd !== '02-28' || isLeapYear(new Date(date))) ? [] : (await getAnnualsInternal(app, user, diary, '02-29'))
+    leapYear: includeLeapYearContent ? [] : (await getAnnualsInternal(app, user, diary, '02-29'))
       .map(annual => ({ ...annual, label: `${annual.label} (${LEAP_YEAR_ANNUAL})` }))
   }
 }
 
 function sortAnnuals(annuals: Annual[]): Annual[] {
-  return annuals.sort((a, b) => (a.startYear === b.startYear) ? a.label.localeCompare(b.label) : a.startYear - b.startYear);
+  return annuals.sort((a, b) =>
+    (a.startYear === b.startYear) ? a.label.localeCompare(b.label) : a.startYear - b.startYear
+  );
 }
 
 async function setAnnuals(app: FirebaseApp, user: User, diary: string, mmDd: string, annuals: Annual[]): Promise<boolean> {
-  try {
-    await setDoc(doc(collection(getDB(app), getUserId(user)), diary, "annuals", fixMmDdFormat(mmDd)), { events: annuals });
-    return true;
-  }
-  catch (err) {
-    return false;
-  }
+  await setDoc(doc(collection(getDB(app), getUserId(user)), diary, "annuals", fixMmDdFormat(mmDd)), { events: annuals })
+    .catch(getErrorHandler("setAnnuals"));
+  return true;
 }
 
 async function getPeriods(app: FirebaseApp, user: User, diary: Diary, date: Date): Promise<Period[]> {
@@ -128,7 +135,9 @@ async function getPeriods(app: FirebaseApp, user: User, diary: Diary, date: Date
     query(
       collection(getDB(app), getUserId(user), diary.uri, "periods"),
       where("startDate", "<=", Timestamp.fromDate(date))
-    ));
+    ))
+    .catch(getErrorHandler("getPeriods"));
+
 
   const endDate = date.getTime();
 
@@ -145,7 +154,8 @@ async function getPeriods(app: FirebaseApp, user: User, diary: Diary, date: Date
 };
 
 async function getPeriod(app: FirebaseApp, user: User, diary: Diary, id: string): Promise<Period | null> {
-  const document = await getDoc(doc(collection(getDB(app), getUserId(user)), diary.uri, "periods", id));
+  const document = await getDoc(doc(collection(getDB(app), getUserId(user)), diary.uri, "periods", id))
+    .catch(getErrorHandler("getPeriod"));
 
   return document.exists() ? document.data() as Period : null;
 }
@@ -165,7 +175,7 @@ async function setPeriod(app: FirebaseApp, user: User, diaryUri: string, id: str
       const docReference = doc(collection(getDB(app), getUserId(user)), diaryUri, "periods", id);
 
       if (period === null) {
-        deleteDoc(docReference)
+        deleteDoc(docReference);
       } else {
         await setDoc(docReference, record);
       }
@@ -175,9 +185,8 @@ async function setPeriod(app: FirebaseApp, user: User, diaryUri: string, id: str
       throw new Error("missing input: period")
     }
   }
-  catch (err) {
-    console.error(err);
-    throw err;
+  catch (err: any) {
+    getErrorHandler("setPeriod")(err);
   }
 
   return true;
@@ -244,7 +253,7 @@ async function deleteDiaryContent(app: FirebaseApp,
   user: User,
   diaryUri: string) {
   const docReference = doc(collection(getDB(app), getUserId(user)), diaryUri);
-  deleteDoc(docReference)
+  deleteDoc(docReference);
 }
 
 export {

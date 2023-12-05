@@ -19,6 +19,13 @@ function getDB(app) {
     }
     return fireStore;
 }
+function getErrorHandler(methodName) {
+    return (error) => {
+        console.error(`::::::::::::
+    DB error in ${methodName}: ${error}`);
+        throw error;
+    };
+}
 function getUserId(user) {
     if (!user.email) {
         throw Error('User must have email');
@@ -30,7 +37,8 @@ function getDefaultFields(diary) {
 }
 function getDayEntry(app, user, diary, date) {
     return __awaiter(this, void 0, void 0, function* () {
-        const document = yield getDoc(doc(collection(getDB(app), getUserId(user)), diary.uri, "entries", date));
+        const document = yield getDoc(doc(collection(getDB(app), getUserId(user)), diary.uri, "entries", date))
+            .catch(getErrorHandler("getDayEntry"));
         if (document.exists()) {
             return document.data();
         }
@@ -40,13 +48,9 @@ function getDayEntry(app, user, diary, date) {
 }
 function setDayEntry(app, user, diary, day, entry) {
     return __awaiter(this, void 0, void 0, function* () {
-        try {
-            yield setDoc(doc(collection(getDB(app), getUserId(user)), diary, "entries", day), entry);
-            return true;
-        }
-        catch (err) {
-            return false;
-        }
+        yield setDoc(doc(collection(getDB(app), getUserId(user)), diary, "entries", day), entry)
+            .catch(getErrorHandler("setDayEntry"));
+        return true;
     });
 }
 const DEFAULT_DIARY = {
@@ -58,7 +62,8 @@ const DEFAULT_DIARY = {
 };
 function getUserSettings(app, user) {
     return __awaiter(this, void 0, void 0, function* () {
-        const document = yield getDoc(doc(collection(getDB(app), getUserId(user)), "settings"));
+        const document = yield getDoc(doc(collection(getDB(app), getUserId(user)), "settings"))
+            .catch(getErrorHandler("getUserSettings"));
         if (document.exists()) {
             return document.data();
         }
@@ -73,12 +78,14 @@ function getDiary(app, user) {
 }
 function saveUserSettings(app, user, settings) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield setDoc(doc(collection(getDB(app), getUserId(user)), "settings"), settings);
+        yield setDoc(doc(collection(getDB(app), getUserId(user)), "settings"), settings)
+            .catch(getErrorHandler("saveUserSettings"));
     });
 }
 function getAnnualsInternal(app, user, diary, mmDd) {
     return __awaiter(this, void 0, void 0, function* () {
-        const document = yield getDoc(doc(collection(getDB(app), getUserId(user)), diary.uri, "annuals", fixMmDdFormat(mmDd)));
+        const document = yield getDoc(doc(collection(getDB(app), getUserId(user)), diary.uri, "annuals", fixMmDdFormat(mmDd)))
+            .catch(getErrorHandler("getAnnualsInternal"));
         return (document.exists() ? sortAnnuals(document.data().events) : []);
     });
 }
@@ -86,9 +93,10 @@ const LEAP_YEAR_ANNUAL = getShorthandedMonthAndDay(new Date(2024, 1, 29));
 function getAnnuals(app, user, diary, date) {
     return __awaiter(this, void 0, void 0, function* () {
         const mmDd = getMmDd(date);
+        const includeLeapYearContent = (mmDd !== '02-28' || isLeapYear(new Date(date)));
         return {
             annuals: yield getAnnualsInternal(app, user, diary, mmDd),
-            leapYear: (mmDd !== '02-28' || isLeapYear(new Date(date))) ? [] : (yield getAnnualsInternal(app, user, diary, '02-29'))
+            leapYear: includeLeapYearContent ? [] : (yield getAnnualsInternal(app, user, diary, '02-29'))
                 .map(annual => (Object.assign(Object.assign({}, annual), { label: `${annual.label} (${LEAP_YEAR_ANNUAL})` })))
         };
     });
@@ -98,18 +106,15 @@ function sortAnnuals(annuals) {
 }
 function setAnnuals(app, user, diary, mmDd, annuals) {
     return __awaiter(this, void 0, void 0, function* () {
-        try {
-            yield setDoc(doc(collection(getDB(app), getUserId(user)), diary, "annuals", fixMmDdFormat(mmDd)), { events: annuals });
-            return true;
-        }
-        catch (err) {
-            return false;
-        }
+        yield setDoc(doc(collection(getDB(app), getUserId(user)), diary, "annuals", fixMmDdFormat(mmDd)), { events: annuals })
+            .catch(getErrorHandler("setAnnuals"));
+        return true;
     });
 }
 function getPeriods(app, user, diary, date) {
     return __awaiter(this, void 0, void 0, function* () {
-        const documents = yield getDocs(query(collection(getDB(app), getUserId(user), diary.uri, "periods"), where("startDate", "<=", Timestamp.fromDate(date))));
+        const documents = yield getDocs(query(collection(getDB(app), getUserId(user), diary.uri, "periods"), where("startDate", "<=", Timestamp.fromDate(date))))
+            .catch(getErrorHandler("getPeriods"));
         const endDate = date.getTime();
         return documents.docs
             .map(doc => {
@@ -122,7 +127,8 @@ function getPeriods(app, user, diary, date) {
 ;
 function getPeriod(app, user, diary, id) {
     return __awaiter(this, void 0, void 0, function* () {
-        const document = yield getDoc(doc(collection(getDB(app), getUserId(user)), diary.uri, "periods", id));
+        const document = yield getDoc(doc(collection(getDB(app), getUserId(user)), diary.uri, "periods", id))
+            .catch(getErrorHandler("getPeriod"));
         return document.exists() ? document.data() : null;
     });
 }
@@ -164,8 +170,7 @@ function setPeriod(app, user, diaryUri, id, period) {
             }
         }
         catch (err) {
-            console.error(err);
-            throw err;
+            getErrorHandler("setPeriod")(err);
         }
         return true;
     });

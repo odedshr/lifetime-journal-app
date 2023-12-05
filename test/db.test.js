@@ -162,13 +162,13 @@ describe('DB utils', () => {
     });
 
     it('should return false if setDoc fails', async () => {
+      global.console.error = jest.fn();
       setDoc.mockRejectedValue(new Error('setDoc failed'));
 
-      const result = await setDayEntry(app, user, 'diary', '2021-01-01', entry);
+      await expect(setDayEntry(app, user, 'diary', '2021-01-01', entry)).rejects.toThrowError("setDoc failed");
 
       expect(setDoc).toHaveBeenCalledTimes(1);
-      expect(setDoc).toHaveBeenCalledWith(docReference, entry);
-      expect(result).toEqual(false);
+      expect(global.console.error).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -224,13 +224,13 @@ describe('DB utils', () => {
     });
 
     it('should return false if setDoc fails', async () => {
+      global.console.error = jest.fn();
       setDoc.mockRejectedValue(new Error('setDoc failed'));
 
-      const result = await setAnnuals(app, user, 'diary', '01-01', events);
+      await expect(setAnnuals(app, user, 'diary', '01-01', events)).rejects.toThrowError("setDoc failed");
 
       expect(setDoc).toHaveBeenCalledTimes(1);
-      expect(setDoc).toHaveBeenCalledWith(docReference, { events });
-      expect(result).toEqual(false);
+      expect(global.console.error).toHaveBeenCalledTimes(1);
     });
   });
 

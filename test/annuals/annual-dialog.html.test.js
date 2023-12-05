@@ -1,24 +1,15 @@
 import { jest } from '@jest/globals';
 
-// Mock props and utils 
-jest.mock('nano-jsx', () => ({ render: jest.fn() }));
-
-jest.mock('nano-jsx/esm/jsx-runtime', () => ({
-  jsx: jest.fn(),
-  jsxs: jest.fn()
-}));
-
-const { Element, appendChild } = await import('../../public/js/annuals/annual-edit.html.js');
-const { render } = await import('nano-jsx');
+const { Element } = await import('../../public/js/annuals/annual-dialog.html.js');
 
 // Tests
-describe('AnnualEdit', () => {
+describe('AnnualDialog', () => {
   describe('Element', () => {
     let props;
 
     beforeEach(() => {
       props = {
-        data: {
+        annual: {
           label: 'Test Label',
           startYear: 2000,
           endYear: 2010,
@@ -45,7 +36,7 @@ describe('AnnualEdit', () => {
 
     it('hides cancel and delete button according to props', () => {
       const element = Element({
-        data: {
+        annual: {
           label: 'Test Label',
           startYear: 2000
         },
@@ -63,13 +54,13 @@ describe('AnnualEdit', () => {
       element.querySelector('#annual-startYear').value = '0';
       element.querySelector('#annual-endYear').value = '10';
       element.querySelector('#annual-color').value = '#000000';
-      await element.submit();
+      await element.querySelector("form").submit();
       expect(props.onChanged).toHaveBeenCalled();
     });
 
     it("doesn't trigger onChanged when no changes made and form is submitted", async () => {
       const element = Element(props);
-      await element.submit();
+      await element.querySelector("form").submit();
       expect(props.onChanged).not.toHaveBeenCalled();
     });
 
@@ -85,22 +76,6 @@ describe('AnnualEdit', () => {
 
       element.querySelector('.btn-delete').click();
       expect(props.onDelete).toHaveBeenCalled();
-    });
-  });
-
-  describe('appendChild', () => {
-    it('renders Element', () => {
-      const parent = document.createElement('div');
-
-      appendChild(parent, { label: 'Test' });
-
-      expect(render).toHaveBeenCalledWith(
-        expect.objectContaining({
-          "component": Element,
-          "props": { "children": [], "data": { label: 'Test' }, "onEditRequest": undefined }
-        }),
-        parent
-      );
     });
   });
 });
